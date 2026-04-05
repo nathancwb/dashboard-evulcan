@@ -81,23 +81,33 @@ export default async function handler(req, res) {
 
     const fields = 'spend,impressions,clicks,reach,cpc,cpm,ctr,actions,action_values';
 
-    const [summary, campaigns, daily] = await Promise.all([
+    const [summary, campaigns, daily, ads] = await Promise.all([
       gql(`${account_id}/insights?fields=${fields}&${dateParam}`, token),
       gql(`${account_id}/campaigns?fields=id,name,status,effective_status,objective&limit=50`, token),
       gql(`${account_id}/insights?fields=spend,impressions,clicks&${dateParam}&time_increment=1&limit=366`, token),
+      gql(`${account_id}/ads?fields=id,name,status,effective_status,creative{thumbnail_url,image_url}&limit=30`, token).catch(() => ({ data: [] }))
     ]);
 
     const campInsights = await Promise.all(
-      (campaigns.data || []).slice(0, 25).map(c =>
+      (campaigns.data || []).slice(0, 20).map(c =>
         gql(`${c.id}/insights?fields=spend,impressions,clicks,ctr,cpc,actions,action_values&${dateParam}`, token)
           .then(d => ({ ...c, ins: d.data?.[0] || null }))
           .catch(() => ({ ...c, ins: null }))
       )
     );
 
+    const adInsights = await Promise.all(
+      (ads.data || []).slice(0, 20).map(a =>
+        gql(`${a.id}/insights?fields=spend,impressions,clicks,ctr,cpc,actions,action_values&${dateParam}`, token)
+          .then(d => ({ ...a, ins: d.data?.[0] || null }))
+          .catch(() => ({ ...a, ins: null }))
+      )
+    );
+
     return res.json({
       summary: summary.data?.[0] || null,
       campaigns: campInsights,
+      ads: adInsights,
       daily: daily.data || [],
       account_id,
       period,
