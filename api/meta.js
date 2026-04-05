@@ -18,6 +18,7 @@ async function gql(path, token) {
 }
 
 export default async function handler(req, res) {
+  // CORS — allow any origin (dashboard can be embedded anywhere)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -27,9 +28,10 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'META_ACCESS_TOKEN not configured' });
   }
 
-  const { action, account_id, period = 'last_7d' } = req.query;
+  const { action, account_id, period = 'last_7d', since, until } = req.query;
 
   try {
+    // ── List personal ad accounts ──────────────────────────────────────────
     if (action === 'accounts') {
       const [personal, businesses] = await Promise.all([
         gql('me/adaccounts?fields=id,name,account_status,currency&limit=200', token),
@@ -39,7 +41,6 @@ export default async function handler(req, res) {
 
       const seen = new Set();
       const result = [];
-
       for (const acc of (personal.data || [])) {
         if (!seen.has(acc.id)) { seen.add(acc.id); result.push({ ...acc, group: 'Pessoal' }); }
       }
@@ -48,7 +49,6 @@ export default async function handler(req, res) {
           if (!seen.has(acc.id)) { seen.add(acc.id); result.push({ ...acc, group: biz.name }); }
         }
       }
-
       return res.json({ data: result });
     }
 
@@ -61,14 +61,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'account_id is required' });
     }
 
+    // Build date parameter for Meta API
     let dateParam;
-    if (period === 'last_year') {
-      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: '2025-01-01', until: '2025-12-31' }))}`;
+    if (period === 'custom' && since && until) {
+      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since, until }))}`;
     } else if (period === 'this_year') {
       const now = new Date();
       const year = now.getFullYear();
-      const until = now.toISOString().split('T')[0];
-      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: `${year}-01-01`, until }))}`;
+      const todayStr = now.toISOString().split('T')[0];
+      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: `${year}-01-01`, until: todayStr }))}`;
+    } else if (period === 'this_month') {
+      const now = new Date();
+      const firstDay = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+      const todayStr = now.toISOString().split('T')[0];
+      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: firstDay, until: todayStr }))}`;
     } else {
       dateParam = `date_preset=${period}`;
     }
