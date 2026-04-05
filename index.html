@@ -76,11 +76,20 @@
 
   <!-- Period pills -->
   <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px;margin-left:auto">
+    <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Hoje</button>
+    <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ontem</button>
     <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">7d</button>
     <button class="period-btn" onclick="setPeriod('last_30d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">30d</button>
-    <button class="period-btn" onclick="setPeriod('last_90d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">90d</button>
-    <button class="period-btn" onclick="setPeriod('last_year',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">2025</button>
-    <button class="period-btn" onclick="setPeriod('this_year',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">2026</button>
+    <button class="period-btn" onclick="setPeriod('this_month',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Mês</button>
+    <button class="period-btn" onclick="setPeriod('this_year',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ano</button>
+    <button class="period-btn" id="customPeriodBtn" onclick="toggleCustomPicker(this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Custom</button>
+  </div>
+  <!-- Custom date range picker (hidden by default) -->
+  <div id="customPicker" style="display:none;align-items:center;gap:8px;margin-left:8px">
+    <input type="date" id="customSince" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
+    <span style="font-size:11px;color:#333">→</span>
+    <input type="date" id="customUntil" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
+    <button onclick="applyCustomPeriod()" style="height:28px;padding:0 10px;border-radius:6px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit">Aplicar</button>
   </div>
 
   <!-- Status + Refresh -->
@@ -105,7 +114,6 @@
 
   <!-- KPI ROW -->
   <div id="kpiRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">
-    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
@@ -178,9 +186,11 @@
 </footer>
 
 <script>
-// ── SVG ICONS ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// SVG ICONS
+// ─────────────────────────────────────────────────────────────────────────────
 const IC = {
-  spend: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>">
+  spend: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
   impressions: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
   clicks: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-7 1-4 7-3-17z"/></svg>`,
   ctr: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`,
@@ -193,14 +203,19 @@ const IC = {
   chart: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
 };
 
-// ── CONFIG ─────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG
+// ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 let currentPeriod = 'last_7d';
+let customSince = '', customUntil = '';
 let lineChart, donutChart;
 
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 
-// ── HELPERS ────────────────────────────────────────────────────────────────
-const brl = v => 'R$\u00a0' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+const brl = v => 'R$ ' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const num = v => parseFloat(v||0).toLocaleString('pt-BR');
 const card = (label, value, icon, color) => `
   <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px">
@@ -221,8 +236,37 @@ async function api(params = {}) {
 
 function setPeriod(p, btn) {
   currentPeriod = p;
+  customSince = ''; customUntil = '';
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  document.getElementById('customPicker').style.display = 'none';
+  loadData();
+}
+
+function toggleCustomPicker(btn) {
+  const picker = document.getElementById('customPicker');
+  const isOpen = picker.style.display !== 'none';
+  if (isOpen) {
+    picker.style.display = 'none';
+    if (currentPeriod === 'custom') return;
+  } else {
+    picker.style.display = 'flex';
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Set defaults: last 7 days
+    const today = new Date();
+    const d7 = new Date(today); d7.setDate(today.getDate() - 6);
+    document.getElementById('customUntil').value = today.toISOString().split('T')[0];
+    document.getElementById('customSince').value = d7.toISOString().split('T')[0];
+  }
+}
+
+function applyCustomPeriod() {
+  const since = document.getElementById('customSince').value;
+  const until = document.getElementById('customUntil').value;
+  if (!since || !until) return;
+  customSince = since; customUntil = until;
+  currentPeriod = 'custom';
   loadData();
 }
 
@@ -236,7 +280,9 @@ function setConn(ok, msg) {
   document.getElementById('connStatus').style.color = ok ? '#404040' : '#ef4444';
 }
 
-// ── LOAD ACCOUNTS ──────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// LOAD ACCOUNTS
+// ─────────────────────────────────────────────────────────────────────────────
 async function loadAccounts() {
   try {
     const d = await api({ action: 'accounts' });
@@ -262,20 +308,27 @@ async function loadAccounts() {
       });
       if (multiGroup) sel.appendChild(container);
     }
-    setConn(true, 'Conectado \u00b7 ' + accounts.length + ' conta(s)');
+    setConn(true, 'Conectado '· ' + accounts.length + ' conta(s)');
   } catch(e) {
     setConn(false, e.message);
     document.getElementById('accountSelect').innerHTML = '<option value="">Erro ao carregar contas</option>';
   }
 }
 
-// ── LOAD DATA ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// LOAD DATA
+// ─────────────────────────────────────────────────────────────────────────────
 async function loadData() {
   const accountId = document.getElementById('accountSelect').value;
   if (!accountId) return;
   setLoading(true);
   try {
-    const data = await api({ account_id: accountId, period: currentPeriod });
+    const params = { account_id: accountId, period: currentPeriod };
+    if (currentPeriod === 'custom' && customSince && customUntil) {
+      params.since = customSince;
+      params.until = customUntil;
+    }
+    const data = await api(params);
     renderKPIs(data.summary);
     renderCampaigns(data.campaigns || []);
     renderChart(data.daily || []);
@@ -292,7 +345,9 @@ async function loadData() {
   }
 }
 
-// ── RENDER KPIs ────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER KPIs
+// ─────────────────────────────────────────────────────────────────────────────
 function renderKPIs(s) {
   const row = document.getElementById('kpiRow');
   if (!s) {
@@ -321,7 +376,7 @@ function renderKPIs(s) {
   if (revenue > 0) {
     const roasColor = roas >= 2 ? '#22c55e' : roas >= 1 ? '#f59e0b' : '#ef4444';
     kpis.push(card('Receita', brl(revenue), IC.revenue, '#22c55e'));
-    kpis.push(card('ROAS', roas.toFixed(2) + '\u00d7', IC.roas, roasColor));
+    kpis.push(card('ROAS', roas.toFixed(2) + '×', IC.roas, roasColor));
   }
 
   const cols = Math.min(kpis.length, 6);
@@ -329,7 +384,9 @@ function renderKPIs(s) {
   row.innerHTML = kpis.join('');
 }
 
-// ── RENDER CHART ───────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER CHART
+// ─────────────────────────────────────────────────────────────────────────────
 function renderChart(data) {
   const wrap = document.querySelector('.chart-wrap');
   if (!document.getElementById('lineChart')) wrap.innerHTML = '<canvas id="lineChart"></canvas>';
@@ -383,7 +440,9 @@ function renderChart(data) {
   });
 }
 
-// ── RENDER FUNNEL ──────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER FUNNEL
+// ─────────────────────────────────────────────────────────────────────────────
 function renderFunnel(s) {
   const el = document.getElementById('funnelWrap');
   if (!s) { el.innerHTML = '<p style="font-size:12px;color:#2a2a2a;text-align:center;padding:20px 0">Sem dados</p>'; return; }
@@ -423,7 +482,9 @@ function renderFunnel(s) {
   }).join('');
 }
 
-// ── RENDER CAMPAIGNS ───────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER CAMPAIGNS
+// ─────────────────────────────────────────────────────────────────────────────
 function renderCampaigns(campaigns) {
   const el = document.getElementById('campTable');
   const active = campaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0);
@@ -450,7 +511,7 @@ function renderCampaigns(campaigns) {
     const badgeColor = st === 'ACTIVE'  ? '#22c55e'                : st === 'PAUSED' ? '#f59e0b'                 : '#525252';
     const badgeBorder= st === 'ACTIVE'  ? 'rgba(34,197,94,0.2)'    : st === 'PAUSED' ? 'rgba(245,158,11,0.2)'   : 'rgba(82,82,82,0.2)';
     const stLabel    = st === 'ACTIVE'  ? 'Ativo'                  : st === 'PAUSED' ? 'Pausado'                 : st || '—';
-    const name = c.name.length > 45 ? c.name.substring(0,45) + '\u2026' : c.name;
+    const name = c.name.length > 45 ? c.name.substring(0,45) + '…' : c.name;
     return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)" onmouseover="this.style.background='rgba(255,255,255,0.015)'" onmouseout="this.style.background='transparent'">
       <td style="padding:12px 22px;font-size:12px;color:#a3a3a3;max-width:220px" title="${c.name}">${name}</td>
       <td style="padding:12px 16px">
@@ -481,7 +542,9 @@ function renderCampaigns(campaigns) {
   </table></div>`;
 }
 
-// ── RENDER DONUT ───────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER DONUT
+// ─────────────────────────────────────────────────────────────────────────────
 function renderDonut(campaigns) {
   const counts = {};
   const objLabel = o => ({
@@ -540,7 +603,9 @@ function showError(msg) {
     </div>`;
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
 (async () => {
   await loadAccounts();
   await loadData();
