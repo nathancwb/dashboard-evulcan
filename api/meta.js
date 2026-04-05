@@ -18,7 +18,6 @@ async function gql(path, token) {
 }
 
 export default async function handler(req, res) {
-  // CORS — allow any origin (dashboard can be embedded anywhere)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -28,10 +27,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'META_ACCESS_TOKEN not configured' });
   }
 
-  const { action, account_id, period = 'last_30d' } = req.query;
+  const { action, account_id, period = 'last_7d' } = req.query;
 
   try {
-    // ── List personal ad accounts ──────────────────────────────────────────
     if (action === 'accounts') {
       const [personal, businesses] = await Promise.all([
         gql('me/adaccounts?fields=id,name,account_status,currency&limit=200', token),
@@ -39,7 +37,6 @@ export default async function handler(req, res) {
           .catch(() => ({ data: [] })),
       ]);
 
-      // Deduplicate accounts across personal + BM
       const seen = new Set();
       const result = [];
 
@@ -55,30 +52,28 @@ export default async function handler(req, res) {
       return res.json({ data: result });
     }
 
-    // ── Token debug info ───────────────────────────────────────────────────
     if (action === 'token_info') {
       const d = await gql(`debug_token?input_token=${token}&access_token=${META_APP_ID}|${META_APP_SECRET}`, token);
       return res.json(d);
     }
 
-    // ── Insights + Campaigns for a given account ───────────────────────────
     if (!account_id) {
       return res.status(400).json({ error: 'account_id is required' });
     }
 
-    // Support custom date range (e.g. period=2025 → time_range)
     let dateParam;
     if (period === 'last_year') {
       dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: '2025-01-01', until: '2025-12-31' }))}`;
     } else if (period === 'this_year') {
-      const now = new Date().toISOString().split('T')[0];
-      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: '2026-01-01', until: now }))}`;
+      const now = new Date();
+      const year = now.getFullYear();
+      const until = now.toISOString().split('T')[0];
+      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: `${year}-01-01`, until }))}`;
     } else {
       dateParam = `date_preset=${period}`;
     }
 
     const fields = 'spend,impressions,clicks,reach,cpc,cpm,ctr,actions,action_values';
-    const campFields = `id,name,status,effective_status,objective,insights{spend,impressions,clicks,ctr,cpc,actions,action_values,${dateParam.startsWith('time_range') ? dateParam : `date_preset=${period}`}}`;
 
     const [summary, campaigns, daily] = await Promise.all([
       gql(`${account_id}/insights?fields=${fields}&${dateParam}`, token),
@@ -86,7 +81,6 @@ export default async function handler(req, res) {
       gql(`${account_id}/insights?fields=spend,impressions,clicks&${dateParam}&time_increment=1&limit=366`, token),
     ]);
 
-    // Fetch campaign insights separately (avoids nested field issues)
     const campInsights = await Promise.all(
       (campaigns.data || []).slice(0, 25).map(c =>
         gql(`${c.id}/insights?fields=spend,impressions,clicks,ctr,cpc,actions,action_values&${dateParam}`, token)
