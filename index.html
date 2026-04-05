@@ -13,8 +13,11 @@ body { background: #0e1117; color: #e0e0e0; font-family: 'Segoe UI', system-ui, 
 .meta-icon { width: 28px; height: 28px; background: linear-gradient(135deg,#0082fb,#00c2ff); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; font-size: 14px; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 select, .btn { background: #1f2a3d; border: 1px solid #2a3a52; border-radius: 6px; padding: 6px 12px; font-size: 12px; color: #c5d0e0; cursor: pointer; }
+select:focus, .btn:focus { outline: none; border-color: #0082fb; }
 .btn { color: #8a9bb5; transition: all .2s; }
+.btn:hover { background: #2a3a52; color: #fff; }
 .btn-refresh { background: #0082fb22; border-color: #0082fb55; color: #0082fb; }
+.btn-refresh:hover { background: #0082fb44; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #2ecc71; display: inline-block; margin-right: 4px; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 .last-update { font-size: 11px; color: #4a5a72; }
@@ -38,7 +41,6 @@ select, .btn { background: #1f2a3d; border: 1px solid #2a3a52; border-radius: 6p
 .skeleton { background: linear-gradient(90deg, #1a2232 25%, #222d3f 50%, #1a2232 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; height: 24px; width: 80%; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 .grid-row { display: grid; gap: 12px; margin-bottom: 12px; }
-.g-2 { grid-template-columns: 1fr 1fr; }
 .g-2-1 { grid-template-columns: 2fr 1fr; }
 .card { background: #161b27; border: 1px solid #1f2a3d; border-radius: 10px; padding: 16px; }
 .card-title { font-size: 11px; font-weight: 600; color: #6b7fa3; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
@@ -49,19 +51,13 @@ select, .btn { background: #1f2a3d; border: 1px solid #2a3a52; border-radius: 6p
 .funnel-bar-wrap { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .funnel-bar { height: 30px; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 700; color: #fff; transition: width .6s ease; }
 .funnel-meta { display: flex; justify-content: space-between; font-size: 10px; color: #6b7fa3; }
-.f1 { background: linear-gradient(90deg,#0082fb,#005bbf); }
-.f2 { background: linear-gradient(90deg,#00c2ff,#0082fb); }
-.f3 { background: linear-gradient(90deg,#8b5cf6,#6d3fe0); }
-.f4 { background: linear-gradient(90deg,#f59e0b,#d97706); }
-.f5 { background: linear-gradient(90deg,#10b981,#059669); }
+.f1{background:linear-gradient(90deg,#0082fb,#005bbf)}.f2{background:linear-gradient(90deg,#00c2ff,#0082fb)}.f3{background:linear-gradient(90deg,#8b5cf6,#6d3fe0)}.f4{background:linear-gradient(90deg,#f59e0b,#d97706)}.f5{background:linear-gradient(90deg,#10b981,#059669)}
 table { width: 100%; border-collapse: collapse; font-size: 11px; }
 th { text-align: left; padding: 7px 10px; color: #6b7fa3; font-weight: 600; text-transform: uppercase; font-size: 10px; border-bottom: 1px solid #1f2a3d; }
 td { padding: 8px 10px; border-bottom: 1px solid #141920; color: #c5d0e0; }
 tr:hover td { background: #1a2232; }
 .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
-.badge-active { background: rgba(46,204,113,.15); color: #2ecc71; }
-.badge-paused { background: rgba(245,158,11,.15); color: #f59e0b; }
-.badge-inactive { background: rgba(107,127,163,.15); color: #6b7fa3; }
+.badge-active{background:rgba(46,204,113,.15);color:#2ecc71}.badge-paused{background:rgba(245,158,11,.15);color:#f59e0b}.badge-inactive{background:rgba(107,127,163,.15);color:#6b7fa3}
 .legend { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
 .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #8a9bb5; }
 .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-right: 6px; }
@@ -71,7 +67,7 @@ tr:hover td { background: #1a2232; }
 .empty small { font-size: 11px; }
 .footer { background: #161b27; border-top: 1px solid #1f2a3d; padding: 8px 24px; font-size: 11px; color: #4a5a72; display: flex; gap: 16px; }
 .footer span { color: #6b7fa3; }
-@media(max-width:800px) { .g-2,.g-2-1 { grid-template-columns: 1fr; } }
+@media(max-width:800px) { .g-2-1 { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -89,10 +85,10 @@ tr:hover td { background: #1a2232; }
     <select id="accountSelect" onchange="loadData()"><option value="">Carregando contas...</option></select>
     <label>Período</label>
     <div class="period-btns">
-      <button class="period-btn" onclick="setPeriod('last_7d',this)">7d</button>
+      <button class="period-btn active" onclick="setPeriod('last_7d',this)">7d</button>
       <button class="period-btn" onclick="setPeriod('last_30d',this)">30d</button>
       <button class="period-btn" onclick="setPeriod('last_90d',this)">90d</button>
-      <button class="period-btn active" onclick="setPeriod('last_year',this)">2025</button>
+      <button class="period-btn" onclick="setPeriod('last_year',this)">2025</button>
       <button class="period-btn" onclick="setPeriod('this_year',this)">2026</button>
     </div>
   </div>
@@ -111,13 +107,13 @@ tr:hover td { background: #1a2232; }
     </div>
     <div class="card">
       <div class="card-title">Funil de Tráfego</div>
-      <div class="funnel" id="funnelWrap"><div class="empty"><div class="skeleton" style="height:18px;margin-bottom:8px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;width:80%"></div><div class="skeleton" style="height:18px;width:60%"></div></div></div>
+      <div class="funnel" id="funnelWrap"><div class="empty"><div class="skeleton" style="height:18px;margin-bottom:8px"></div></div></div>
     </div>
   </div>
   <div class="grid-row g-2-1">
     <div class="card">
       <div class="card-title">Campanhas <span id="campCount"></span></div>
-      <div id="campTable"><div class="empty"><div class="skeleton" style="height:14px;margin-bottom:8px"></div><div class="skeleton" style="height:14px;margin-bottom:8px;width:80%"></div><div class="skeleton" style="height:14px;width:60%"></div></div></div>
+      <div id="campTable"><div class="empty"><div class="skeleton" style="height:14px;margin-bottom:8px"></div></div></div>
     </div>
     <div class="card">
       <div class="card-title">Por Objetivo</div>
@@ -128,25 +124,18 @@ tr:hover td { background: #1a2232; }
 </div>
 <div class="footer"><span>Dashboard Evulcan</span> · App: Consulta Métricas e Saldo · <span id="footerTs">—</span></div>
 <script>
-let currentPeriod = 'last_year';
-let lineChart, donutChart;
-const brl = v => 'R$ ' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const num = v => parseFloat(v||0).toLocaleString('pt-BR');
-async function api(params={}) {
-  const qs = new URLSearchParams(params).toString();
-  const r = await fetch('/api/meta'+(qs?'?'+qs:''));
-  const d = await r.json();
-  if(d.error) throw new Error(d.error);
-  return d;
-}
+let currentPeriod='last_7d';
+let lineChart,donutChart;
+const brl=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const num=v=>parseFloat(v||0).toLocaleString('pt-BR');
+async function api(params={}){const qs=new URLSearchParams(params).toString();const r=await fetch('/api/meta'+(qs?'?'+qs:''));const d=await r.json();if(d.error)throw new Error(d.error);return d;}
 function setPeriod(p,btn){currentPeriod=p;document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');loadData();}
 function setLoading(on){document.getElementById('loadingBar').className='loading-bar'+(on?' active':'');}
 function setConn(ok,msg){document.getElementById('connDot').style.background=ok?'#2ecc71':'#e74c3c';document.getElementById('connStatus').textContent=msg;}
 async function loadAccounts(){
   try{
     const d=await api({action:'accounts'});
-    const sel=document.getElementById('accountSelect');
-    sel.innerHTML='';
+    const sel=document.getElementById('accountSelect');sel.innerHTML='';
     const accounts=d.data||[];
     if(!accounts.length){sel.innerHTML='<option value="">Nenhuma conta encontrada</option>';return;}
     const groups={};
@@ -154,7 +143,7 @@ async function loadAccounts(){
     const multiGroup=Object.keys(groups).length>1;
     for(const[grpName,accs]of Object.entries(groups)){
       const container=multiGroup?document.createElement('optgroup'):sel;
-      if(multiGroup){container.label=grpName;}
+      if(multiGroup)container.label=grpName;
       accs.forEach(acc=>{const opt=document.createElement('option');opt.value=acc.id;opt.textContent=acc.name+' ('+acc.id+')';container.appendChild(opt);});
       if(multiGroup)sel.appendChild(container);
     }
@@ -167,11 +156,7 @@ async function loadData(){
   setLoading(true);
   try{
     const data=await api({account_id:accountId,period:currentPeriod});
-    renderKPIs(data.summary);
-    renderCampaigns(data.campaigns||[]);
-    renderChart(data.daily||[]);
-    renderFunnel(data.summary);
-    renderDonut(data.campaigns||[]);
+    renderKPIs(data.summary);renderCampaigns(data.campaigns||[]);renderChart(data.daily||[]);renderFunnel(data.summary);renderDonut(data.campaigns||[]);
     document.getElementById('footerTs').textContent='Atualizado: '+new Date().toLocaleString('pt-BR');
     setConn(true,'Conectado · '+(document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim()||accountId));
   }catch(e){setConn(false,'Erro: '+e.message);showError(e.message);}
@@ -179,7 +164,7 @@ async function loadData(){
 }
 function renderKPIs(s){
   const row=document.getElementById('kpiRow');
-  if(!s){row.innerHTML='<div class="kpi-card"><div class="kpi-label">Investimento</div><div class="kpi-value">R$ 0,00</div></div><div class="kpi-card"><div class="kpi-label">Impressões</div><div class="kpi-value">0</div></div><div class="kpi-card"><div class="kpi-label">Cliques</div><div class="kpi-value">0</div></div><div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">0,00%</div></div><div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">R$ 0,00</div></div><div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value">R$ 0,00</div></div>';return;}
+  if(!s){row.innerHTML='<div class="kpi-card"><div class="kpi-label">Investimento</div><div class="kpi-value">R$ 0,00</div><div class="kpi-sub">Sem dados no período</div></div><div class="kpi-card"><div class="kpi-label">Impressões</div><div class="kpi-value">0</div></div><div class="kpi-card"><div class="kpi-label">Cliques</div><div class="kpi-value">0</div></div><div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">0,00%</div></div><div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">R$ 0,00</div></div><div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value">R$ 0,00</div></div>';return;}
   const purchaseVal=(s.action_values||[]).find(a=>a.action_type==='purchase');
   const revenue=purchaseVal?parseFloat(purchaseVal.value):0;
   const spend=parseFloat(s.spend||0);
@@ -188,13 +173,10 @@ function renderKPIs(s){
 }
 function renderChart(data){
   const wrap=document.querySelector('.chart-wrap');
-  if(!document.getElementById('lineChart')){wrap.innerHTML='<canvas id="lineChart"></canvas>';}
+  if(!document.getElementById('lineChart'))wrap.innerHTML='<canvas id="lineChart"></canvas>';
   if(lineChart){lineChart.destroy();lineChart=null;}
-  if(!data.length){
-    wrap.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>Sem dados para o período</p><small>Tente outro período ou conta</small></div>';
-    return;
-  }
-  if(!document.getElementById('lineChart')){wrap.innerHTML='<canvas id="lineChart"></canvas>';}
+  if(!data.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>Sem dados para o período</p><small>Tente outro período ou conta</small></div>';return;}
+  if(!document.getElementById('lineChart'))wrap.innerHTML='<canvas id="lineChart"></canvas>';
   const ctx=document.getElementById('lineChart').getContext('2d');
   const labels=data.map(d=>{const[y,m,day]=d.date_start.split('-');return day+'/'+m;});
   const spend=data.map(d=>parseFloat(d.spend||0));
@@ -204,9 +186,7 @@ function renderChart(data){
 function renderFunnel(s){
   const el=document.getElementById('funnelWrap');
   if(!s){el.innerHTML='<div class="empty"><div class="empty-icon">—</div><p>Sem dados</p></div>';return;}
-  const reach=parseInt(s.reach||0);
-  const impressions=parseInt(s.impressions||0);
-  const clicks=parseInt(s.clicks||0);
+  const reach=parseInt(s.reach||0),impressions=parseInt(s.impressions||0),clicks=parseInt(s.clicks||0);
   const lp=(s.actions||[]).find(a=>a.action_type==='link_click');
   const pageViews=lp?parseInt(lp.value):Math.round(clicks*0.85);
   const purchases=(s.actions||[]).find(a=>a.action_type==='purchase');
@@ -218,18 +198,18 @@ function renderFunnel(s){
 }
 function renderCampaigns(campaigns){
   const el=document.getElementById('campTable');
-  document.getElementById('campCount').textContent=campaigns.length+' campanhas';
-  if(!campaigns.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma campanha encontrada</p></div>';return;}
+  document.getElementById('campCount').textContent=campaigns.length+' total';
+  const active=campaigns.filter(c=>c.ins&&parseInt(c.ins.impressions||0)>0);
+  if(!active.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma campanha com atividade no período</p><small>Tente um período mais longo</small></div>';return;}
   const objLabel=o=>({OUTCOME_TRAFFIC:'Tráfego',OUTCOME_AWARENESS:'Alcance',OUTCOME_SALES:'Vendas',OUTCOME_LEADS:'Leads',OUTCOME_ENGAGEMENT:'Engajamento',OUTCOME_APP_PROMOTION:'App'}[o]||o||'—');
-  const rows=campaigns.map(c=>{const ins=c.ins||null;const spend=ins?brl(ins.spend):'—';const clicks=ins?num(ins.clicks):'—';const ctr=ins?parseFloat(ins.ctr||0).toFixed(2)+'%':'—';const cpc=ins?brl(ins.cpc):'—';const st=c.effective_status;const badge=st==='ACTIVE'?'badge-active':st==='PAUSED'?'badge-paused':'badge-inactive';const stLabel=st==='ACTIVE'?'Ativo':st==='PAUSED'?'Pausado':st||'—';return'<tr><td title="'+c.name+'">'+(c.name.length>40?c.name.substring(0,40)+'…':c.name)+'</td><td><span class="badge '+badge+'">'+stLabel+'</span></td><td>'+objLabel(c.objective)+'</td><td>'+spend+'</td><td>'+clicks+'</td><td>'+ctr+'</td><td>'+cpc+'</td></tr>';}).join('');
+  const rows=active.map(c=>{const ins=c.ins;const st=c.effective_status;const badge=st==='ACTIVE'?'badge-active':st==='PAUSED'?'badge-paused':'badge-inactive';const stLabel=st==='ACTIVE'?'Ativo':st==='PAUSED'?'Pausado':st||'—';return'<tr><td title="'+c.name+'">'+(c.name.length>40?c.name.substring(0,40)+'…':c.name)+'</td><td><span class="badge '+badge+'">'+stLabel+'</span></td><td>'+objLabel(c.objective)+'</td><td>'+brl(ins.spend)+'</td><td>'+num(ins.clicks)+'</td><td>'+parseFloat(ins.ctr||0).toFixed(2)+'%</td><td>'+brl(ins.cpc)+'</td></tr>';}).join('');
   el.innerHTML='<table><thead><tr><th>Campanha</th><th>Status</th><th>Objetivo</th><th>Investido</th><th>Cliques</th><th>CTR</th><th>CPC</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 function renderDonut(campaigns){
   const counts={};
   const objLabel=o=>({OUTCOME_TRAFFIC:'Tráfego',OUTCOME_AWARENESS:'Alcance',OUTCOME_SALES:'Vendas',OUTCOME_LEADS:'Leads',OUTCOME_ENGAGEMENT:'Engajamento'}[o]||o||'Outro');
-  campaigns.forEach(c=>{const lbl=objLabel(c.objective);counts[lbl]=(counts[lbl]||0)+1;});
-  const labels=Object.keys(counts);
-  const vals=Object.values(counts);
+  campaigns.filter(c=>c.ins&&parseInt(c.ins.impressions||0)>0).forEach(c=>{const lbl=objLabel(c.objective);counts[lbl]=(counts[lbl]||0)+1;});
+  const labels=Object.keys(counts),vals=Object.values(counts);
   const total=vals.reduce((a,b)=>a+b,0);
   const colors=['#0082fb','#10b981','#8b5cf6','#f59e0b','#e74c3c','#06b6d4'];
   const ctx=document.getElementById('donutChart').getContext('2d');
