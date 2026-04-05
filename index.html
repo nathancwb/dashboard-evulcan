@@ -8,39 +8,26 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #0e1117; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; }
-
-/* HEADER */
 .header { background: #161b27; border-bottom: 1px solid #1f2a3d; padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: #fff; }
 .meta-icon { width: 28px; height: 28px; background: linear-gradient(135deg,#0082fb,#00c2ff); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; font-size: 14px; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 select, .btn { background: #1f2a3d; border: 1px solid #2a3a52; border-radius: 6px; padding: 6px 12px; font-size: 12px; color: #c5d0e0; cursor: pointer; }
-select:focus, .btn:focus { outline: none; border-color: #0082fb; }
 .btn { color: #8a9bb5; transition: all .2s; }
-.btn:hover { background: #2a3a52; color: #fff; }
 .btn-refresh { background: #0082fb22; border-color: #0082fb55; color: #0082fb; }
-.btn-refresh:hover { background: #0082fb44; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #2ecc71; display: inline-block; margin-right: 4px; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 .last-update { font-size: 11px; color: #4a5a72; }
-
-/* LOADING */
 .loading-bar { height: 2px; background: #1f2a3d; position: relative; overflow: hidden; }
 .loading-bar.active::after { content:''; position: absolute; left:-40%; width:40%; height:100%; background: linear-gradient(90deg,transparent,#0082fb,transparent); animation: slide 1s infinite; }
 @keyframes slide { to { left: 100%; } }
-
-/* MAIN */
 .main { padding: 20px 24px; }
-
-/* ACCOUNT SELECTOR */
 .account-bar { background: #161b27; border: 1px solid #1f2a3d; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .account-bar label { font-size: 11px; color: #6b7fa3; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
 .account-bar select { flex: 1; min-width: 200px; font-size: 13px; padding: 7px 12px; }
 .period-btns { display: flex; gap: 4px; }
 .period-btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; background: #1a2232; border: 1px solid #2a3a52; color: #8a9bb5; transition: all .2s; }
 .period-btn.active { background: #0082fb; border-color: #0082fb; color: #fff; }
-
-/* KPI */
 .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .kpi-card { background: #161b27; border: 1px solid #1f2a3d; border-radius: 10px; padding: 14px 16px; }
 .kpi-label { font-size: 10px; color: #6b7fa3; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
@@ -50,19 +37,13 @@ select:focus, .btn:focus { outline: none; border-color: #0082fb; }
 .kpi-sub { font-size: 11px; color: #6b7fa3; margin-top: 4px; }
 .skeleton { background: linear-gradient(90deg, #1a2232 25%, #222d3f 50%, #1a2232 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; height: 24px; width: 80%; }
 @keyframes shimmer { to { background-position: -200% 0; } }
-
-/* GRID */
 .grid-row { display: grid; gap: 12px; margin-bottom: 12px; }
 .g-2 { grid-template-columns: 1fr 1fr; }
-.g-3 { grid-template-columns: 1fr 1fr 1fr; }
 .g-2-1 { grid-template-columns: 2fr 1fr; }
-
 .card { background: #161b27; border: 1px solid #1f2a3d; border-radius: 10px; padding: 16px; }
 .card-title { font-size: 11px; font-weight: 600; color: #6b7fa3; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
 .card-title span { color: #c5d0e0; font-size: 13px; text-transform: none; letter-spacing: 0; font-weight: 400; }
 .chart-wrap { position: relative; height: 180px; }
-
-/* FUNNEL */
 .funnel { display: flex; flex-direction: column; gap: 6px; }
 .funnel-step { display: flex; align-items: center; gap: 10px; }
 .funnel-bar-wrap { flex: 1; display: flex; flex-direction: column; gap: 2px; }
@@ -73,8 +54,6 @@ select:focus, .btn:focus { outline: none; border-color: #0082fb; }
 .f3 { background: linear-gradient(90deg,#8b5cf6,#6d3fe0); }
 .f4 { background: linear-gradient(90deg,#f59e0b,#d97706); }
 .f5 { background: linear-gradient(90deg,#10b981,#059669); }
-
-/* TABLE */
 table { width: 100%; border-collapse: collapse; font-size: 11px; }
 th { text-align: left; padding: 7px 10px; color: #6b7fa3; font-weight: 600; text-transform: uppercase; font-size: 10px; border-bottom: 1px solid #1f2a3d; }
 td { padding: 8px 10px; border-bottom: 1px solid #141920; color: #c5d0e0; }
@@ -83,65 +62,40 @@ tr:hover td { background: #1a2232; }
 .badge-active { background: rgba(46,204,113,.15); color: #2ecc71; }
 .badge-paused { background: rgba(245,158,11,.15); color: #f59e0b; }
 .badge-inactive { background: rgba(107,127,163,.15); color: #6b7fa3; }
-.roas-good { color: #2ecc71; font-weight: 700; }
-.roas-ok { color: #f59e0b; font-weight: 700; }
-.roas-bad { color: #e74c3c; font-weight: 700; }
-
-/* DONUT LEGEND */
 .legend { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
 .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #8a9bb5; }
 .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-right: 6px; }
-
-/* EMPTY STATE */
 .empty { text-align: center; padding: 40px 20px; color: #4a5a72; }
 .empty-icon { font-size: 32px; margin-bottom: 10px; }
 .empty p { font-size: 13px; margin-bottom: 6px; }
 .empty small { font-size: 11px; }
-
-/* FOOTER */
 .footer { background: #161b27; border-top: 1px solid #1f2a3d; padding: 8px 24px; font-size: 11px; color: #4a5a72; display: flex; gap: 16px; }
 .footer span { color: #6b7fa3; }
-
-/* RESPONSIVE */
-@media(max-width:800px) { .g-2,.g-3,.g-2-1 { grid-template-columns: 1fr; } }
+@media(max-width:800px) { .g-2,.g-2-1 { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-
-<!-- LOADING BAR -->
 <div class="loading-bar active" id="loadingBar"></div>
-
-<!-- HEADER -->
 <div class="header">
-  <div class="logo">
-    <div class="meta-icon">M</div>
-    Meta Ads Dashboard
-    <span style="color:#4a5a72;font-size:12px;font-weight:400">· Evulcan</span>
-  </div>
+  <div class="logo"><div class="meta-icon">M</div>Meta Ads Dashboard<span style="color:#4a5a72;font-size:12px;font-weight:400">· Evulcan</span></div>
   <div class="header-right">
     <span class="last-update"><span class="status-dot" id="connDot" style="background:#f59e0b"></span><span id="connStatus">Conectando...</span></span>
     <button class="btn btn-refresh" onclick="loadData()">↻ Atualizar</button>
   </div>
 </div>
-
 <div class="main">
-
-  <!-- ACCOUNT / PERIOD BAR -->
   <div class="account-bar">
     <label>Conta de Anúncios</label>
-    <select id="accountSelect" onchange="loadData()">
-      <option value="">Carregando contas...</option>
-    </select>
+    <select id="accountSelect" onchange="loadData()"><option value="">Carregando contas...</option></select>
     <label>Período</label>
     <div class="period-btns">
       <button class="period-btn" onclick="setPeriod('last_7d',this)">7d</button>
       <button class="period-btn" onclick="setPeriod('last_30d',this)">30d</button>
       <button class="period-btn" onclick="setPeriod('last_90d',this)">90d</button>
-      <button class="period-btn active" onclick="setPeriod('last_year',this)">2025</button><button class="period-btn" onclick="setPeriod('this_year',this)">2026</button>
+      <button class="period-btn active" onclick="setPeriod('last_year',this)">2025</button>
+      <button class="period-btn" onclick="setPeriod('this_year',this)">2026</button>
     </div>
   </div>
-
-  <!-- KPI ROW -->
   <div class="kpi-row" id="kpiRow">
     <div class="kpi-card"><div class="kpi-label">Investimento</div><div class="skeleton"></div></div>
     <div class="kpi-card"><div class="kpi-label">Impressões</div><div class="skeleton"></div></div>
@@ -150,8 +104,6 @@ tr:hover td { background: #1a2232; }
     <div class="kpi-card"><div class="kpi-label">CPC</div><div class="skeleton"></div></div>
     <div class="kpi-card"><div class="kpi-label">CPM</div><div class="skeleton"></div></div>
   </div>
-
-  <!-- ROW 2: CHART + FUNNEL -->
   <div class="grid-row g-2-1">
     <div class="card">
       <div class="card-title">Investimento por Dia <span id="chartPeriodLabel"></span></div>
@@ -159,13 +111,9 @@ tr:hover td { background: #1a2232; }
     </div>
     <div class="card">
       <div class="card-title">Funil de Tráfego</div>
-      <div class="funnel" id="funnelWrap">
-        <div class="empty"><div class="skeleton" style="height:18px;margin-bottom:8px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;width:80%"></div><div class="skeleton" style="height:18px;width:60%"></div></div>
-      </div>
+      <div class="funnel" id="funnelWrap"><div class="empty"><div class="skeleton" style="height:18px;margin-bottom:8px"></div><div class="skeleton" style="height:18px;margin-bottom:8px;width:80%"></div><div class="skeleton" style="height:18px;width:60%"></div></div></div>
     </div>
   </div>
-
-  <!-- ROW 3: TABLE + DONUT -->
   <div class="grid-row g-2-1">
     <div class="card">
       <div class="card-title">Campanhas <span id="campCount"></span></div>
@@ -177,318 +125,121 @@ tr:hover td { background: #1a2232; }
       <div class="legend" id="donutLegend"></div>
     </div>
   </div>
-
 </div>
-
-<div class="footer">
-  <span>Dashboard Evulcan</span> · App: Consulta Métricas e Saldo ·
-  <span id="footerTs">—</span>
-</div>
-
+<div class="footer"><span>Dashboard Evulcan</span> · App: Consulta Métricas e Saldo · <span id="footerTs">—</span></div>
 <script>
-// ─── CONFIG ────────────────────────────────────────────────────────────────
-// Token is stored server-side in Vercel env vars — never exposed here
 let currentPeriod = 'last_year';
 let lineChart, donutChart;
-
-// ─── HELPERS ───────────────────────────────────────────────────────────────
 const brl = v => 'R$ ' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const num = v => parseFloat(v||0).toLocaleString('pt-BR');
-
-// Call our backend proxy at /api/meta
-async function api(params = {}) {
+async function api(params={}) {
   const qs = new URLSearchParams(params).toString();
-  const r = await fetch('/api/meta' + (qs ? '?' + qs : ''));
+  const r = await fetch('/api/meta'+(qs?'?'+qs:''));
   const d = await r.json();
-  if (d.error) throw new Error(d.error);
+  if(d.error) throw new Error(d.error);
   return d;
 }
-
-function setPeriod(p, btn) {
-  currentPeriod = p;
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  loadData();
-}
-
-function setLoading(on) {
-  document.getElementById('loadingBar').className = 'loading-bar' + (on ? ' active' : '');
-}
-
-function setConn(ok, msg) {
-  document.getElementById('connDot').style.background = ok ? '#2ecc71' : '#e74c3c';
-  document.getElementById('connStatus').textContent = msg;
-}
-
-// ─── LOAD ACCOUNTS ─────────────────────────────────────────────────────────
-async function loadAccounts() {
-  try {
-    const d = await api({ action: 'accounts' });
-    const sel = document.getElementById('accountSelect');
-    sel.innerHTML = '';
-
-    const accounts = d.data || [];
-    if (!accounts.length) {
-      sel.innerHTML = '<option value="">Nenhuma conta encontrada</option>';
-      return;
+function setPeriod(p,btn){currentPeriod=p;document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');loadData();}
+function setLoading(on){document.getElementById('loadingBar').className='loading-bar'+(on?' active':'');}
+function setConn(ok,msg){document.getElementById('connDot').style.background=ok?'#2ecc71':'#e74c3c';document.getElementById('connStatus').textContent=msg;}
+async function loadAccounts(){
+  try{
+    const d=await api({action:'accounts'});
+    const sel=document.getElementById('accountSelect');
+    sel.innerHTML='';
+    const accounts=d.data||[];
+    if(!accounts.length){sel.innerHTML='<option value="">Nenhuma conta encontrada</option>';return;}
+    const groups={};
+    for(const acc of accounts){const g=acc.group||'Pessoal';if(!groups[g])groups[g]=[];groups[g].push(acc);}
+    const multiGroup=Object.keys(groups).length>1;
+    for(const[grpName,accs]of Object.entries(groups)){
+      const container=multiGroup?document.createElement('optgroup'):sel;
+      if(multiGroup){container.label=grpName;}
+      accs.forEach(acc=>{const opt=document.createElement('option');opt.value=acc.id;opt.textContent=acc.name+' ('+acc.id+')';container.appendChild(opt);});
+      if(multiGroup)sel.appendChild(container);
     }
-
-    // Group by .group field (Pessoal vs BM name)
-    const groups = {};
-    for (const acc of accounts) {
-      const g = acc.group || 'Pessoal';
-      if (!groups[g]) groups[g] = [];
-      groups[g].push(acc);
-    }
-
-    const multiGroup = Object.keys(groups).length > 1;
-    for (const [grpName, accs] of Object.entries(groups)) {
-      const container = multiGroup ? document.createElement('optgroup') : sel;
-      if (multiGroup) { container.label = grpName; }
-      accs.forEach(acc => {
-        const opt = document.createElement('option');
-        opt.value = acc.id;
-        opt.textContent = acc.name + ' (' + acc.id + ')';
-        container.appendChild(opt);
-      });
-      if (multiGroup) sel.appendChild(container);
-    }
-
-    setConn(true, `Conectado · ${accounts.length} conta(s)`);
-  } catch(e) {
-    setConn(false, 'Erro: ' + e.message);
-    document.getElementById('accountSelect').innerHTML = '<option value="">Erro ao carregar contas</option>';
-  }
+    setConn(true,'Conectado · '+accounts.length+' conta(s)');
+  }catch(e){setConn(false,'Erro: '+e.message);document.getElementById('accountSelect').innerHTML='<option value="">Erro ao carregar contas</option>';}
 }
-
-// ─── LOAD DATA ─────────────────────────────────────────────────────────────
-async function loadData() {
-  const accountId = document.getElementById('accountSelect').value;
-  if (!accountId) return;
+async function loadData(){
+  const accountId=document.getElementById('accountSelect').value;
+  if(!accountId)return;
   setLoading(true);
-
-  try {
-    const data = await api({ account_id: accountId, period: currentPeriod });
-
+  try{
+    const data=await api({account_id:accountId,period:currentPeriod});
     renderKPIs(data.summary);
-    renderCampaigns(data.campaigns || []);
-    renderChart(data.daily || []);
+    renderCampaigns(data.campaigns||[]);
+    renderChart(data.daily||[]);
     renderFunnel(data.summary);
-    renderDonut(data.campaigns || []);
-
-    document.getElementById('footerTs').textContent = 'Atualizado: ' + new Date().toLocaleString('pt-BR');
-    setConn(true, `Conectado · ${document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim() || accountId}`);
-  } catch(e) {
-    setConn(false, 'Erro: ' + e.message);
-    showError(e.message);
-  } finally {
-    setLoading(false);
-  }
+    renderDonut(data.campaigns||[]);
+    document.getElementById('footerTs').textContent='Atualizado: '+new Date().toLocaleString('pt-BR');
+    setConn(true,'Conectado · '+(document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim()||accountId));
+  }catch(e){setConn(false,'Erro: '+e.message);showError(e.message);}
+  finally{setLoading(false);}
 }
-
-// ─── RENDER KPIs ───────────────────────────────────────────────────────────
-function renderKPIs(s) {
-  const row = document.getElementById('kpiRow');
-  if (!s) {
-    row.innerHTML = `
-      <div class="kpi-card"><div class="kpi-label">Investimento</div><div class="kpi-value">R$ 0,00</div><div class="kpi-sub">Sem dados no período</div></div>
-      <div class="kpi-card"><div class="kpi-label">Impressões</div><div class="kpi-value">0</div></div>
-      <div class="kpi-card"><div class="kpi-label">Cliques</div><div class="kpi-value">0</div></div>
-      <div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">0,00%</div></div>
-      <div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">R$ 0,00</div></div>
-      <div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value">R$ 0,00</div></div>`;
+function renderKPIs(s){
+  const row=document.getElementById('kpiRow');
+  if(!s){row.innerHTML='<div class="kpi-card"><div class="kpi-label">Investimento</div><div class="kpi-value">R$ 0,00</div></div><div class="kpi-card"><div class="kpi-label">Impressões</div><div class="kpi-value">0</div></div><div class="kpi-card"><div class="kpi-label">Cliques</div><div class="kpi-value">0</div></div><div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">0,00%</div></div><div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">R$ 0,00</div></div><div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value">R$ 0,00</div></div>';return;}
+  const purchaseVal=(s.action_values||[]).find(a=>a.action_type==='purchase');
+  const revenue=purchaseVal?parseFloat(purchaseVal.value):0;
+  const spend=parseFloat(s.spend||0);
+  const roas=spend>0?(revenue/spend).toFixed(2):'—';
+  row.innerHTML='<div class="kpi-card"><div class="kpi-label">Investimento</div><div class="kpi-value">'+brl(s.spend)+'</div></div><div class="kpi-card"><div class="kpi-label">Impressões</div><div class="kpi-value blue">'+num(s.impressions)+'</div></div><div class="kpi-card"><div class="kpi-label">Cliques</div><div class="kpi-value">'+num(s.clicks)+'</div></div><div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">'+parseFloat(s.ctr||0).toFixed(2)+'%</div></div><div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">'+brl(s.cpc)+'</div></div><div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value">'+brl(s.cpm)+'</div></div>'+(revenue>0?'<div class="kpi-card"><div class="kpi-label">Receita</div><div class="kpi-value green">'+brl(revenue)+'</div></div><div class="kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value '+(parseFloat(roas)>=2?'green':parseFloat(roas)>=1?'':'roas-bad')+'">'+roas+'×</div></div>':'');
+}
+function renderChart(data){
+  const wrap=document.querySelector('.chart-wrap');
+  if(!document.getElementById('lineChart')){wrap.innerHTML='<canvas id="lineChart"></canvas>';}
+  if(lineChart){lineChart.destroy();lineChart=null;}
+  if(!data.length){
+    wrap.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>Sem dados para o período</p><small>Tente outro período ou conta</small></div>';
     return;
   }
-
-  // Find purchase value from action_values
-  const purchaseVal = (s.action_values||[]).find(a => a.action_type === 'purchase');
-  const revenue = purchaseVal ? parseFloat(purchaseVal.value) : 0;
-  const spend = parseFloat(s.spend||0);
-  const roas = spend > 0 ? (revenue / spend).toFixed(2) : '—';
-
-  row.innerHTML = `
-    <div class="kpi-card"><div class="kpi-label">Investimento</div><div class="kpi-value">${brl(s.spend)}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Impressões</div><div class="kpi-value blue">${num(s.impressions)}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Cliques</div><div class="kpi-value">${num(s.clicks)}</div></div>
-    <div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">${parseFloat(s.ctr||0).toFixed(2)}%</div></div>
-    <div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value">${brl(s.cpc)}</div></div>
-    <div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value">${brl(s.cpm)}</div></div>
-    ${revenue > 0 ? `<div class="kpi-card"><div class="kpi-label">Receita</div><div class="kpi-value green">${brl(revenue)}</div></div><div class="kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value ${parseFloat(roas)>=2?'green':parseFloat(roas)>=1?'':'roas-bad'}">${roas}×</div></div>` : ''}`;
+  if(!document.getElementById('lineChart')){wrap.innerHTML='<canvas id="lineChart"></canvas>';}
+  const ctx=document.getElementById('lineChart').getContext('2d');
+  const labels=data.map(d=>{const[y,m,day]=d.date_start.split('-');return day+'/'+m;});
+  const spend=data.map(d=>parseFloat(d.spend||0));
+  const clicks=data.map(d=>parseInt(d.clicks||0));
+  lineChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Investimento (R$)',data:spend,borderColor:'#0082fb',backgroundColor:'rgba(0,130,251,.08)',borderWidth:2,pointRadius:0,fill:true,tension:0.4,yAxisID:'y'},{label:'Cliques',data:clicks,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.08)',borderWidth:2,pointRadius:0,fill:true,tension:0.4,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8a9bb5',font:{size:11},boxWidth:12}},tooltip:{backgroundColor:'#1f2a3d',titleColor:'#fff',bodyColor:'#8a9bb5',callbacks:{label:ctx=>ctx.datasetIndex===0?' R$ '+ctx.raw.toLocaleString('pt-BR',{minimumFractionDigits:2}):''+ctx.raw.toLocaleString('pt-BR')+' cliques'}}},scales:{x:{ticks:{color:'#4a5a72',maxTicksLimit:10,font:{size:10}},grid:{color:'#1a2232'}},y:{ticks:{color:'#4a5a72',font:{size:10},callback:v=>'R$'+v.toLocaleString('pt-BR')},grid:{color:'#1a2232'},position:'left'},y1:{ticks:{color:'#10b981',font:{size:10}},grid:{display:false},position:'right'}}}});
 }
-
-// ─── RENDER CHART ───────────────────────────────────────────────────────────
-function renderChart(data) {
-  const ctx = document.getElementById('lineChart').getContext('2d');
-  if (lineChart) lineChart.destroy();
-
-  if (!data.length) {
-    ctx.canvas.parentElement.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><p>Sem dados para o período</p><small>Tente outro período ou conta</small></div>';
-    return;
-  }
-
-  const labels = data.map(d => {
-    const [y,m,day] = d.date_start.split('-');
-    return `${day}/${m}`;
-  });
-  const spend = data.map(d => parseFloat(d.spend||0));
-  const clicks = data.map(d => parseInt(d.clicks||0));
-
-  lineChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Investimento (R$)', data: spend, borderColor: '#0082fb', backgroundColor: 'rgba(0,130,251,.08)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y' },
-        { label: 'Cliques', data: clicks, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,.08)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y1' }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: '#8a9bb5', font: { size: 11 }, boxWidth: 12 } },
-        tooltip: {
-          backgroundColor: '#1f2a3d', titleColor: '#fff', bodyColor: '#8a9bb5',
-          callbacks: {
-            label: ctx => ctx.datasetIndex === 0 ? ' R$ ' + ctx.raw.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ' ' + ctx.raw.toLocaleString('pt-BR') + ' cliques'
-          }
-        }
-      },
-      scales: {
-        x: { ticks: { color: '#4a5a72', maxTicksLimit: 10, font: { size: 10 } }, grid: { color: '#1a2232' } },
-        y: { ticks: { color: '#4a5a72', font: { size: 10 }, callback: v => 'R$' + v.toLocaleString('pt-BR') }, grid: { color: '#1a2232' }, position: 'left' },
-        y1: { ticks: { color: '#10b981', font: { size: 10 } }, grid: { display: false }, position: 'right' }
-      }
-    }
-  });
+function renderFunnel(s){
+  const el=document.getElementById('funnelWrap');
+  if(!s){el.innerHTML='<div class="empty"><div class="empty-icon">—</div><p>Sem dados</p></div>';return;}
+  const reach=parseInt(s.reach||0);
+  const impressions=parseInt(s.impressions||0);
+  const clicks=parseInt(s.clicks||0);
+  const lp=(s.actions||[]).find(a=>a.action_type==='link_click');
+  const pageViews=lp?parseInt(lp.value):Math.round(clicks*0.85);
+  const purchases=(s.actions||[]).find(a=>a.action_type==='purchase');
+  const purchaseCount=purchases?parseInt(purchases.value):0;
+  const max=Math.max(reach,impressions,1);
+  const steps=[{label:'Alcance',val:reach,cls:'f1',pct:'100%'},{label:'Impressões',val:impressions,cls:'f2',pct:reach>0?(impressions/reach*100).toFixed(1)+'%':'—'},{label:'Cliques',val:clicks,cls:'f3',pct:impressions>0?(clicks/impressions*100).toFixed(2)+'%':'—'},{label:'Page Views',val:pageViews,cls:'f4',pct:clicks>0?(pageViews/clicks*100).toFixed(1)+'%':'—'}];
+  if(purchaseCount>0)steps.push({label:'Compras',val:purchaseCount,cls:'f5',pct:clicks>0?(purchaseCount/clicks*100).toFixed(2)+'%':'—'});
+  el.innerHTML=steps.map(st=>{const w=max>0?Math.max(15,Math.round(st.val/max*100)):15;return'<div class="funnel-step"><div class="funnel-bar-wrap"><div class="funnel-bar '+st.cls+'" style="width:'+w+'%">'+num(st.val)+'</div><div class="funnel-meta"><span>'+st.label+'</span><span>'+st.pct+'</span></div></div></div>';}).join('');
 }
-
-// ─── RENDER FUNNEL ──────────────────────────────────────────────────────────
-function renderFunnel(s) {
-  const el = document.getElementById('funnelWrap');
-  if (!s) { el.innerHTML = '<div class="empty"><div class="empty-icon">—</div><p>Sem dados</p></div>'; return; }
-
-  const reach = parseInt(s.reach||0);
-  const impressions = parseInt(s.impressions||0);
-  const clicks = parseInt(s.clicks||0);
-  const lp = (s.actions||[]).find(a => a.action_type === 'link_click');
-  const pageViews = lp ? parseInt(lp.value) : Math.round(clicks * 0.85);
-  const purchases = (s.actions||[]).find(a => a.action_type === 'purchase');
-  const purchaseCount = purchases ? parseInt(purchases.value) : 0;
-
-  const max = Math.max(reach, impressions, 1);
-  const steps = [
-    { label: 'Alcance', val: reach, cls: 'f1', pct: '100%' },
-    { label: 'Impressões', val: impressions, cls: 'f2', pct: reach > 0 ? (impressions/reach*100).toFixed(1)+'%' : '—' },
-    { label: 'Cliques', val: clicks, cls: 'f3', pct: impressions > 0 ? (clicks/impressions*100).toFixed(2)+'%' : '—' },
-    { label: 'Page Views', val: pageViews, cls: 'f4', pct: clicks > 0 ? (pageViews/clicks*100).toFixed(1)+'%' : '—' },
-  ];
-  if (purchaseCount > 0) steps.push({ label: 'Compras', val: purchaseCount, cls: 'f5', pct: clicks > 0 ? (purchaseCount/clicks*100).toFixed(2)+'%' : '—' });
-
-  el.innerHTML = steps.map(st => {
-    const w = max > 0 ? Math.max(15, Math.round(st.val / max * 100)) : 15;
-    return `<div class="funnel-step">
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar ${st.cls}" style="width:${w}%">${num(st.val)}</div>
-        <div class="funnel-meta"><span>${st.label}</span><span>${st.pct}</span></div>
-      </div>
-    </div>`;
-  }).join('');
+function renderCampaigns(campaigns){
+  const el=document.getElementById('campTable');
+  document.getElementById('campCount').textContent=campaigns.length+' campanhas';
+  if(!campaigns.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma campanha encontrada</p></div>';return;}
+  const objLabel=o=>({OUTCOME_TRAFFIC:'Tráfego',OUTCOME_AWARENESS:'Alcance',OUTCOME_SALES:'Vendas',OUTCOME_LEADS:'Leads',OUTCOME_ENGAGEMENT:'Engajamento',OUTCOME_APP_PROMOTION:'App'}[o]||o||'—');
+  const rows=campaigns.map(c=>{const ins=c.ins||null;const spend=ins?brl(ins.spend):'—';const clicks=ins?num(ins.clicks):'—';const ctr=ins?parseFloat(ins.ctr||0).toFixed(2)+'%':'—';const cpc=ins?brl(ins.cpc):'—';const st=c.effective_status;const badge=st==='ACTIVE'?'badge-active':st==='PAUSED'?'badge-paused':'badge-inactive';const stLabel=st==='ACTIVE'?'Ativo':st==='PAUSED'?'Pausado':st||'—';return'<tr><td title="'+c.name+'">'+(c.name.length>40?c.name.substring(0,40)+'…':c.name)+'</td><td><span class="badge '+badge+'">'+stLabel+'</span></td><td>'+objLabel(c.objective)+'</td><td>'+spend+'</td><td>'+clicks+'</td><td>'+ctr+'</td><td>'+cpc+'</td></tr>';}).join('');
+  el.innerHTML='<table><thead><tr><th>Campanha</th><th>Status</th><th>Objetivo</th><th>Investido</th><th>Cliques</th><th>CTR</th><th>CPC</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
-
-// ─── RENDER CAMPAIGNS ───────────────────────────────────────────────────────
-function renderCampaigns(campaigns) {
-  const el = document.getElementById('campTable');
-  document.getElementById('campCount').textContent = campaigns.length + ' campanhas';
-
-  if (!campaigns.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Nenhuma campanha encontrada</p></div>';
-    return;
-  }
-
-  const objLabel = o => ({
-    OUTCOME_TRAFFIC: 'Tráfego',
-    OUTCOME_AWARENESS: 'Alcance',
-    OUTCOME_SALES: 'Vendas',
-    OUTCOME_LEADS: 'Leads',
-    OUTCOME_ENGAGEMENT: 'Engajamento',
-    OUTCOME_APP_PROMOTION: 'App',
-  }[o] || o || '—');
-
-  const rows = campaigns.map(c => {
-    const ins = c.ins || null;
-    const spend = ins ? brl(ins.spend) : '—';
-    const clicks = ins ? num(ins.clicks) : '—';
-    const ctr = ins ? parseFloat(ins.ctr||0).toFixed(2)+'%' : '—';
-    const cpc = ins ? brl(ins.cpc) : '—';
-    const st = c.effective_status;
-    const badge = st === 'ACTIVE' ? 'badge-active' : st === 'PAUSED' ? 'badge-paused' : 'badge-inactive';
-    const stLabel = st === 'ACTIVE' ? 'Ativo' : st === 'PAUSED' ? 'Pausado' : st || '—';
-    return `<tr>
-      <td title="${c.name}">${c.name.length > 40 ? c.name.substring(0,40)+'…' : c.name}</td>
-      <td><span class="badge ${badge}">${stLabel}</span></td>
-      <td>${objLabel(c.objective)}</td>
-      <td>${spend}</td>
-      <td>${clicks}</td>
-      <td>${ctr}</td>
-      <td>${cpc}</td>
-    </tr>`;
-  }).join('');
-
-  el.innerHTML = `<table>
-    <thead><tr><th>Campanha</th><th>Status</th><th>Objetivo</th><th>Investido</th><th>Cliques</th><th>CTR</th><th>CPC</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
+function renderDonut(campaigns){
+  const counts={};
+  const objLabel=o=>({OUTCOME_TRAFFIC:'Tráfego',OUTCOME_AWARENESS:'Alcance',OUTCOME_SALES:'Vendas',OUTCOME_LEADS:'Leads',OUTCOME_ENGAGEMENT:'Engajamento'}[o]||o||'Outro');
+  campaigns.forEach(c=>{const lbl=objLabel(c.objective);counts[lbl]=(counts[lbl]||0)+1;});
+  const labels=Object.keys(counts);
+  const vals=Object.values(counts);
+  const total=vals.reduce((a,b)=>a+b,0);
+  const colors=['#0082fb','#10b981','#8b5cf6','#f59e0b','#e74c3c','#06b6d4'];
+  const ctx=document.getElementById('donutChart').getContext('2d');
+  if(donutChart)donutChart.destroy();
+  if(!labels.length)return;
+  donutChart=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2a3d',titleColor:'#fff',bodyColor:'#8a9bb5',callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw+' ('+(ctx.raw/total*100).toFixed(0)+'%)'}}}}});
+  document.getElementById('donutLegend').innerHTML=labels.map((l,i)=>'<div class="legend-item"><div style="display:flex;align-items:center"><div class="legend-dot" style="background:'+colors[i]+'"></div>'+l+'</div><span>'+vals[i]+' ('+(vals[i]/total*100).toFixed(0)+'%)</span></div>').join('');
 }
-
-// ─── RENDER DONUT ───────────────────────────────────────────────────────────
-function renderDonut(campaigns) {
-  const counts = {};
-  const objLabel = o => ({
-    OUTCOME_TRAFFIC: 'Tráfego',
-    OUTCOME_AWARENESS: 'Alcance',
-    OUTCOME_SALES: 'Vendas',
-    OUTCOME_LEADS: 'Leads',
-    OUTCOME_ENGAGEMENT: 'Engajamento',
-  }[o] || o || 'Outro');
-
-  campaigns.forEach(c => {
-    const lbl = objLabel(c.objective);
-    counts[lbl] = (counts[lbl]||0) + 1;
-  });
-
-  const labels = Object.keys(counts);
-  const vals = Object.values(counts);
-  const total = vals.reduce((a,b) => a+b, 0);
-  const colors = ['#0082fb','#10b981','#8b5cf6','#f59e0b','#e74c3c','#06b6d4'];
-
-  const ctx = document.getElementById('donutChart').getContext('2d');
-  if (donutChart) donutChart.destroy();
-
-  if (!labels.length) return;
-
-  donutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '68%',
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1f2a3d', titleColor: '#fff', bodyColor: '#8a9bb5', callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${(ctx.raw/total*100).toFixed(0)}%)` } } }
-    }
-  });
-
-  document.getElementById('donutLegend').innerHTML = labels.map((l,i) =>
-    `<div class="legend-item"><div style="display:flex;align-items:center"><div class="legend-dot" style="background:${colors[i]}"></div>${l}</div><span>${vals[i]} (${(vals[i]/total*100).toFixed(0)}%)</span></div>`
-  ).join('');
-}
-
-function showError(msg) {
-  document.getElementById('kpiRow').innerHTML = `<div class="kpi-card" style="grid-column:1/-1"><div class="empty"><div class="empty-icon">⚠️</div><p>${msg}</p><small>Verifique o token de acesso ou permissões da conta</small></div></div>`;
-}
-
-// ─── INIT ────────────────────────────────────────────────────────────────────
-(async () => {
-  await loadAccounts();
-  await loadData();
-})();
+function showError(msg){document.getElementById('kpiRow').innerHTML='<div class="kpi-card" style="grid-column:1/-1"><div class="empty"><div class="empty-icon">⚠️</div><p>'+msg+'</p><small>Verifique o token de acesso ou permissões da conta</small></div></div>';}
+(async()=>{await loadAccounts();await loadData();})();
 </script>
 </body>
 </html>
