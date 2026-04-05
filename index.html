@@ -119,6 +119,7 @@
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
   </div>
 
   <!-- ROW 2: CHART + FUNNEL -->
@@ -137,478 +138,250 @@
 
     <!-- Funnel card -->
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
-      <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:20px">Funil de Tráfego</p>
-      <div id="funnelWrap" style="display:flex;flex-direction:column;gap:14px">
-        <div><div class="sk" style="height:10px;width:100%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:100%"></div></div>
-        <div><div class="sk" style="height:10px;width:80%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:80%"></div></div>
-        <div><div class="sk" style="height:10px;width:55%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:55%"></div></div>
-        <div><div class="sk" style="height:10px;width:35%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:35%"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ROW 3: TABLE + DONUT -->
-  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
-
-    <!-- Campaigns card -->
-    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.05)">
-        <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500">Campanhas</p>
-        <span id="campCount" style="font-size:11px;color:#333"></span>
-      </div>
-      <div id="campTable">
-        <div style="padding:20px;display:flex;flex-direction:column;gap:10px">
-          <div class="sk" style="height:14px;width:100%;border-radius:4px"></div>
-          <div class="sk" style="height:14px;width:85%;border-radius:4px"></div>
-          <div class="sk" style="height:14px;width:92%;border-radius:4px"></div>
-          <div class="sk" style="height:14px;width:75%;border-radius:4px"></div>
-          <div class="sk" style="height:14px;width:88%;border-radius:4px"></div>
+      <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:20px">Funil Diário</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="text-align:center">
+          <div class="sk" style="height:12px;width:100%;margin-bottom:4px;border-radius:4px"></div>
+          <div class="sk" style="height:10px;width:60%;margin:0 auto;border-radius:4px"></div>
+        </div>
+        <div style="text-align:center">
+          <div class="sk" style="height:12px;width:100%;margin-bottom:4px;border-radius:4px"></div>
+          <div class="sk" style="height:10px;width:60%;margin:0 auto;border-radius:4px"></div>
+        </div>
+        <div style="text-align:center">
+          <div class="sk" style="height:12px;width:100%;margin-bottom:4px;border-radius:4px"></div>
+          <div class="sk" style="height:10px;width:60%;margin:0 auto;border-radius:4px"></div>
         </div>
       </div>
     </div>
 
-    <!-- Donut card -->
-    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
-      <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:18px">Por Objetivo</p>
-      <div style="height:150px;display:flex;align-items:center;justify-content:center">
-        <canvas id="donutChart"></canvas>
-      </div>
-      <div id="donutLegend" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
-    </div>
+  </div>
+
+  <!-- ROW 3: TABLE -->
+  <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px;overflow-x:auto">
+    <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:16px">Campanhas Ativas</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.06)">
+          <th style="text-align:left;padding:8px;color:#fff;font-weight:500">Campanha</th>
+          <th style="text-align:right;padding:8px;color:#fff;font-weight:500">Gasto</th>
+          <th style="text-align:right;padding:8px;color:#fff;font-weight:500">Resultado</th>
+          <th style="text-align:right;padding:8px;color:#fff;font-weight:500">ROAS</th>
+          <th style="text-align:right;padding:8px;color:#fff;font-weight:500">Cliques</th>
+          <th style="text-align:right;padding:8px;color:#fff;font-weight:500">CTR</th>
+          <th style="text-align:right;padding:8px;color:#fff;font-weight:500">CPC</th>
+        </tr>
+      </thead>
+      <tbody id="campaignTableBody">
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.06)">
+          <td colspan="7" style="padding:20px;text-align:center;color:#333">
+            <div class="sk" style="height:14px;width:60%;margin:0 auto;border-radius:4px"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
 </main>
 
-<!-- FOOTER -->
-<footer style="max-width:1400px;margin:0 auto;padding:16px 24px;border-top:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between">
-  <span style="font-size:11px;color:#2a2a2a">Dashboard Evulcan &middot; Consulta Métricas e Saldo</span>
-  <span id="footerTs" style="font-size:11px;color:#2a2a2a">—</span>
-</footer>
-
+<!-- Scripts -->
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// SVG ICONS
-// ─────────────────────────────────────────────────────────────────────────────
-const IC = {
-  spend: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
-  impressions: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
-  clicks: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-7 1-4 7-3-17z"/></svg>`,
-  ctr: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`,
-  cpc: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
-  cpm: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
-  revenue: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-  roas: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-  empty: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>`,
-  alert: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-  chart: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
-};
+const API_BASE = 'https://api.dashboard-evulcan.dev/api/v1';
+let chartInstances = {};
+let selectedPeriod = 'last_7d';
+let customSince = null;
+let customUntil = null;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CONFIG
-// ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-let currentPeriod = 'last_7d';
-let customSince = '', customUntil = '';
-let lineChart, donutChart;
-
-Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
-const brl = v => 'R$ ' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const num = v => parseFloat(v||0).toLocaleString('pt-BR');
-const card = (label, value, icon, color) => `
-  <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
-      <span style="color:#333">${icon}</span>
-      <span style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500">${label}</span>
-    </div>
-    <p style="font-size:26px;font-weight:300;letter-spacing:-0.03em;color:${color||'#e5e5e5'};line-height:1">${value}</p>
-  </div>`;
-
-async function api(params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  const r = await fetch('/api/meta' + (qs ? '?' + qs : ''));
-  const d = await r.json();
-  if (d.error) throw new Error(d.error);
-  return d;
+// Format currency
+function formatCurrency(value) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
 }
 
-function setPeriod(p, btn) {
-  currentPeriod = p;
-  customSince = ''; customUntil = '';
+// Format number
+function formatNumber(value) {
+  return new Intl.NumberFormat('pt-BR').format(Math.round(value || 0));
+}
+
+// Format percentage
+function formatPercent(value) {
+  const num = parseFloat(value) || 0;
+  return num.toFixed(2) + '%';
+}
+
+// Toggle custom picker
+function toggleCustomPicker(btn) {
+  const picker = document.getElementById('customPicker');
+  const isVisible = picker.style.display !== 'none';
+  picker.style.display = isVisible ? 'none' : 'flex';
+  btn.classList.toggle('active', !isVisible);
+  if (!isVisible) {
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    document.getElementById('customSince').value = sevenDaysAgo.toISOString().split('T')[0];
+    document.getElementById('customUntil').value = today.toISOString().split('T')[0];
+  }
+}
+
+// Apply custom period
+function applyCustomPeriod() {
+  const since = document.getElementById('customSince').value;
+  const until = document.getElementById('customUntil').value;
+  if (!since || !until) {
+    alert('Selecione ambas as datas');
+    return;
+  }
+  customSince = since;
+  customUntil = until;
+  selectedPeriod = 'custom';
+  loadData();
+  document.getElementById('customPicker').style.display = 'none';
+}
+
+// Set period
+function setPeriod(period, btn) {
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  selectedPeriod = period;
+  customSince = null;
+  customUntil = null;
   document.getElementById('customPicker').style.display = 'none';
   loadData();
 }
 
-function toggleCustomPicker(btn) {
-  const picker = document.getElementById('customPicker');
-  const isOpen = picker.style.display !== 'none';
-  if (isOpen) {
-    picker.style.display = 'none';
-    if (currentPeriod === 'custom') return;
-  } else {
-    picker.style.display = 'flex';
-    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    // Set defaults: last 7 days
-    const today = new Date();
-    const d7 = new Date(today); d7.setDate(today.getDate() - 6);
-    document.getElementById('customUntil').value = today.toISOString().split('T')[0];
-    document.getElementById('customSince').value = d7.toISOString().split('T')[0];
-  }
-}
-
-function applyCustomPeriod() {
-  const since = document.getElementById('customSince').value;
-  const until = document.getElementById('customUntil').value;
-  if (!since || !until) return;
-  customSince = since; customUntil = until;
-  currentPeriod = 'custom';
-  loadData();
-}
-
-function setLoading(on) {
-  document.getElementById('loadingBar').className = on ? 'active' : '';
-}
-
-function setConn(ok, msg) {
-  document.getElementById('connDot').style.background = ok ? '#22c55e' : '#ef4444';
-  document.getElementById('connStatus').textContent = msg;
-  document.getElementById('connStatus').style.color = ok ? '#404040' : '#ef4444';
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LOAD ACCOUNTS
-// ─────────────────────────────────────────────────────────────────────────────
-async function loadAccounts() {
-  try {
-    const d = await api({ action: 'accounts' });
-    const sel = document.getElementById('accountSelect');
-    sel.innerHTML = '';
-    const accounts = d.data || [];
-    if (!accounts.length) { sel.innerHTML = '<option value="">Nenhuma conta encontrada</option>'; return; }
-    const groups = {};
-    for (const acc of accounts) {
-      const g = acc.group || 'Pessoal';
-      if (!groups[g]) groups[g] = [];
-      groups[g].push(acc);
-    }
-    const multiGroup = Object.keys(groups).length > 1;
-    for (const [grpName, accs] of Object.entries(groups)) {
-      const container = multiGroup ? document.createElement('optgroup') : sel;
-      if (multiGroup) container.label = grpName;
-      accs.forEach(acc => {
-        const opt = document.createElement('option');
-        opt.value = acc.id;
-        opt.textContent = acc.name + ' (' + acc.id + ')';
-        container.appendChild(opt);
-      });
-      if (multiGroup) sel.appendChild(container);
-    }
-    setConn(true, 'Conectado '· ' + accounts.length + ' conta(s)');
-  } catch(e) {
-    setConn(false, e.message);
-    document.getElementById('accountSelect').innerHTML = '<option value="">Erro ao carregar contas</option>';
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LOAD DATA
-// ─────────────────────────────────────────────────────────────────────────────
+// Load data
 async function loadData() {
-  const accountId = document.getElementById('accountSelect').value;
-  if (!accountId) return;
-  setLoading(true);
+  const kpiRow = document.getElementById('kpiRow');
+  const tableBody = document.getElementById('campaignTableBody');
+  
   try {
-    const params = { account_id: accountId, period: currentPeriod };
-    if (currentPeriod === 'custom' && customSince && customUntil) {
-      params.since = customSince;
-      params.until = customUntil;
+    // Build query params
+    let params = `period=${selectedPeriod}`;
+    if (selectedPeriod === 'custom' && customSince && customUntil) {
+      params = `since=${customSince}&until=${customUntil}`;
     }
-    const data = await api(params);
-    renderKPIs(data.summary);
-    renderCampaigns(data.campaigns || []);
-    renderChart(data.daily || []);
-    renderFunnel(data.summary);
-    renderDonut(data.campaigns || []);
-    document.getElementById('footerTs').textContent = 'Atualizado ' + new Date().toLocaleString('pt-BR');
-    const name = document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim() || accountId;
-    setConn(true, name);
-  } catch(e) {
-    setConn(false, e.message);
-    showError(e.message);
-  } finally {
-    setLoading(false);
+
+    const response = await fetch(`${API_BASE}/metrics?${params}`);
+    const data = await response.json();
+
+    if (!data.success) throw new Error(data.error || 'Failed to load data');
+
+    // Update KPIs
+    const kpis = data.metrics.kpis || [];
+    const kpiDivs = kpiRow.querySelectorAll('div');
+    kpiDivs.forEach((div, i) => {
+      if (kpis[i]) {
+        div.innerHTML = `
+          <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:8px">${kpis[i].label}</div>
+          <div style="font-size:20px;font-weight:600;color:#fff;margin-bottom:8px">${kpis[i].value}</div>
+          <div style="font-size:10px;color:${kpis[i].change >= 0 ? '#10b981' : '#ef4444'}">${kpis[i].change >= 0 ? '+' : ''}${kpis[i].change}%</div>
+        `;
+      }
+    });
+
+    // Update chart
+    if (data.metrics.timeline) updateChart(data.metrics.timeline);
+
+    // Update table
+    tableBody.innerHTML = '';
+    const campaigns = data.metrics.campaigns || [];
+    if (campaigns.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#333">Nenhuma campanha encontrada</td></tr>';
+    } else {
+      campaigns.forEach(c => {
+        const row = tableBody.insertRow();
+        row.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+        row.innerHTML = `
+          <td style="padding:10px;color:#fff">${c.name}</td>
+          <td style="padding:10px;text-align:right;color:#a3a3a3">${formatCurrency(c.spend)}</td>
+          <td style="padding:10px;text-align:right;color:#a3a3a3">${formatCurrency(c.revenue)}</td>
+          <td style="padding:10px;text-align:right;color:#a3a3a3">${c.roas.toFixed(2)}</td>
+          <td style="padding:10px;text-align:right;color:#a3a3a3">${formatNumber(c.clicks)}</td>
+          <td style="padding:10px;text-align:right;color:#a3a3a3">${formatPercent(c.ctr)}</td>
+          <td style="padding:10px;text-align:right;color:#a3a3a3">${formatCurrency(c.cpc)}</td>
+        `;
+      });
+    }
+
+    // Update period label
+    document.getElementById('chartPeriodLabel').textContent = selectedPeriod === 'custom' ? `${customSince} a ${customUntil}` : data.metrics.periodLabel || '';
+
+  } catch (error) {
+    console.error('Error loading data:', error);
+    kpiRow.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#333">Erro ao carregar dados. Tente novamente.</div>';
+    tableBody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#333">Erro ao carregar campanhas</td></tr>';
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RENDER KPIs
-// ─────────────────────────────────────────────────────────────────────────────
-function renderKPIs(s) {
-  const row = document.getElementById('kpiRow');
-  if (!s) {
-    row.style.gridTemplateColumns = 'repeat(6,1fr)';
-    row.innerHTML = Array(6).fill(`
-      <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px">
-        <div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div>
-        <div class="sk" style="height:28px;width:110px"></div>
-      </div>`).join('');
-    return;
-  }
+// Update chart
+function updateChart(timeline) {
+  const labels = timeline.map(d => {
+    const date = new Date(d.date);
+    return date.toLocaleDateString('pt-BR', {month:'short', day:'numeric'});
+  });
+  const spendData = timeline.map(d => d.spend);
 
-  const purchaseVal = (s.action_values||[]).find(a => a.action_type === 'purchase');
-  const revenue = purchaseVal ? parseFloat(purchaseVal.value) : 0;
-  const spend = parseFloat(s.spend||0);
-  const roas = spend > 0 ? (revenue / spend) : 0;
-
-  let kpis = [
-    card('Investimento',  brl(s.spend),                                IC.spend,       '#e5e5e5'),
-    card('Impressões',    num(s.impressions),                           IC.impressions, '#e5e5e5'),
-    card('Cliques',       num(s.clicks),                                IC.clicks,      '#e5e5e5'),
-    card('CTR',           parseFloat(s.ctr||0).toFixed(2) + '%',       IC.ctr,         '#e5e5e5'),
-    card('CPC',           brl(s.cpc),                                   IC.cpc,         '#e5e5e5'),
-    card('CPM',           brl(s.cpm),                                   IC.cpm,         '#e5e5e5'),
-  ];
-  if (revenue > 0) {
-    const roasColor = roas >= 2 ? '#22c55e' : roas >= 1 ? '#f59e0b' : '#ef4444';
-    kpis.push(card('Receita', brl(revenue), IC.revenue, '#22c55e'));
-    kpis.push(card('ROAS', roas.toFixed(2) + '×', IC.roas, roasColor));
-  }
-
-  const cols = Math.min(kpis.length, 6);
-  row.style.gridTemplateColumns = `repeat(${cols},1fr)`;
-  row.innerHTML = kpis.join('');
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RENDER CHART
-// ─────────────────────────────────────────────────────────────────────────────
-function renderChart(data) {
-  const wrap = document.querySelector('.chart-wrap');
-  if (!document.getElementById('lineChart')) wrap.innerHTML = '<canvas id="lineChart"></canvas>';
-  if (lineChart) { lineChart.destroy(); lineChart = null; }
-
-  if (!data.length) {
-    wrap.innerHTML = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
-      ${IC.chart}
-      <span style="font-size:12px;color:#333">Sem dados para o período</span>
-    </div>`;
-    return;
-  }
-
-  if (!document.getElementById('lineChart')) wrap.innerHTML = '<canvas id="lineChart"></canvas>';
+  if (chartInstances.line) chartInstances.line.destroy();
   const ctx = document.getElementById('lineChart').getContext('2d');
-
-  const labels = data.map(d => { const [,m,day] = d.date_start.split('-'); return day + '/' + m; });
-  const spends = data.map(d => parseFloat(d.spend||0));
-  const clicks = data.map(d => parseInt(d.clicks||0));
-
-  lineChart = new Chart(ctx, {
+  chartInstances.line = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
-      datasets: [
-        { label: 'Investimento (R$)', data: spends, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.05)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y' },
-        { label: 'Cliques',           data: clicks, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.04)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y1' }
-      ]
+      datasets: [{
+        label: 'Gasto',
+        data: spendData,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.1)',
+        tension: 0.4,
+        fill: true,
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: '#3b82f6'
+      }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: '#404040', font: { size: 11, weight: '400' }, boxWidth: 10, padding: 16 } },
-        tooltip: {
-          backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
-          titleColor: '#a3a3a3', bodyColor: '#e5e5e5', padding: 10, titleFont: { size: 11 }, bodyFont: { size: 12 },
-          callbacks: {
-            label: c => c.datasetIndex === 0
-              ? ' R$ ' + c.raw.toLocaleString('pt-BR', {minimumFractionDigits:2})
-              : ' ' + c.raw.toLocaleString('pt-BR') + ' cliques'
-          }
-        }
+        legend: { display: false }
       },
       scales: {
-        x:  { ticks: { color: '#333', font: { size: 10 }, maxTicksLimit: 12 }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' } },
-        y:  { ticks: { color: '#333', font: { size: 10 }, callback: v => 'R$' + (v >= 1000 ? (v/1000).toFixed(1) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' }, position: 'left' },
-        y1: { ticks: { color: '#1f6150', font: { size: 10 } }, grid: { display: false }, border: { color: 'transparent' }, position: 'right' }
+        y: { beginAtZero: true, ticks: { color: '#404040' } },
+        x: { ticks: { color: '#404040' } }
       }
     }
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RENDER FUNNEL
-// ─────────────────────────────────────────────────────────────────────────────
-function renderFunnel(s) {
-  const el = document.getElementById('funnelWrap');
-  if (!s) { el.innerHTML = '<p style="font-size:12px;color:#2a2a2a;text-align:center;padding:20px 0">Sem dados</p>'; return; }
+// Load on init
+await loadAccounts();
 
-  const reach       = parseInt(s.reach||0);
-  const impressions = parseInt(s.impressions||0);
-  const clicks      = parseInt(s.clicks||0);
-  const lp          = (s.actions||[]).find(a => a.action_type === 'link_click');
-  const pageViews   = lp ? parseInt(lp.value) : Math.round(clicks * 0.85);
-  const purchases   = (s.actions||[]).find(a => a.action_type === 'purchase');
-  const purchaseCount = purchases ? parseInt(purchases.value) : 0;
-
-  const max = Math.max(reach, impressions, 1);
-  const colors = ['#3b82f6', '#6366f1', '#8b5cf6', '#f59e0b', '#10b981'];
-  const steps = [
-    { label: 'Alcance',     val: reach,         pct: '100%',                                                 },
-    { label: 'Impressões',  val: impressions,   pct: reach > 0 ? (impressions/reach*100).toFixed(1)+'%' : '—' },
-    { label: 'Cliques',     val: clicks,        pct: impressions > 0 ? (clicks/impressions*100).toFixed(2)+'%' : '—' },
-    { label: 'Page Views',  val: pageViews,     pct: clicks > 0 ? (pageViews/clicks*100).toFixed(1)+'%' : '—'  },
-  ];
-  if (purchaseCount > 0) steps.push({ label: 'Conversões', val: purchaseCount, pct: clicks > 0 ? (purchaseCount/clicks*100).toFixed(2)+'%' : '—' });
-
-  el.innerHTML = steps.map((st, i) => {
-    const w = max > 0 ? Math.max(8, Math.round(st.val / max * 100)) : 8;
-    return `<div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:11px;color:#525252">${st.label}</span>
-        <span style="font-size:11px;color:#333">${num(st.val)}</span>
-      </div>
-      <div style="height:4px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden">
-        <div style="width:${w}%;height:100%;background:${colors[i]||colors[4]};border-radius:99px;opacity:0.7;transition:width 0.6s ease"></div>
-      </div>
-      <div style="text-align:right;margin-top:3px">
-        <span style="font-size:10px;color:#2a2a2a">${st.pct}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RENDER CAMPAIGNS
-// ─────────────────────────────────────────────────────────────────────────────
-function renderCampaigns(campaigns) {
-  const el = document.getElementById('campTable');
-  const active = campaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0);
-  document.getElementById('campCount').textContent = active.length + ' de ' + campaigns.length;
-
-  if (!active.length) {
-    el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:48px 20px">
-      ${IC.empty}
-      <p style="font-size:13px;color:#333">Sem campanhas ativas no período</p>
-      <p style="font-size:11px;color:#2a2a2a">Tente um período mais longo</p>
-    </div>`;
-    return;
+async function loadAccounts() {
+  try {
+    const response = await fetch(`${API_BASE}/accounts`);
+    const data = await response.json();
+    
+    const select = document.getElementById('accountSelect');
+    if (data.accounts && data.accounts.length > 0) {
+      select.innerHTML = '';
+      data.accounts.forEach(acc => {
+        const opt = document.createElement('option');
+        opt.value = acc.id;
+        opt.textContent = acc.name;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', loadData);
+      loadData();
+    }
+  } catch (e) {
+    console.error('Failed to load accounts:', e);
   }
-
-  const objLabel = o => ({
-    OUTCOME_TRAFFIC: 'Tráfego', OUTCOME_AWARENESS: 'Alcance', OUTCOME_SALES: 'Vendas',
-    OUTCOME_LEADS: 'Leads', OUTCOME_ENGAGEMENT: 'Engajamento', OUTCOME_APP_PROMOTION: 'App',
-  }[o] || o || '—');
-
-  const rows = active.map(c => {
-    const ins = c.ins;
-    const st  = c.effective_status;
-    const badgeBg    = st === 'ACTIVE'  ? 'rgba(34,197,94,0.08)'   : st === 'PAUSED' ? 'rgba(245,158,11,0.08)'   : 'rgba(82,82,82,0.1)';
-    const badgeColor = st === 'ACTIVE'  ? '#22c55e'                : st === 'PAUSED' ? '#f59e0b'                 : '#525252';
-    const badgeBorder= st === 'ACTIVE'  ? 'rgba(34,197,94,0.2)'    : st === 'PAUSED' ? 'rgba(245,158,11,0.2)'   : 'rgba(82,82,82,0.2)';
-    const stLabel    = st === 'ACTIVE'  ? 'Ativo'                  : st === 'PAUSED' ? 'Pausado'                 : st || '—';
-    const name = c.name.length > 45 ? c.name.substring(0,45) + '…' : c.name;
-    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)" onmouseover="this.style.background='rgba(255,255,255,0.015)'" onmouseout="this.style.background='transparent'">
-      <td style="padding:12px 22px;font-size:12px;color:#a3a3a3;max-width:220px" title="${c.name}">${name}</td>
-      <td style="padding:12px 16px">
-        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder}">${stLabel}</span>
-      </td>
-      <td style="padding:12px 16px;font-size:11px;color:#404040">${objLabel(c.objective)}</td>
-      <td style="padding:12px 16px;font-size:12px;color:#e5e5e5;text-align:right;font-variant-numeric:tabular-nums">${brl(ins.spend)}</td>
-      <td style="padding:12px 16px;font-size:12px;color:#525252;text-align:right;font-variant-numeric:tabular-nums">${num(ins.clicks)}</td>
-      <td style="padding:12px 16px;font-size:12px;color:#525252;text-align:right;font-variant-numeric:tabular-nums">${parseFloat(ins.ctr||0).toFixed(2)}%</td>
-      <td style="padding:12px 22px;font-size:12px;color:#525252;text-align:right;font-variant-numeric:tabular-nums">${brl(ins.cpc)}</td>
-    </tr>`;
-  }).join('');
-
-  el.innerHTML = `<div style="overflow-x:auto">
-  <table style="width:100%;border-collapse:collapse">
-    <thead>
-      <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
-        <th style="padding:10px 22px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Campanha</th>
-        <th style="padding:10px 16px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Status</th>
-        <th style="padding:10px 16px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Objetivo</th>
-        <th style="padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Investido</th>
-        <th style="padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Cliques</th>
-        <th style="padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">CTR</th>
-        <th style="padding:10px 22px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">CPC</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table></div>`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RENDER DONUT
-// ─────────────────────────────────────────────────────────────────────────────
-function renderDonut(campaigns) {
-  const counts = {};
-  const objLabel = o => ({
-    OUTCOME_TRAFFIC: 'Tráfego', OUTCOME_AWARENESS: 'Alcance', OUTCOME_SALES: 'Vendas',
-    OUTCOME_LEADS: 'Leads', OUTCOME_ENGAGEMENT: 'Engajamento',
-  }[o] || o || 'Outro');
-
-  campaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0).forEach(c => {
-    const lbl = objLabel(c.objective);
-    counts[lbl] = (counts[lbl]||0) + 1;
-  });
-
-  const labels = Object.keys(counts);
-  const vals   = Object.values(counts);
-  const total  = vals.reduce((a,b) => a+b, 0);
-  const colors = ['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4'];
-
-  const ctx = document.getElementById('donutChart').getContext('2d');
-  if (donutChart) donutChart.destroy();
-  if (!labels.length) return;
-
-  donutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: vals, backgroundColor: colors.map(c => c + '99'), borderColor: colors, borderWidth: 1, hoverOffset: 4 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '72%',
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
-          titleColor: '#a3a3a3', bodyColor: '#e5e5e5', padding: 10,
-          callbacks: { label: c => ' ' + c.label + ': ' + c.raw + ' (' + (c.raw/total*100).toFixed(0) + '%)' }
-        }
-      }
-    }
-  });
-
-  document.getElementById('donutLegend').innerHTML = labels.map((l, i) =>
-    `<div style="display:flex;align-items:center;justify-content:space-between">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="width:6px;height:6px;border-radius:50%;background:${colors[i]};flex-shrink:0"></span>
-        <span style="font-size:11px;color:#525252">${l}</span>
-      </div>
-      <span style="font-size:11px;color:#333">${vals[i]}&nbsp;(${(vals[i]/total*100).toFixed(0)}%)</span>
-    </div>`
-  ).join('');
-}
-
-function showError(msg) {
-  document.getElementById('kpiRow').style.gridTemplateColumns = '1fr';
-  document.getElementById('kpiRow').innerHTML = `
-    <div style="border-radius:12px;border:1px solid rgba(239,68,68,0.15);background:rgba(239,68,68,0.04);padding:48px;display:flex;flex-direction:column;align-items:center;gap:12px">
-      ${IC.alert}
-      <p style="font-size:13px;color:#525252">${msg}</p>
-      <p style="font-size:11px;color:#2a2a2a">Verifique o token de acesso ou permissões da conta</p>
-    </div>`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────────────────────────
-(async () => {
-  await loadAccounts();
-  await loadData();
+// Load on page load
+(function() {
+  loadAccounts();
+  setInterval(loadData, 30000); // Refresh every 30s
 })();
 </script>
 </body>
