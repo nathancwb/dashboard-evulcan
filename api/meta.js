@@ -101,12 +101,19 @@ export default async function handler(req, res) {
       ins: a.insights?.data?.[0] || null
     }));
 
-    // Dedicated video insights call at campaign level (field expansion does NOT expose these)
-    const videoFields = 'video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
-    const videoInsightsResponse = await gql(
-      `${account_id}/insights?fields=${videoFields}&${dateParam}&level=campaign&limit=200`,
-      token
-    ).catch(() => ({ data: [] }));
+    // Dedicated video insights call at campaign level – campaign_id is required with level=campaign
+    const videoFields = 'campaign_id,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
+    let videoData = [];
+    let videoError = null;
+    try {
+      const videoResp = await gql(
+        `${account_id}/insights?fields=${videoFields}&${dateParam}&level=campaign&limit=200`,
+        token
+      );
+      videoData = videoResp.data || [];
+    } catch(e) {
+      videoError = e.message;
+    }
 
     return res.json({
       summary: summary.data?.[0] || null,
@@ -114,7 +121,8 @@ export default async function handler(req, res) {
       adsets: adsetInsights,
       ads: adInsights,
       daily: daily.data || [],
-      video_data: videoInsightsResponse.data || [],
+      video_data: videoData,
+      video_error: videoError,
       account_info: accInfoResponse || null,
       account_id,
       period,

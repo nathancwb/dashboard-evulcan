@@ -452,6 +452,12 @@ async function loadData() {
     const videoSum = { ...data.summary };
     const videoFieldNames = ['video_play_actions','video_p25_watched_actions','video_p50_watched_actions','video_p75_watched_actions','video_p95_watched_actions','video_p100_watched_actions'];
     const videoRows = data.video_data || [];
+    console.log('[VIDEO DEBUG] video_error:', data.video_error);
+    console.log('[VIDEO DEBUG] video_data rows:', videoRows.length, JSON.stringify(videoRows.slice(0,2)));
+    if (data.video_error) {
+      const titleEl2 = document.getElementById('funnelTitle');
+      if (titleEl2) titleEl2.textContent = 'Erro API vídeo: ' + data.video_error.substring(0, 80);
+    }
     if (videoRows.length > 0) {
       videoFieldNames.forEach(field => {
         const total = videoRows.reduce((acc, row) => {
