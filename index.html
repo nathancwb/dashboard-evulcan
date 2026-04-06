@@ -54,8 +54,8 @@
 <div id="loadingBar" class="active"></div>
 
 <!-- HEADER -->
-<header style="background:rgba(8,8,8,0.95);backdrop-filter:blur(12px)" class="sticky top-0 z-40 border-b" style="border-color:rgba(255,255,255,0.06)">
-<div style="border-bottom:1px solid rgba(255,255,255,0.06)" class="px-4 md:px-6 py-3 md:h-14 flex items-center gap-3 md:gap-5 max-w-screen-2xl mx-auto flex-wrap">
+<header style="background:rgba(8,8,8,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-0 z-40">
+<div class="px-4 md:px-6 py-2 md:py-0 md:h-14 flex items-center gap-3 md:gap-5 max-w-screen-2xl mx-auto flex-wrap">
 
   <!-- Logo -->
   <div class="flex items-center gap-2.5 shrink-0">
@@ -71,26 +71,26 @@
   <div style="width:1px;height:16px;background:rgba(255,255,255,0.08)" class="hidden md:block shrink-0"></div>
 
   <!-- Account selector -->
-  <div id="accountSelectorWrap" class="flex items-center gap-3 min-w-0">
-    <label style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
+  <div id="accountSelectorWrap" class="flex items-center gap-2 min-w-0 flex-1">
+    <label class="hidden md:block" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
     <select id="accountSelect" onchange="loadData()"
-      style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:5px 28px 5px 10px;min-width:220px;max-width:300px;outline:none">
+      style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:5px 10px;width:100%;max-width:280px;outline:none;text-overflow:ellipsis">
       <option value="">Carregando contas...</option>
     </select>
   </div>
 
   <!-- Period pills -->
-  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px;margin-left:auto">
-    <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Hoje</button>
-    <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ontem</button>
-    <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">7d</button>
-    <button class="period-btn" onclick="setPeriod('last_30d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">30d</button>
-    <button class="period-btn" onclick="setPeriod('this_month',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Mês</button>
-    <button class="period-btn hidden md:inline-block" onclick="setPeriod('this_year',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ano</button>
-    <button class="period-btn" id="customPeriodBtn" onclick="toggleCustomPicker(this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Custom</button>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px;flex-shrink:0">
+    <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Hoje</button>
+    <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ontem</button>
+    <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">7d</button>
+    <button class="period-btn" onclick="setPeriod('last_30d',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">30d</button>
+    <button class="period-btn hidden md:inline-block" onclick="setPeriod('this_month',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Mês</button>
+    <button class="period-btn hidden lg:inline-block" onclick="setPeriod('this_year',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ano</button>
+    <button class="period-btn hidden md:inline-block" id="customPeriodBtn" onclick="toggleCustomPicker(this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Custom</button>
   </div>
   <!-- Custom date range picker (hidden by default) -->
-  <div id="customPicker" style="display:none;align-items:center;gap:8px;margin-left:8px">
+  <div id="customPicker" style="display:none;align-items:center;gap:8px">
     <input type="date" id="customSince" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
     <span style="font-size:11px;color:#333">→</span>
     <input type="date" id="customUntil" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
@@ -99,7 +99,7 @@
 
   <!-- Status + Refresh -->
   <div class="flex items-center gap-3 shrink-0">
-    <div class="flex items-center gap-2">
+    <div class="hidden md:flex items-center gap-2">
       <span id="connDot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
       <span id="connStatus" style="font-size:12px;color:#404040">Conectando...</span>
     </div>
@@ -115,37 +115,40 @@
 </header>
 
 <!-- SUB-HEADER FOR MODEL & FILTERS -->
-<div style="background:rgba(5,5,5,0.7);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-14 z-30">
-  <div class="px-6 min-h-[48px] py-2 flex items-center justify-between flex-wrap md:flex-nowrap gap-4 max-w-screen-2xl mx-auto">
+<div style="background:rgba(5,5,5,0.7);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-12 md:top-14 z-30">
+  <div class="px-4 md:px-6 py-2 flex items-center gap-3 max-w-screen-2xl mx-auto overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none">
     
-    <!-- HIERARCHY FILTERS (Pesquisáveis) -->
-    <div style="display:flex;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:4px 16px;gap:12px">
-      <input type="text" list="campList" id="campFilter" class="hf-select w-28 md:w-36" placeholder="Campanhas" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
+    <!-- HIERARCHY FILTERS -->
+    <div style="display:flex;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:4px 14px;gap:10px;flex-shrink:0">
+      <input type="text" list="campList" id="campFilter" placeholder="Campanhas" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:90px;text-overflow:ellipsis">
       <datalist id="campList"></datalist>
       <div style="width:1px;height:12px;background:rgba(255,255,255,0.1)"></div>
-      <input type="text" list="adsetList" id="adsetFilter" class="hf-select w-28 md:w-36" placeholder="Conjunto" onchange="applyHierarchy()" oninput="if(!this.value){clearFilter('adset')}" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
+      <input type="text" list="adsetList" id="adsetFilter" placeholder="Conjunto" onchange="applyHierarchy()" oninput="if(!this.value){clearFilter('adset')}" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:80px;text-overflow:ellipsis">
       <datalist id="adsetList"></datalist>
-      <button onclick="clearAllFilters()" title="Limpar filtros" style="background:none;border:none;cursor:pointer;color:#404040;padding:0;display:flex;align-items:center" onmouseover="this.style.color='#888'" onmouseout="this.style.color='#404040'">
+      <button onclick="clearAllFilters()" title="Limpar filtros" style="background:none;border:none;cursor:pointer;color:#404040;padding:0;display:flex;align-items:center;flex-shrink:0" onmouseover="this.style.color='#888'" onmouseout="this.style.color='#404040'">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>
 
-    <!-- TACTIC MODELS + BALANCE -->
-    <div style="display:flex;align-items:center;gap:12px">
-      <div id="accBalanceRow" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:3px 10px;white-space:nowrap">
-        <span id="accBalanceLabel" style="font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:#404040">Saldo disponível</span>
-        <span style="font-size:11px;color:#404040">·</span>
-        <span id="accBalanceVal" style="font-size:11px;color:#22c55e;font-variant-numeric:tabular-nums">—</span>
-        <span id="accBalanceBadge" style="display:none;font-size:9px;letter-spacing:0.08em;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:1px 5px;margin-left:2px">CARTÃO</span>
-      </div>
-      <div id="globalModelTabs" style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:4px;gap:4px">
-        <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.3)">Distribuição</button>
-        <button class="model-btn" onclick="setModel('leads',this)" style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373">Leads</button>
-        <button class="model-btn" onclick="setModel('compras',this)" style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373">Compras</button>
-        <button class="model-btn" onclick="setModel('mensagens',this)" style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373">Mensagens</button>
-      </div>
+    <!-- spacer -->
+    <div style="flex:1;min-width:8px"></div>
+
+    <!-- BALANCE -->
+    <div id="accBalanceRow" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:3px 10px;white-space:nowrap;flex-shrink:0">
+      <span id="accBalanceLabel" style="font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:#404040">Saldo</span>
+      <span style="font-size:11px;color:#404040">·</span>
+      <span id="accBalanceVal" style="font-size:11px;color:#22c55e;font-variant-numeric:tabular-nums">—</span>
+      <span id="accBalanceBadge" style="display:none;font-size:9px;letter-spacing:0.08em;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:1px 5px;margin-left:2px">CARTÃO</span>
     </div>
 
+    <!-- MODEL TABS -->
+    <div id="globalModelTabs" style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:3px;gap:2px;flex-shrink:0">
+      <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);white-space:nowrap">Distribuição</button>
+      <button class="model-btn" onclick="setModel('leads',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Leads</button>
+      <button class="model-btn" onclick="setModel('compras',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Compras</button>
+      <button class="model-btn" onclick="setModel('mensagens',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Msgs</button>
+    </div>
+    
   </div>
 </div>
 
@@ -553,9 +556,15 @@ function renderKPIs(s) {
     ];
   }
 
-  // Set grid columns to match exact KPI count for even sizing
+  // On mobile: 2 cols. On tablet: 4 cols. On desktop: match KPI count
   const cols = kpis.length;
-  row.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  if (window.innerWidth >= 1024) {
+    row.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  } else if (window.innerWidth >= 640) {
+    row.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))';
+  } else {
+    row.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+  }
   row.innerHTML = kpis.join('');
 }
 
