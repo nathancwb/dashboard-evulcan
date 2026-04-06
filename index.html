@@ -99,9 +99,6 @@
 
   <!-- Status + Refresh -->
   <div class="flex items-center gap-3 shrink-0">
-    <div id="accBalanceRow" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:4px 10px;font-size:11px;color:#a3a3a3;font-weight:500;gap:6px;align-items:center" class="mr-1">
-      Saldo devedor: <span id="accBalanceVal" style="color:#e5e5e5;font-weight:400">—</span>
-    </div>
     <div class="flex items-center gap-2">
       <span id="connDot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
       <span id="connStatus" style="font-size:12px;color:#404040">Conectando...</span>
@@ -133,8 +130,13 @@
       <datalist id="adList"></datalist>
     </div>
 
-    <!-- TACTIC MODELS -->
+    <!-- TACTIC MODELS + BALANCE -->
     <div style="display:flex;align-items:center;gap:12px">
+      <div id="accBalanceRow" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:3px 10px;white-space:nowrap">
+        <span style="font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:#404040">Saldo devedor</span>
+        <span style="font-size:11px;color:#404040">·</span>
+        <span id="accBalanceVal" style="font-size:11px;color:#a3a3a3;font-variant-numeric:tabular-nums">—</span>
+      </div>
       <div id="globalModelTabs" style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:4px;gap:4px">
         <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.3)">Distribuição</button>
         <button class="model-btn" onclick="setModel('leads',this)" style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373">Leads</button>
