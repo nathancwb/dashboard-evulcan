@@ -1,377 +1,594 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Evulcan — Meta Ads</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        fontFamily: {
-          sans: ['Inter', 'sans-serif'],
-        },
-        colors: {
-          neutral: { 900: '#111111', 950: '#0a0a0a' }
-        }
-      }
-    }
-  }
-</script>
 <style>
-  body { background-color: #0a0a0a; color: #e5e5e5; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #080808; color: #e5e5e5; min-height: 100vh; }
+
+  /* Loading bar */
+  #loadingBar { position: fixed; top: 0; left: 0; right: 0; height: 1px; z-index: 100; overflow: hidden; }
+  #loadingBar.active::after { content: ''; position: absolute; left: -60%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.9), transparent); animation: loadSlide 1.4s ease-in-out infinite; }
+  @keyframes loadSlide { to { left: 110%; } }
+
+  /* Period button states */
+  .period-btn { color: #525252; font-size: 12px; font-weight: 500; }
+  .period-btn:hover { color: #a3a3a3; }
+  .period-btn.active { background: rgba(255,255,255,0.08); color: #fff; }
+
+  /* Select arrow */
+  select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23525252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px !important; cursor: pointer; }
+
+  /* Skeleton animation */
+  .sk { background: rgba(255,255,255,0.04); border-radius: 4px; animation: skPulse 1.8s ease-in-out infinite; }
+  @keyframes skPulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #555; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+
+  /* Funnel bars */
+  .funnel-bar { height: 6px; border-radius: 99px; }
+
+  /* Chart canvas full-size */
+  .chart-wrap { position: relative; height: 180px; }
+  .chart-wrap canvas { position: absolute; inset: 0; }
 </style>
 </head>
-<body class="bg-neutral-950 text-neutral-300 min-h-screen antialiased selection:bg-white/10 selection:text-white pb-10">
+<body>
 
-<div id="loadingBar" class="h-[2px] w-full bg-neutral-900 overflow-hidden fixed top-0 left-0 z-50 transition-opacity duration-300 relative">
-  <div class="absolute left-[-40%] top-0 h-full w-[40%] bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[slide_1s_ease-in-out_infinite]"></div>
-</div>
+<!-- LOADING BAR -->
+<div id="loadingBar" class="active"></div>
 
-<header class="sticky top-0 z-40 bg-neutral-950/80 backdrop-blur-md border-b border-white/5 py-4 px-6 flex items-center gap-4 flex-wrap">
-  <div class="flex items-center gap-2.5 font-medium text-[15px] text-white tracking-tight">
-    <div class="w-7 h-7 rounded border border-white/10 bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8L3 21"/></svg>
+<!-- HEADER -->
+<header style="background:rgba(8,8,8,0.95);backdrop-filter:blur(12px)" class="sticky top-0 z-40 border-b" style="border-color:rgba(255,255,255,0.06)">
+<div style="border-bottom:1px solid rgba(255,255,255,0.06)" class="px-6 h-14 flex items-center gap-5 max-w-screen-2xl mx-auto">
+
+  <!-- Logo -->
+  <div class="flex items-center gap-2.5 shrink-0">
+    <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
     </div>
-    Evulcan <span class="text-neutral-600 font-normal ml-0.5">/ Meta Ads</span>
+    <span style="font-size:13px;font-weight:500;color:#fff;letter-spacing:-0.01em">Meta Ads</span>
+    <span style="color:rgba(255,255,255,0.12);font-size:16px;font-weight:300">/</span>
+    <span style="font-size:13px;color:#525252">Evulcan</span>
   </div>
-  
-  <div class="ml-auto flex items-center gap-4 text-xs font-medium text-neutral-500">
+
+  <!-- Divider -->
+  <div style="width:1px;height:16px;background:rgba(255,255,255,0.08)" class="shrink-0"></div>
+
+  <!-- Account selector -->
+  <div class="flex items-center gap-3 min-w-0">
+    <label style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
+    <select id="accountSelect" onchange="loadData()"
+      style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:5px 28px 5px 10px;min-width:220px;max-width:300px;outline:none">
+      <option value="">Carregando contas...</option>
+    </select>
+  </div>
+
+  <!-- Period pills -->
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px;margin-left:auto">
+    <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Hoje</button>
+    <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ontem</button>
+    <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">7d</button>
+    <button class="period-btn" onclick="setPeriod('last_30d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">30d</button>
+    <button class="period-btn" onclick="setPeriod('this_month',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Mês</button>
+    <button class="period-btn" onclick="setPeriod('this_year',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ano</button>
+    <button class="period-btn" id="customPeriodBtn" onclick="toggleCustomPicker(this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Custom</button>
+  </div>
+  <!-- Custom date range picker (hidden by default) -->
+  <div id="customPicker" style="display:none;align-items:center;gap:8px;margin-left:8px">
+    <input type="date" id="customSince" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
+    <span style="font-size:11px;color:#333">→</span>
+    <input type="date" id="customUntil" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
+    <button onclick="applyCustomPeriod()" style="height:28px;padding:0 10px;border-radius:6px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit">Aplicar</button>
+  </div>
+
+  <!-- Status + Refresh -->
+  <div class="flex items-center gap-3 shrink-0">
     <div class="flex items-center gap-2">
-      <span id="connDot" class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-      <span id="connStatus" class="tracking-wide uppercase">Conectando...</span>
+      <span id="connDot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
+      <span id="connStatus" style="font-size:12px;color:#404040">Conectando...</span>
     </div>
-    <div class="h-4 w-px bg-white/10"></div>
-    <button onclick="loadData()" class="flex items-center gap-1.5 text-neutral-400 hover:text-white transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-      ATUALIZAR
+    <button onclick="loadData()" style="display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:#525252;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit"
+      onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.15)'"
+      onmouseout="this.style.color='#525252';this.style.borderColor='rgba(255,255,255,0.07)'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Atualizar
     </button>
   </div>
+
+</div>
 </header>
 
-<main class="max-w-7xl mx-auto px-6 pt-8">
-  <div class="flex flex-wrap items-center justify-between gap-6 mb-8">
-    <div class="flex items-center gap-3">
-      <label class="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">Conta</label>
-      <select id="accountSelect" onchange="loadData()" class="bg-neutral-900 border border-white/5 rounded-md px-3 py-1.5 text-xs text-neutral-300 focus:outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 appearance-none pr-8 relative cursor-pointer min-w-[200px] transition-all">
-        <option value="">Carregando contas...</option>
-      </select>
-    </div>
+<!-- MAIN -->
+<main style="max-width:1400px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px">
 
-    <div class="flex items-center p-1 bg-neutral-900 border border-white/5 rounded-full">
-      <button class="period-btn active relative px-4 py-1.5 text-[11px] font-medium text-white transition-colors z-10" onclick="setPeriod('last_7d',this)">
-        <span class="relative z-10">7D</span>
-        <div class="pill-bg absolute inset-0 bg-white/10 rounded-full z-0"></div>
-      </button>
-      <button class="period-btn relative px-4 py-1.5 text-[11px] font-medium text-neutral-500 hover:text-neutral-300 transition-colors z-10" onclick="setPeriod('last_30d',this)">
-        <span class="relative z-10">30D</span>
-        <div class="pill-bg absolute inset-0 bg-white/10 rounded-full z-0 opacity-0 scale-95 transition-all"></div>
-      </button>
-      <button class="period-btn relative px-4 py-1.5 text-[11px] font-medium text-neutral-500 hover:text-neutral-300 transition-colors z-10" onclick="setPeriod('last_90d',this)">
-        <span class="relative z-10">90D</span>
-        <div class="pill-bg absolute inset-0 bg-white/10 rounded-full z-0 opacity-0 scale-95 transition-all"></div>
-      </button>
-      <button class="period-btn relative px-4 py-1.5 text-[11px] font-medium text-neutral-500 hover:text-neutral-300 transition-colors z-10" onclick="setPeriod('last_year',this)">
-        <span class="relative z-10">2025</span>
-        <div class="pill-bg absolute inset-0 bg-white/10 rounded-full z-0 opacity-0 scale-95 transition-all"></div>
-      </button>
-      <button class="period-btn relative px-4 py-1.5 text-[11px] font-medium text-neutral-500 hover:text-neutral-300 transition-colors z-10" onclick="setPeriod('this_year',this)">
-        <span class="relative z-10">2026</span>
-        <div class="pill-bg absolute inset-0 bg-white/10 rounded-full z-0 opacity-0 scale-95 transition-all"></div>
-      </button>
-    </div>
+  <!-- KPI ROW -->
+  <div id="kpiRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
   </div>
 
-  <div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8" id="kpiRow"></div>
+  <!-- ROW 2: CHART + FUNNEL -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-    <div class="lg:col-span-2 bg-neutral-900 border border-white/5 rounded-xl p-6">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-[11px] uppercase tracking-wider text-neutral-400 font-medium">Investimento x Cliques</h3>
+    <!-- Chart card -->
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
+      <div style="margin-bottom:20px">
+        <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:4px">Investimento por Dia</p>
+        <p id="chartPeriodLabel" style="font-size:11px;color:#333"></p>
       </div>
-      <div class="relative h-[220px]"><canvas id="lineChart"></canvas></div>
+      <div class="chart-wrap">
+        <canvas id="lineChart"></canvas>
+      </div>
     </div>
-    
-    <div class="bg-neutral-900 border border-white/5 rounded-xl p-6">
-      <h3 class="text-[11px] uppercase tracking-wider text-neutral-400 font-medium mb-6">Funil Básico</h3>
-      <div id="funnelWrap" class="flex flex-col justify-center h-[220px]"></div>
+
+    <!-- Funnel card -->
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
+      <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:20px">Funil de Tráfego</p>
+      <div id="funnelWrap" style="display:flex;flex-direction:column;gap:14px">
+        <div><div class="sk" style="height:10px;width:100%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:100%"></div></div>
+        <div><div class="sk" style="height:10px;width:80%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:80%"></div></div>
+        <div><div class="sk" style="height:10px;width:55%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:55%"></div></div>
+        <div><div class="sk" style="height:10px;width:35%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:35%"></div></div>
+      </div>
     </div>
   </div>
 
-  <!-- Tabela Campanhas -->
-  <div class="bg-neutral-900 border border-white/5 rounded-xl overflow-hidden flex flex-col mb-4">
-    <div class="p-6 border-b border-white/5 flex items-center justify-between">
-      <h3 class="text-[11px] uppercase tracking-wider text-neutral-400 font-medium">Modelos de Conversão — Campanhas</h3>
-      <span id="campCount" class="text-xs font-medium text-neutral-500 px-2 py-0.5 bg-white/5 rounded">--</span>
+  <!-- ROW 3: TABLE + DONUT -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+
+    <!-- Campaigns card -->
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500">Campanhas</p>
+        <span id="campCount" style="font-size:11px;color:#333"></span>
+      </div>
+      <div id="campTable">
+        <div style="padding:20px;display:flex;flex-direction:column;gap:10px">
+          <div class="sk" style="height:14px;width:100%;border-radius:4px"></div>
+          <div class="sk" style="height:14px;width:85%;border-radius:4px"></div>
+          <div class="sk" style="height:14px;width:92%;border-radius:4px"></div>
+          <div class="sk" style="height:14px;width:75%;border-radius:4px"></div>
+          <div class="sk" style="height:14px;width:88%;border-radius:4px"></div>
+        </div>
+      </div>
     </div>
-    <div class="overflow-x-auto p-0" id="campTable"></div>
+
+    <!-- Donut card -->
+    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
+      <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:18px">Por Objetivo</p>
+      <div style="height:150px;display:flex;align-items:center;justify-content:center">
+        <canvas id="donutChart"></canvas>
+      </div>
+      <div id="donutLegend" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
+    </div>
   </div>
 
-  <!-- Tabela Anúncios (Com Foto) -->
-  <div class="bg-neutral-900 border border-white/5 rounded-xl overflow-hidden flex flex-col mb-8">
-    <div class="p-6 border-b border-white/5 flex items-center justify-between">
-      <h3 class="text-[11px] uppercase tracking-wider text-neutral-400 font-medium">Top Anúncios Ativos (Creatives)</h3>
-      <span id="adCount" class="text-xs font-medium text-neutral-500 px-2 py-0.5 bg-white/5 rounded">--</span>
-    </div>
-    <div class="overflow-x-auto p-0" id="adsTable"></div>
-  </div>
-  
-  <div class="text-center text-[10px] text-neutral-600 uppercase tracking-widest font-medium mt-16 pt-8 border-t border-white/5">
-    Evulcan Interface <span class="mx-2">—</span> <span id="footerTs"></span>
-  </div>
 </main>
 
-<style>
-@keyframes slide { to { left: 100%; } }
-</style>
+<!-- FOOTER -->
+<footer style="max-width:1400px;margin:0 auto;padding:16px 24px;border-top:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between">
+  <span style="font-size:11px;color:#2a2a2a">Dashboard Evulcan &middot; Consulta Métricas e Saldo</span>
+  <span id="footerTs" style="font-size:11px;color:#2a2a2a">—</span>
+</footer>
 
 <script>
-let currentPeriod='last_7d';
-let lineChart;
-const brl=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const num=v=>parseFloat(v||0).toLocaleString('pt-BR');
-const ICON_EMPTY = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 text-neutral-600"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-const ICON_IMAGE = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-500"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+// ── SVG ICONS ──────────────────────────────────────────────────────────────
+const IC = {
+  spend: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  impressions: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  clicks: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-7 1-4 7-3-17z"/></svg>`,
+  ctr: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`,
+  cpc: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+  cpm: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+  revenue: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  roas: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  empty: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>`,
+  alert: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  chart: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+};
 
-function getAction(actions, typeKey) {
-  if (!actions) return 0;
-  let val = 0;
-  for (const a of actions) {
-    if (a.action_type && a.action_type.includes(typeKey)) val += parseInt(a.value||0);
-  }
-  return val;
-}
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+let currentPeriod = 'last_7d';
+let customSince = '', customUntil = '';
+let lineChart, donutChart;
 
-function parseMetrics(ins) {
-  if (!ins) return { leads:0, purchases:0, messages:0, distribution:0, spend:0 };
-  const actions = ins.actions || [];
-  const leads = getAction(actions, 'lead');
-  const purchases = getAction(actions, 'purchase') + getAction(actions, 'offsite_conversion.fb_pixel_purchase');
-  const messages = getAction(actions, 'onsite_conversion.messaging_conversation_started_7d') + getAction(actions, 'message_replies');
-  const distribution = parseInt(ins.impressions || 0);
-  const spend = parseFloat(ins.spend || 0);
-  return { leads, purchases, messages, distribution, spend };
-}
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 
-function metricColHtml(val, spend) {
-  if (val === 0) return `<span class="text-neutral-600">—</span>`;
-  const cpa = spend / val;
-  return `<span class="text-white font-medium">${num(val)}</span>`;
-}
-
-function cpaColHtml(val, spend) {
-  if (val === 0) return `<span class="text-neutral-600">—</span>`;
-  const cpa = spend / val;
-  return `<span class="text-neutral-400">${brl(cpa)}</span>`;
-}
-
-function showError(msg){
-  document.getElementById('kpiRow').innerHTML=`<div class="col-span-full border border-rose-500/20 bg-rose-500/5 rounded-xl p-6 text-center text-rose-400 font-medium tracking-wide">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 opacity-80"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <p class="text-sm uppercase font-bold">${msg}</p>
-    <p class="text-xs mt-1 text-rose-500/60 font-normal">Erro ao conectar com API ou Facebook</p>
+// ── HELPERS ────────────────────────────────────────────────────────────────
+const brl = v => 'R$\u00a0' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const num = v => parseFloat(v||0).toLocaleString('pt-BR');
+const card = (label, value, icon, color) => `
+  <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
+      <span style="color:#333">${icon}</span>
+      <span style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500">${label}</span>
+    </div>
+    <p style="font-size:26px;font-weight:300;letter-spacing:-0.03em;color:${color||'#e5e5e5'};line-height:1">${value}</p>
   </div>`;
-}
 
-async function api(params={}){
-  const qs=new URLSearchParams(params).toString();
-  const r=await fetch('/api/meta'+(qs?'?'+qs:''));
-  const d=await r.json();
-  if(d.error)throw new Error(d.error);
+async function api(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const r = await fetch('/api/meta' + (qs ? '?' + qs : ''));
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
   return d;
 }
 
-function setPeriod(p,btn){
-  currentPeriod=p;
-  document.querySelectorAll('.period-btn').forEach(b=>{
-    b.classList.remove('active','text-white');
-    b.classList.add('text-neutral-500');
-    b.querySelector('.pill-bg').classList.add('opacity-0', 'scale-95');
-  });
-  btn.classList.add('active','text-white');
-  btn.classList.remove('text-neutral-500');
-  btn.querySelector('.pill-bg').classList.remove('opacity-0', 'scale-95');
+function setPeriod(p, btn) {
+  currentPeriod = p;
+  customSince = ''; customUntil = '';
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('customPicker').style.display = 'none';
   loadData();
 }
 
-function setLoading(on){
-  const b=document.getElementById('loadingBar');
-  if(on) b.classList.remove('opacity-0');
-  else setTimeout(()=>b.classList.add('opacity-0'),300);
-}
-
-function setConn(ok,msg){
-  document.getElementById('connDot').className=`w-1.5 h-1.5 rounded-full ${ok?'bg-emerald-500':'bg-rose-500'}`;
-  document.getElementById('connStatus').textContent=msg;
-}
-
-async function loadAccounts(){
-  try{
-    const d=await api({action:'accounts'});
-    const sel=document.getElementById('accountSelect');sel.innerHTML='';
-    const accounts=d.data||[];
-    if(!accounts.length){sel.innerHTML='<option value="">Nenhuma conta encontrada</option>';return;}
-    accounts.forEach(acc=>{const opt=document.createElement('option');opt.value=acc.id;opt.textContent=acc.name; sel.appendChild(opt);});
-    setConn(true,'Conectado');
-  }catch(e){setConn(false,'Erro de conexão');}
-}
-
-async function loadData(){
-  const accountId=document.getElementById('accountSelect').value;
-  if(!accountId)return;
-  setLoading(true);
-  
-  document.getElementById('campTable').innerHTML = `<div class="p-6 h-32 animate-pulse bg-white/5"></div>`;
-  document.getElementById('adsTable').innerHTML = `<div class="p-6 h-32 animate-pulse bg-white/5"></div>`;
-
-  try{
-    const data=await api({account_id:accountId,period:currentPeriod});
-    renderKPIs(data.summary);
-    renderChart(data.daily||[]);
-    renderFunnel(data.summary);
-    renderTable(data.campaigns||[], 'campTable', 'campCount', false);
-    renderTable(data.ads||[], 'adsTable', 'adCount', true);
-    document.getElementById('footerTs').textContent='ATUALIZADO ' + new Date().toLocaleTimeString('pt-BR');
-    setConn(true,'Sincronizado');
-  }catch(e){
-    setConn(false,'Falhou');
-    showError(e.message);
-  } finally { setLoading(false); }
-}
-
-function kpiHtml(label, value) {
-   return `<div class="bg-neutral-900 border border-white/5 rounded-xl p-5 flex flex-col justify-between transition hover:border-white/10">
-      <div class="text-[10px] uppercase tracking-wider text-neutral-500 font-medium mb-3">${label}</div>
-      <div class="text-[22px] font-light tracking-tight text-white mb-1">${value}</div>
-    </div>`;
-}
-
-function renderKPIs(s){
-  const row=document.getElementById('kpiRow');
-  if(!s){
-    row.innerHTML = kpiHtml("Investimento", "R$ 0,00")+kpiHtml("Distribuição", "0")+kpiHtml("Leads", "0")+kpiHtml("Compras", "0")+kpiHtml("Mensagens", "0")+kpiHtml("ROAS", "—");
-    return;
+function toggleCustomPicker(btn) {
+  const picker = document.getElementById('customPicker');
+  const isOpen = picker.style.display !== 'none';
+  if (isOpen) {
+    picker.style.display = 'none';
+    if (currentPeriod === 'custom') return;
+  } else {
+    picker.style.display = 'flex;
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Set defaults: last 7 days
+    const today = new Date();
+    const d7 = new Date(today); d7.setDate(today.getDate() - 6);
+    document.getElementById('customUntil').value = today.toISOString().split('T')[0];
+    document.getElementById('customSince').value = d7.toISOString().split('T')[0];
   }
-  const m = parseMetrics(s);
-  const purchaseAction = (s.actions||[]).find(a=>a.action_type==='purchase');
-  const revenue = purchaseAction && s.action_values ? parseFloat(s.action_values.find(v=>v.action_type==='purchase')?.value || 0) : 0;
-  const roas = m.spend>0 ? (revenue/m.spend).toFixed(2) : '—';
-  
-  row.innerHTML = kpiHtml("Investimento", brl(m.spend)) + kpiHtml("Distribuição", num(m.distribution)) + kpiHtml("Leads", num(m.leads)) + kpiHtml("Compras", num(m.purchases)) + kpiHtml("Mensagens", num(m.messages)) + kpiHtml("ROAS", roas+'×');
 }
 
-function renderTable(items, targetId, countId, isAds){
-  const el=document.getElementById(targetId);
-  document.getElementById(countId).textContent=items.length;
-  const active=items;
-  if(!active.length){
-    el.innerHTML=`<div class="p-12 text-center text-neutral-500">${ICON_EMPTY}<p class="text-xs uppercase tracking-widest font-medium">Sem Movimentação</p></div>`;
-    return;
-  }
-  
-  const rows=active.map(c=>{
-    const ins=c.ins; 
-    const st=c.effective_status || c.status;
-    let badgeCls = 'bg-neutral-500/10 text-neutral-400 border border-neutral-500/20';
-    let stLabel = 'Inativo';
-    if(st==='ACTIVE'){ badgeCls='bg-neutral-100/10 text-white border border-white/20'; stLabel='Ativo';}
-    else if(st==='PAUSED'){ badgeCls='bg-amber-500/10 text-amber-500 border border-amber-500/20'; stLabel='Pausado';}
-    
-    const m = parseMetrics(ins);
-    
-    let creativeVisual = '';
-    if (isAds) {
-       const thumbObj = c.creative || c.adcreatives?.data?.[0];
-       const thumbUrl = thumbObj?.thumbnail_url || thumbObj?.image_url;
-       if (thumbUrl) {
-         creativeVisual = `<img src="${thumbUrl}" class="w-8 h-8 rounded shrink-0 object-cover border border-white/10" alt="ad">`;
-       } else {
-         creativeVisual = `<div class="w-8 h-8 rounded shrink-0 bg-white/5 border border-white/10 flex items-center justify-center">${ICON_IMAGE}</div>`;
-       }
+function applyCustomPeriod() {
+  const since = document.getElementById('customSince').value;
+  const until = document.getElementById('customUntil').value;
+  if (!since || !until) return;
+  customSince = since; customUntil = until;
+  currentPeriod = 'custom';
+  loadData();
+}
+
+function setLoading(on) {
+  document.getElementById('loadingBar').className = on ? 'active' : '';
+}
+
+function setConn(ok, msg) {
+  document.getElementById('connDot').style.background = ok ? '#22c55e' : '#ef4444';
+  document.getElementById('connStatus').textContent = msg;
+  document.getElementById('connStatus').style.color = ok ? '#404040' : '#ef4444';
+}
+
+// ── LOAD ACCOUNTS ──────────────────────────────────────────────────────────
+async function loadAccounts() {
+  try {
+    const d = await api({ action: 'accounts' });
+    const sel = document.getElementById('accountSelect');
+    sel.innerHTML = '';
+    const accounts = d.data || [];
+    if (!accounts.length) { sel.innerHTML = '<option value="">Nenhuma conta encontrada</option>'; return; }
+    const groups = {};
+    for (const acc of accounts) {
+      const g = acc.group || 'Pessoal';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(acc);
     }
+    const multiGroup = Object.keys(groups).length > 1;
+    for (const [grpName, accs] of Object.entries(groups)) {
+      const container = multiGroup ? document.createElement('optgroup') : sel;
+      if (multiGroup) container.label = grpName;
+      accs.forEach(acc => {
+        const opt = document.createElement('option');
+        opt.value = acc.id;
+        opt.textContent = acc.name + ' (' + acc.id + ')';
+        container.appendChild(opt);
+      });
+      if (multiGroup) sel.appendChild(container);
+    }
+    setConn(true, 'Conectado \u00b7 ' + accounts.length + ' conta(s)');
+  } catch(e) {
+    setConn(false, e.message);
+    document.getElementById('accountSelect').innerHTML = '<option value="">Erro ao carregar contas</option>';
+  }
+}
 
-    return `<tr class="group border-b border-white/5 hover:bg-white/[0.02] transition-colors last:border-0 hover:z-10">
-      <td class="py-3 px-6 text-[13px] font-medium text-neutral-300">
-        <div class="flex items-center gap-3">
-          ${creativeVisual}
-          <div class="truncate max-w-[200px] lg:max-w-[250px]" title="${c.name}">${c.name}</div>
-        </div>
+// ── LOAD DATA ──────────────────────────────────────────────────────────────
+async function loadData() {
+  const accountId = document.getElementById('accountSelect').value;
+  if (!accountId) return;
+  setLoading(true);
+  try {
+    const params = { account_id: accountId, period: currentPeriod };
+    if (currentPeriod === 'custom' && customSince && customUntil) {
+      params.since = customSince;
+      params.until = customUntil;
+    }
+    const data = await api(params);
+    renderKPIs(data.summary);
+    renderCampaigns(data.campaigns || []);
+    renderChart(data.daily || []);
+    renderFunnel(data.summary);
+    renderDonut(data.campaigns || []);
+    document.getElementById('footerTs').textContent = 'Atualizado ' + new Date().toLocaleString('pt-BR');
+    const name = document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim() || accountId;
+    setConn(true, name);
+  } catch(e) {
+    setConn(false, e.message);
+    showError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── RENDER KPIs ────────────────────────────────────────────────────────────
+function renderKPIs(s) {
+  const row = document.getElementById('kpiRow');
+  if (!s) {
+    row.style.gridTemplateColumns = 'repeat(6,1fr)';
+    row.innerHTML = Array(6).fill(`
+      <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px">
+        <div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div>
+        <div class="sk" style="height:28px;width:110px"></div>
+      </div>`).join('');
+    return;
+  }
+
+  const purchaseVal = (s.action_values||[]).find(a => a.action_type === 'purchase');
+  const revenue = purchaseVal ? parseFloat(purchaseVal.value) : 0;
+  const spend = parseFloat(s.spend||0);
+  const roas = spend > 0 ? (revenue / spend) : 0;
+
+  let kpis = [
+    card('Investimento',  brl(s.spend),                                IC.spend,       '#e5e5e5'),
+    card('Impressões',    num(s.impressions),                           IC.impressions, '#e5e5e5'),
+    card('Cliques',       num(s.clicks),                                IC.clicks,      '#e5e5e5'),
+    card('CTR',           parseFloat(s.ctr||0).toFixed(2) + '%',       IC.ctr,         '#e5e5e5'),
+    card('CPC',           brl(s.cpc),                                   IC.cpc,         '#e5e5e5'),
+    card('CPM',           brl(s.cpm),                                   IC.cpm,         '#e5e5e5'),
+  ];
+  if (revenue > 0) {
+    const roasColor = roas >= 2 ? '#22c55e' : roas >= 1 ? '#f59e0b' : '#ef4444';
+    kpis.push(card('Receita', brl(revenue), IC.revenue, '#22c55e'));
+    kpis.push(card('ROAS', roas.toFixed(2) + '\u00d7', IC.roas, roasColor));
+  }
+
+  const cols = Math.min(kpis.length, 6);
+  row.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  row.innerHTML = kpis.join('');
+}
+
+// ── RENDER CHART ───────────────────────────────────────────────────────────
+function renderChart(data) {
+  const wrap = document.querySelector('.chart-wrap');
+  if (!document.getElementById('lineChart')) wrap.innerHTML = '<canvas id="lineChart"></canvas>';
+  if (lineChart) { lineChart.destroy(); lineChart = null; }
+
+  if (!data.length) {
+    wrap.innerHTML = `<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+      ${IC.chart}
+      <span style="font-size:12px;color:#333">Sem dados para o período</span>
+    </div>`;
+    return;
+  }
+
+  if (!document.getElementById('lineChart')) wrap.innerHTML = '<canvas id="lineChart"></canvas>';
+  const ctx = document.getElementById('lineChart').getContext('2d');
+
+  const labels = data.map(d => { const [,m,day] = d.date_start.split('-'); return day + '/' + m; });
+  const spends = data.map(d => parseFloat(d.spend||0));
+  const clicks = data.map(d => parseInt(d.clicks||0));
+
+  lineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Investimento (R$)', data: spends, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.05)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y' },
+        { label: 'Cliques',           data: clicks, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.04)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#404040', font: { size: 11, weight: '400' }, boxWidth: 10, padding: 16 } },
+        tooltip: {
+          backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
+          titleColor: '#a3a3a3', bodyColor: '#e5e5e5', padding: 10, titleFont: { size: 11 }, bodyFont: { size: 12 },
+          callbacks: {
+            label: c => c.datasetIndex === 0
+              ? ' R$ ' + c.raw.toLocaleString('pt-BR', {minimumFractionDigits:2})
+              : ' ' + c.raw.toLocaleString('pt-BR') + ' cliques'
+          }
+        }
+      },
+      scales: {
+        x:  { ticks: { color: '#333', font: { size: 10 }, maxTicksLimit: 12 }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' } },
+        y:  { ticks: { color: '#333', font: { size: 10 }, callback: v => 'R$' + (v >= 1000 ? (v/1000).toFixed(1) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' }, position: 'left' },
+        y1: { ticks: { color: '#1f6150', font: { size: 10 } }, grid: { display: false }, border: { color: 'transparent' }, position: 'right' }
+      }
+    }
+  });
+}
+
+// ── RENDER FUNNEL ──────────────────────────────────────────────────────────
+function renderFunnel(s) {
+  const el = document.getElementById('funnelWrap');
+  if (!s) { el.innerHTML = '<p style="font-size:12px;color:#2a2a2a;text-align:center;padding:20px 0">Sem dados</p>'; return; }
+
+  const reach       = parseInt(s.reach||0);
+  const impressions = parseInt(s.impressions||0);
+  const clicks      = parseInt(s.clicks||0);
+  const lp          = (s.actions||[]).find(a => a.action_type === 'link_click');
+  const pageViews   = lp ? parseInt(lp.value) : Math.round(clicks * 0.85);
+  const purchases   = (s.actions||[]).find(a => a.action_type === 'purchase');
+  const purchaseCount = purchases ? parseInt(purchases.value) : 0;
+
+  const max = Math.max(reach, impressions, 1);
+  const colors = ['#3b82f6', '#6366f1', '#8b5cf6', '#f59e0b', '#10b981'];
+  const steps = [
+    { label: 'Alcance',     val: reach,         pct: '100%',                                                 },
+    { label: 'Impressões',  val: impressions,   pct: reach > 0 ? (impressions/reach*100).toFixed(1)+'%' : '—' },
+    { label: 'Cliques',     val: clicks,        pct: impressions > 0 ? (clicks/impressions*100).toFixed(2)+'%' : '—' },
+    { label: 'Page Views',  val: pageViews,     pct: clicks > 0 ? (pageViews/clicks*100).toFixed(1)+'%' : '—'  },
+  ];
+  if (purchaseCount > 0) steps.push({ label: 'Conversões', val: purchaseCount, pct: clicks > 0 ? (purchaseCount/clicks*100).toFixed(2)+'%' : '—' });
+
+  el.innerHTML = steps.map((st, i) => {
+    const w = max > 0 ? Math.max(8, Math.round(st.val / max * 100)) : 8;
+    return `<div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;color:#525252">${st.label}</span>
+        <span style="font-size:11px;color:#333">${num(st.val)}</span>
+      </div>
+      <div style="height:4px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden">
+        <div style="width:${w}%;height:100%;background:${colors[i]||colors[4]};border-radius:99px;opacity:0.7;transition:width 0.6s ease"></div>
+      </div>
+      <div style="text-align:right;margin-top:3px">
+        <span style="font-size:10px;color:#2a2a2a">${st.pct}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER CAMPAIGNS ───────────────────────────────────────────────────────
+function renderCampaigns(campaigns) {
+  const el = document.getElementById('campTable');
+  const active = campaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0);
+  document.getElementById('campCount').textContent = active.length + ' de ' + campaigns.length;
+
+  if (!active.length) {
+    el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:48px 20px">
+      ${IC.empty}
+      <p style="font-size:13px;color:#333">Sem campanhas ativas no período</p>
+      <p style="font-size:11px;color:#2a2a2a">Tente um período mais longo</p>
+    </div>`;
+    return;
+  }
+
+  const objLabel = o => ({
+    OUTCOME_TRAFFIC: 'Tráfego', OUTCOME_AWARENESS: 'Alcance', OUTCOME_SALES: 'Vendas',
+    OUTCOME_LEADS: 'Leads', OUTCOME_ENGAGEMENT: 'Engajamento', OUTCOME_APP_PROMOTION: 'App',
+  }[o] || o || '—');
+
+  const rows = active.map(c => {
+    const ins = c.ins;
+    const st  = c.effective_status;
+    const badgeBg    = st === 'ACTIVE'  ? 'rgba(34,197,94,0.08)'   : st === 'PAUSED' ? 'rgba(245,158,11,0.08)'   : 'rgba(82,82,82,0.1)';
+    const badgeColor = st === 'ACTIVE'  ? '#22c55e'                : st === 'PAUSED' ? '#f59e0b'                 : '#525252';
+    const badgeBorder= st === 'ACTIVE'  ? 'rgba(34,197,94,0.2)'    : st === 'PAUSED' ? 'rgba(245,158,11,0.2)'   : 'rgba(82,82,82,0.2)';
+    const stLabel    = st === 'ACTIVE'  ? 'Ativo'                  : st === 'PAUSED' ? 'Pausado'                 : st || '—';
+    const name = c.name.length > 45 ? c.name.substring(0,45) + '\u2026' : c.name;
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)" onmouseover="this.style.background='rgba(255,255,255,0.015)'" onmouseout="this.style.background='transparent'">
+      <td style="padding:12px 22px;font-size:12px;color:#a3a3a3;max-width:220px" title="${c.name}">${name}</td>
+      <td style="padding:12px 16px">
+        <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder}">${stLabel}</span>
       </td>
-      <td class="py-3 px-6"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase ${badgeCls}">${stLabel}</span></td>
-      <td class="py-3 px-6 text-[13px] text-right text-neutral-300">${num(m.distribution)}</td>
-      <td class="py-3 px-6 text-[13px] text-right">
-        <div class="flex flex-col">${metricColHtml(m.leads, m.spend)} ${m.leads>0 ? cpaColHtml(m.leads, m.spend):''}</div>
-      </td>
-      <td class="py-3 px-6 text-[13px] text-right">
-        <div class="flex flex-col">${metricColHtml(m.purchases, m.spend)} ${m.purchases>0 ? cpaColHtml(m.purchases, m.spend):''}</div>
-      </td>
-      <td class="py-3 px-6 text-[13px] text-right">
-        <div class="flex flex-col">${metricColHtml(m.messages, m.spend)} ${m.messages>0 ? cpaColHtml(m.messages, m.spend):''}</div>
-      </td>
-      <td class="py-3 px-6 text-[13px] text-right text-neutral-300 font-medium">${brl(m.spend)}</td>
+      <td style="padding:12px 16px;font-size:11px;color:#404040">${objLabel(c.objective)}</td>
+      <td style="padding:12px 16px;font-size:12px;color:#e5e5e5;text-align:right;font-variant-numeric:tabular-nums">${brl(ins.spend)}</td>
+      <td style="padding:12px 16px;font-size:12px;color:#525252;text-align:right;font-variant-numeric:tabular-nums">${num(ins.clicks)}</td>
+      <td style="padding:12px 16px;font-size:12px;color:#525252;text-align:right;font-variant-numeric:tabular-nums">${parseFloat(ins.ctr||0).toFixed(2)}%</td>
+      <td style="padding:12px 22px;font-size:12px;color:#525252;text-align:right;font-variant-numeric:tabular-nums">${brl(ins.cpc)}</td>
     </tr>`;
   }).join('');
-  
-  el.innerHTML=`<table class="w-full text-left border-collapse whitespace-nowrap">
+
+  el.innerHTML = `<div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse">
     <thead>
-      <tr class="border-b border-white/10 bg-white/[0.01]">
-        <th class="py-3 px-6 text-[10px] font-medium text-neutral-500 uppercase tracking-wider">${isAds?'Anúncio':'Campanha'}</th>
-        <th class="py-3 px-6 text-[10px] font-medium text-neutral-500 uppercase tracking-wider">Status</th>
-        <th class="py-3 px-6 text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-right">Distribuição</th>
-        <th class="py-3 px-6 text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-right">Leads <span class="text-neutral-700 ml-1">(CPA)</span></th>
-        <th class="py-3 px-6 text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-right">Compras <span class="text-neutral-700 ml-1">(CPA)</span></th>
-        <th class="py-3 px-6 text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-right">Mensagens <span class="text-neutral-700 ml-1">(CPA)</span></th>
-        <th class="py-3 px-6 text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-right">Custo</th>
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+        <th style="padding:10px 22px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Campanha</th>
+        <th style="padding:10px 16px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Status</th>
+        <th style="padding:10px 16px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Objetivo</th>
+        <th style="padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Investido</th>
+        <th style="padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Cliques</th>
+        <th style="padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">CTR</th>
+        <th style="padding:10px 22px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">CPC</th>
       </tr>
     </thead>
     <tbody>${rows}</tbody>
-  </table>`;
+  </table></div>`;
 }
 
-function renderChart(data){
-  if(lineChart){lineChart.destroy();lineChart=null;}
-  const wrap=document.getElementById('lineChart').parentNode;
-  
-  if(!data.length){ wrap.innerHTML=`<div class="w-full h-full flex flex-col items-center justify-center text-center text-neutral-500">${ICON_EMPTY}</div>`; return; }
-  if(!document.getElementById('lineChart')) wrap.innerHTML='<canvas id="lineChart"></canvas>';
-  
-  const ctx=document.getElementById('lineChart').getContext('2d');
-  const labels=data.map(d=>d.date_start.split('-').slice(1).reverse().join('/'));
-  const spend=data.map(d=>parseFloat(d.spend||0));
-  
-  lineChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Investimento',data:spend,borderColor:'#d4d4d4',backgroundColor:'rgba(255,255,255,0.03)',borderWidth:1.5,pointRadius:0,fill:true,tension:0.4,yAxisID:'y'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#111',titleColor:'#a3a3a3',bodyColor:'#fff',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,padding:12}},scales:{x:{ticks:{color:'#525252',font:{size:10,family:'Inter'}},grid:{display:false}},y:{ticks:{color:'#525252',font:{size:10,family:'Inter'}},grid:{color:'rgba(255,255,255,0.03)'}}}});
+// ── RENDER DONUT ───────────────────────────────────────────────────────────
+function renderDonut(campaigns) {
+  const counts = {};
+  const objLabel = o => ({
+    OUTCOME_TRAFFIC: 'Tráfego', OUTCOME_AWARENESS: 'Alcance', OUTCOME_SALES: 'Vendas',
+    OUTCOME_LEADS: 'Leads', OUTCOME_ENGAGEMENT: 'Engajamento',
+  }[o] || o || 'Outro');
+
+  campaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0).forEach(c => {
+    const lbl = objLabel(c.objective);
+    counts[lbl] = (counts[lbl]||0) + 1;
+  });
+
+  const labels = Object.keys(counts);
+  const vals   = Object.values(counts);
+  const total  = vals.reduce((a,b) => a+b, 0);
+  const colors = ['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4'];
+
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  if (donutChart) donutChart.destroy();
+  if (!labels.length) return;
+
+  donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: vals, backgroundColor: colors.map(c => c + '99'), borderColor: colors, borderWidth: 1, hoverOffset: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '72%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
+          titleColor: '#a3a3a3', bodyColor: '#e5e5e5', padding: 10,
+          callbacks: { label: c => ' ' + c.label + ': ' + c.raw + ' (' + (c.raw/total*100).toFixed(0) + '%)' }
+        }
+      }
+    }
+  });
+
+  document.getElementById('donutLegend').innerHTML = labels.map((l, i) =>
+    `<div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:6px;height:6px;border-radius:50%;background:${colors[i]};flex-shrink:0"></span>
+        <span style="font-size:11px;color:#525252">${l}</span>
+      </div>
+      <span style="font-size:11px;color:#333">${vals[i]}&nbsp;(${(vals[i]/total*100).toFixed(0)}%)</span>
+    </div>`
+  ).join('');
 }
 
-function renderFunnel(s){
-  const el=document.getElementById('funnelWrap');
-  if(!s){ el.innerHTML=`<div class="text-center text-neutral-500">${ICON_EMPTY}</div>`; return; }
-  const impressions=parseInt(s.impressions||0),clicks=parseInt(s.clicks||0);
-  const m = parseMetrics(s);
-  const totalConv = m.leads + m.purchases + m.messages;
-  
-  const max=Math.max(impressions,1);
-  const steps=[{label:'Distribuição',val:impressions,pct:'100%'},{label:'Cliques',val:clicks,pct:impressions>0?(clicks/impressions*100).toFixed(2)+'%':'—'},{label:'Conversões Totais',val:totalConv,pct:clicks>0?(totalConv/clicks*100).toFixed(2)+'%':'—'}];
-  
-  const barColors = ['from-neutral-700 to-neutral-600', 'from-neutral-500 to-neutral-400', 'from-white/80 to-white'];
-  
-  el.innerHTML=steps.map((st,i)=>{
-    const w=max>0?Math.max(8,Math.round(st.val/max*100)):8;
-    return `<div class="mb-3 last:mb-0 group">
-      <div class="flex justify-between text-[10px] text-neutral-500 tracking-wider uppercase mb-1.5"><span class="font-medium">${st.label}</span><span>${st.pct}</span></div>
-      <div class="w-full bg-white/5 rounded h-6 relative overflow-hidden"><div class="absolute top-0 left-0 h-full rounded bg-gradient-to-r ${barColors[i]} flex items-center px-3" style="width:${w}%"><span class="text-[10px] uppercase font-semibold ${i===2?'text-black':'text-white'}">${num(st.val)}</span></div></div>
+function showError(msg) {
+  document.getElementById('kpiRow').style.gridTemplateColumns = '1fr';
+  document.getElementById('kpiRow').innerHTML = `
+    <div style="border-radius:12px;border:1px solid rgba(239,68,68,0.15);background:rgba(239,68,68,0.04);padding:48px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      ${IC.alert}
+      <p style="font-size:13px;color:#525252">${msg}</p>
+      <p style="font-size:11px;color:#2a2a2a">Verifique o token de acesso ou permissões da conta</p>
     </div>`;
-  }).join('');
 }
 
-(async()=>{await loadAccounts();await loadData();})();
+// ── INIT ───────────────────────────────────────────────────────────────────
+(async () => {
+  await loadAccounts();
+  await loadData();
+})();
 </script>
 </body>
 </html>
