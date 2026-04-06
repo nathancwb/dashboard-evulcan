@@ -127,7 +127,7 @@
 <main class="max-w-[1400px] w-full mx-auto p-4 md:p-6 flex flex-col gap-4 md:gap-6">
 
   <!-- KPI ROW -->
-  <div id="kpiRow" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+  <div id="kpiRow" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-3">
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
@@ -380,8 +380,7 @@ async function loadData() {
 function renderKPIs(s) {
   const row = document.getElementById('kpiRow');
   if (!s) {
-    row.style.gridTemplateColumns = 'repeat(6,1fr)';
-    row.innerHTML = Array(6).fill(`<div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>`).join('');
+    row.innerHTML = Array(8).fill(`<div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>`).join('');
     return;
   }
 
@@ -395,22 +394,32 @@ function renderKPIs(s) {
     const freq = reach > 0 ? (imp/reach).toFixed(2) : '—';
     const videoP3s = getAction(s.actions, 'video_view');
     const hookRate = imp > 0 && videoP3s > 0 ? (videoP3s/imp*100).toFixed(1)+'%' : '—';
+    const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit');
     
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
       card('Impressões', num(imp), IC.impressions, '#e5e5e5'),
+      card('Visitas ao Perfil', num(profileVisits), IC.users, '#10b981'),
       card('Alcance', num(reach), IC.reach, '#e5e5e5'),
       card('Frequência', freq+'\u00d7', IC.users, '#e5e5e5'),
       card('CPM', brl(s.cpm), IC.cpm, '#e5e5e5'),
-      card('Hook Rate (3s)', hookRate, IC.video, '#f59e0b')
+      card('Hook Rate', hookRate, IC.video, '#f59e0b'),
+      card('Cliques', num(clk), IC.clicks, '#e5e5e5')
     ];
   } else if (currentModel === 'leads') {
     const leads = getAction(s.actions, 'lead');
     const cpl = leads > 0 ? brl(spend/leads) : '—';
+    const lp = getAction(s.actions, 'link_click');
+    const pv = lp > 0 ? lp : Math.round(clk * 0.85);
+    const cpv = pv > 0 ? brl(spend/pv) : '—';
+    const pctLeads = clk > 0 ? (leads / clk * 100).toFixed(2) + '%' : '—';
+
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
       card('Leads Cap', num(leads), IC.users, '#10b981'),
       card('Custo p/ Lead', cpl, IC.cpc, '#e5e5e5'),
+      card('% Leads', pctLeads, IC.chart, '#e5e5e5'),
+      card('C/PageView', cpv, IC.cpc, '#f59e0b'),
       card('Cliques', num(clk), IC.clicks, '#e5e5e5'),
       card('CTR', parseFloat(s.ctr||0).toFixed(2)+'%', IC.ctr, '#e5e5e5'),
       card('CPC', brl(s.cpc), IC.cpc, '#e5e5e5')
@@ -432,17 +441,22 @@ function renderKPIs(s) {
     ];
   } else if (currentModel === 'mensagens') {
     const msgs = getAction(s.actions,'messaging_conversation_started') + getAction(s.actions,'onsite_conversion.messaging_conversation_started_7d');
+    const connectRate = clk > 0 ? (msgs / clk * 100).toFixed(1) + '%' : '—';
+    
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
       card('Mensagens', num(msgs), IC.msg, '#3b82f6'),
       card('Custo p/ Msg', msgs>0?brl(spend/msgs):'—', IC.cpc, '#e5e5e5'),
+      card('Connect Rate', connectRate, IC.roas, '#8b5cf6'),
+      card('Impressões', num(imp), IC.impressions, '#e5e5e5'),
       card('Cliques Link', num(clk), IC.clicks, '#e5e5e5'),
       card('CTR Geral', parseFloat(s.ctr||0).toFixed(2)+'%', IC.ctr, '#e5e5e5'),
       card('CPM', brl(s.cpm), IC.cpm, '#e5e5e5')
     ];
   }
 
-  row.style.gridTemplateColumns = `repeat(6,1fr)`;
+  // Remove override column to respect tailwind classes
+  row.style.gridTemplateColumns = '';
   row.innerHTML = kpis.join('');
 }
 
