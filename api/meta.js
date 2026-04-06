@@ -76,11 +76,12 @@ export default async function handler(req, res) {
     const edgeInsights = 'spend,impressions,clicks,reach,frequency,ctr,cpc,cpm,actions,action_values';
     
     // N+1 Optimization: Graph API Field Expansion fetching max 50 items inherently without loops
-    const [summary, daily, campaignsResponse, adsResponse] = await Promise.all([
+    const [summary, daily, campaignsResponse, adsResponse, adsetsResponse] = await Promise.all([
       gql(`${account_id}/insights?fields=${fields}&${dateParam}`, token),
       gql(`${account_id}/insights?fields=spend,impressions,clicks,actions&${dateParam}&time_increment=1&limit=366`, token),
       gql(`${account_id}/campaigns?fields=id,name,status,effective_status,objective,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
-      gql(`${account_id}/ads?fields=id,name,status,effective_status,creative{thumbnail_url,image_url},insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]}))
+      gql(`${account_id}/ads?fields=id,name,status,effective_status,campaign_id,adset_id,creative{thumbnail_url,image_url},insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
+      gql(`${account_id}/adsets?fields=id,name,status,effective_status,campaign_id,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]}))
     ]);
 
     // Format like frontend expects natively
@@ -94,9 +95,15 @@ export default async function handler(req, res) {
       ins: a.insights?.data?.[0] || null
     }));
 
+    const adsetInsights = (adsetsResponse.data || []).map(a => ({
+      ...a,
+      ins: a.insights?.data?.[0] || null
+    }));
+
     return res.json({
       summary: summary.data?.[0] || null,
       campaigns: campInsights,
+      adsets: adsetInsights,
       ads: adInsights,
       daily: daily.data || [],
       account_id,
