@@ -449,20 +449,16 @@ async function loadData() {
     renderChart(lastDaily);
 
     // Aggregate video metrics from dedicated backend video_data (level=campaign query)
+    // NOTE: Meta API returns action_type="video_view" inside ALL pXX fields — must read arr[0].value directly
     const videoSum = { ...data.summary };
     const videoFieldNames = ['video_play_actions','video_p25_watched_actions','video_p50_watched_actions','video_p75_watched_actions','video_p95_watched_actions','video_p100_watched_actions'];
     const videoRows = data.video_data || [];
-    console.log('[VIDEO DEBUG] video_error:', data.video_error);
-    console.log('[VIDEO DEBUG] video_data rows:', videoRows.length, JSON.stringify(videoRows.slice(0,2)));
-    if (data.video_error) {
-      const titleEl2 = document.getElementById('funnelTitle');
-      if (titleEl2) titleEl2.textContent = 'Erro API vídeo: ' + data.video_error.substring(0, 80);
-    }
     if (videoRows.length > 0) {
       videoFieldNames.forEach(field => {
         const total = videoRows.reduce((acc, row) => {
           const arr = row[field];
-          return acc + (arr ? getAction(arr, field) : 0);
+          // action_type is always "video_view" inside these arrays — read value directly
+          return acc + (arr && arr[0] ? parseInt(arr[0].value || 0) : 0);
         }, 0);
         if (total > 0) videoSum[field] = [{ action_type: field, value: String(total) }];
       });
