@@ -152,7 +152,7 @@
 
     <!-- Funnel card -->
     <div class="rounded-xl border border-white/5 bg-[#0d0d0d] p-5">
-      <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:20px">Funil de Tráfego</p>
+      <p id="funnelTitle" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:20px">Funil de Tráfego</p>
       <div id="funnelWrap" style="display:flex;flex-direction:column;gap:14px">
         <div><div class="sk" style="height:10px;width:100%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:100%"></div></div>
         <div><div class="sk" style="height:10px;width:80%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:80%"></div></div>
@@ -513,7 +513,10 @@ function renderChart(data) {
 // ── RENDER FUNNEL (always visually decreasing like a real funnel) ──────────
 function renderFunnel(s) {
   const el = document.getElementById('funnelWrap');
+  const titleEl = document.getElementById('funnelTitle');
+  
   if (!s) {
+    if(titleEl) titleEl.textContent = 'Funil de Performance';
     el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:30px 0">
       ${IC.chart}
       <p style="font-size:12px;color:#333">Selecione uma conta e período</p>
@@ -522,34 +525,78 @@ function renderFunnel(s) {
     return;
   }
 
-  const reach       = parseInt(s.reach||0);
-  const impressions = parseInt(s.impressions||0);
-  const clicks      = parseInt(s.clicks||0);
-  const lp          = (s.actions||[]).find(a => a.action_type === 'link_click');
-  const pageViews   = lp ? parseInt(lp.value) : Math.round(clicks * 0.85);
-  const purchases   = (s.actions||[]).find(a => a.action_type === 'purchase');
-  const purchaseCount = purchases ? parseInt(purchases.value) : 0;
+  const spend = parseFloat(s.spend||0);
+  const ptc = (val, tot) => tot > 0 ? (val/tot*100).toFixed(1)+'%' : '—';
+  const cpa = (val) => val > 0 ? ' <span style="color:#525252">&middot;</span> ' + brl(spend/val) : '';
+  
+  let steps = [];
+
+  if (currentModel === 'distribuicao') {
+    if(titleEl) titleEl.textContent = 'Funil de Retenção de Vídeo';
+    const vv = getAction(s.actions, 'video_view');
+    const p25 = getAction(s.actions, 'video_p25_watched_action');
+    const p50 = getAction(s.actions, 'video_p50_watched_action');
+    const p75 = getAction(s.actions, 'video_p75_watched_action');
+    const p95 = getAction(s.actions, 'video_p95_watched_action');
+    
+    steps = [
+      { label: 'VideoView', val: vv, pct: '—' },
+      { label: 'VV (25%)',  val: p25, pct: ptc(p25, vv) + cpa(p25) },
+      { label: 'VV (50%)',  val: p50, pct: ptc(p50, vv) + cpa(p50) },
+      { label: 'VV (75%)',  val: p75, pct: ptc(p75, vv) + cpa(p75) },
+      { label: 'VV (95%)',  val: p95, pct: ptc(p95, vv) + cpa(p95) }
+    ];
+  } else if (currentModel === 'compras') {
+    if(titleEl) titleEl.textContent = 'Funil de E-commerce';
+    const imp = parseInt(s.impressions||0);
+    const clk = parseInt(s.clicks||0);
+    const cart = getAction(s.actions, 'add_to_cart');
+    const ic = getAction(s.actions, 'initiate_checkout');
+    const pur = getAction(s.actions, 'purchase');
+    
+    steps = [
+      { label: 'Cliques',   val: clk, pct: ptc(clk, imp) },
+      { label: 'Cart',      val: cart, pct: ptc(cart, clk) + cpa(cart) },
+      { label: 'Checkout',  val: ic, pct: ptc(ic, cart) + cpa(ic) },
+      { label: 'Compras',   val: pur, pct: ptc(pur, ic) + cpa(pur) }
+    ];
+  } else if (currentModel === 'leads') {
+    if(titleEl) titleEl.textContent = 'Funil de Captação';
+    const imp = parseInt(s.impressions||0);
+    const clk = parseInt(s.clicks||0);
+    const pv = getAction(s.actions, 'link_click');
+    const leads = getAction(s.actions, 'lead');
+    
+    steps = [
+      { label: 'Impressões',val: imp, pct: '—' },
+      { label: 'Cliques',   val: clk, pct: ptc(clk, imp) },
+      { label: 'Page Views',val: pv, pct: ptc(pv, clk) },
+      { label: 'Leads',     val: leads, pct: ptc(leads, pv) + cpa(leads) }
+    ];
+  } else {
+    if(titleEl) titleEl.textContent = 'Funil de Conversas';
+    const imp = parseInt(s.impressions||0);
+    const clk = parseInt(s.clicks||0);
+    const msg = getAction(s.actions, 'messaging_conversation_started') + getAction(s.actions,'onsite_conversion.messaging_conversation_started_7d');
+    steps = [
+      { label: 'Impressões',val: imp, pct: '—' },
+      { label: 'Cliques',   val: clk, pct: ptc(clk, imp) },
+      { label: 'Mensagens', val: msg, pct: ptc(msg, clk) + cpa(msg) }
+    ];
+  }
 
   const colors = ['#3b82f6', '#6366f1', '#8b5cf6', '#f59e0b', '#10b981'];
-  const steps = [
-    { label: 'Alcance',     val: reach,         pct: '—' },
-    { label: 'Impressões',  val: impressions,   pct: reach > 0 ? (impressions/reach*100).toFixed(1)+'%' : '—' },
-    { label: 'Cliques',     val: clicks,        pct: impressions > 0 ? (clicks/impressions*100).toFixed(2)+'%' : '—' },
-    { label: 'Page Views',  val: pageViews,     pct: clicks > 0 ? (pageViews/clicks*100).toFixed(1)+'%' : '—'  },
-  ];
-  if (purchaseCount > 0) steps.push({ label: 'Conversões', val: purchaseCount, pct: clicks > 0 ? (purchaseCount/clicks*100).toFixed(2)+'%' : '—' });
-
-  // Funnel widths always decrease: 100%, 82%, 64%, 46%, 28%
+  // Funnel widths always decrease visually to maintain the shape perfectly
   const funnelWidths = [100, 82, 64, 46, 28];
 
   el.innerHTML = steps.map((st, i) => {
-    const w = funnelWidths[i] || 20;
+    const w = funnelWidths[i] || Math.max(10, 28 - (i-4)*15); // fallback if >5 steps
     return `<div style="display:flex;flex-direction:column;align-items:center">
       <div style="display:flex;justify-content:space-between;width:100%;margin-bottom:4px">
         <span style="font-size:11px;color:#525252">${st.label}</span>
-        <span style="font-size:11px;color:#a3a3a3;font-variant-numeric:tabular-nums">${num(st.val)} <span style="color:#333;font-size:10px">${st.pct}</span></span>
+        <span style="font-size:11px;color:#a3a3a3;font-variant-numeric:tabular-nums">${num(st.val)} <span style="color:#737373;font-size:10px;margin-left:4px">${st.pct}</span></span>
       </div>
-      <div style="width:${w}%;height:6px;background:${colors[i]||colors[4]};border-radius:99px;opacity:0.75;transition:width 0.6s ease"></div>
+      <div style="width:${w}%;height:6px;background:${colors[i%colors.length]};border-radius:99px;opacity:0.75;transition:width 0.6s ease"></div>
     </div>`;
   }).join('');
 }
@@ -566,7 +613,10 @@ function setModel(model, btn) {
   btn.style.color = '#60a5fa';
   btn.classList.add('active');
   
-  if (lastSummary) renderKPIs(lastSummary);
+  if (lastSummary) {
+    renderKPIs(lastSummary);
+    renderFunnel(lastSummary); // re-render funnel when model changes!
+  }
   if (lastDaily.length) renderChart(lastDaily);
   if (lastCampaigns.length) renderCampaigns(lastCampaigns);
   if (lastAds.length) renderAds(lastAds);
