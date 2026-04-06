@@ -235,6 +235,7 @@ async function loadData(){
     setConn(true,'Sincronizado');
   }catch(e){
     setConn(false,'Falhou');
+    showError(e.message);
   } finally { setLoading(false); }
 }
 

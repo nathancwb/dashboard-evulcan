@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     ]);
 
     const campInsights = await Promise.all(
-      (campaigns.data || []).slice(0, 20).map(c =>
+      (campaigns.data || []).slice(0, 15).map(c =>
         gql(`${c.id}/insights?fields=spend,impressions,clicks,ctr,cpc,actions,action_values&${dateParam}`, token)
           .then(d => ({ ...c, ins: d.data?.[0] || null }))
           .catch(() => ({ ...c, ins: null }))
@@ -97,7 +97,7 @@ export default async function handler(req, res) {
     );
 
     const adInsights = await Promise.all(
-      (ads.data || []).slice(0, 20).map(a =>
+      (ads.data || []).slice(0, 10).map(a =>
         gql(`${a.id}/insights?fields=spend,impressions,clicks,ctr,cpc,actions,action_values&${dateParam}`, token)
           .then(d => ({ ...a, ins: d.data?.[0] || null }))
           .catch(() => ({ ...a, ins: null }))
