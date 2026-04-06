@@ -18,25 +18,21 @@ async function gql(path, token) {
 }
 
 export default async function handler(req, res) {
-  // CORS — allow any origin (dashboard can be embedded anywhere)
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const token = META_ACCESS_TOKEN;
-  if (!token) {
-    return res.status(500).json({ error: 'META_ACCESS_TOKEN not configured' });
-  }
+  if (!token) return res.status(500).json({ error: 'META_ACCESS_TOKEN not configured' });
 
   const { action, account_id, period = 'last_7d', since, until } = req.query;
 
   try {
-    // ── List personal ad accounts ──────────────────────────────────────────
     if (action === 'accounts') {
       const [personal, businesses] = await Promise.all([
         gql('me/adaccounts?fields=id,name,account_status,currency&limit=200', token),
-        gql('me/businesses?fields=id,name,owned_ad_accounts.limit(200){id,name,account_status,currency}&limit=50', token)
-          .catch(() => ({ data: [] })),
+        gql('me/businesses?fields=id,name,owned_ad_accounts.limit(200){id,name,account_status,currency}&limit=50', token).catch(() => ({ data: [] }))
       ]);
 
       const seen = new Set();
@@ -52,57 +48,50 @@ export default async function handler(req, res) {
       return res.json({ data: result });
     }
 
-    if (action === 'token_info') {
-      const d = await gql(`debug_token?input_token=${token}&access_token=${META_APP_ID}|${META_APP_SECRET}`, token);
-      return res.json(d);
-    }
+    if (!account_id) return res.status(400).json({ error: 'account_id is required' });
 
-    if (!account_id) {
-      return res.status(400).json({ error: 'account_id is required' });
-    }
-
-    // Build date parameter for Meta API
     let dateParam;
+    let edgeParams;
     if (period === 'custom' && since && until) {
       dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since, until }))}`;
+      edgeParams = `.time_range({"since":"${since}","until":"${until}"})`;
     } else if (period === 'this_year') {
       const now = new Date();
       const year = now.getFullYear();
       const todayStr = now.toISOString().split('T')[0];
       dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: `${year}-01-01`, until: todayStr }))}`;
+      edgeParams = `.time_range({"since":"${year}-01-01","until":"${todayStr}"})`;
     } else if (period === 'this_month') {
       const now = new Date();
       const firstDay = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
       const todayStr = now.toISOString().split('T')[0];
       dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: firstDay, until: todayStr }))}`;
+      edgeParams = `.time_range({"since":"${firstDay}","until":"${todayStr}"})`;
     } else {
       dateParam = `date_preset=${period}`;
+      edgeParams = `.date_preset(${period})`;
     }
 
     const fields = 'spend,impressions,clicks,reach,cpc,cpm,ctr,actions,action_values';
-
-    const [summary, campaigns, daily, ads] = await Promise.all([
+    
+    // N+1 Optimization: Graph API Field Expansion fetching max 50 items inherently without loops
+    const [summary, daily, campaignsResponse, adsResponse] = await Promise.all([
       gql(`${account_id}/insights?fields=${fields}&${dateParam}`, token),
-      gql(`${account_id}/campaigns?fields=id,name,status,effective_status,objective&limit=50`, token),
       gql(`${account_id}/insights?fields=spend,impressions,clicks&${dateParam}&time_increment=1&limit=366`, token),
-      gql(`${account_id}/ads?fields=id,name,status,effective_status,creative{thumbnail_url,image_url}&limit=30`, token).catch(() => ({ data: [] }))
+      gql(`${account_id}/campaigns?fields=id,name,status,effective_status,objective,insights${edgeParams}{spend,impressions,clicks,ctr,cpc,actions,action_values}&limit=50`, token),
+      gql(`${account_id}/ads?fields=id,name,status,effective_status,creative{thumbnail_url,image_url},insights${edgeParams}{spend,impressions,clicks,ctr,cpc,actions,action_values}&limit=50`, token).catch(()=>({data:[]}))
     ]);
 
-    const campInsights = await Promise.all(
-      (campaigns.data || []).slice(0, 15).map(c =>
-        gql(`${c.id}/insights?fields=spend,impressions,clicks,ctr,cpc,actions,action_values&${dateParam}`, token)
-          .then(d => ({ ...c, ins: d.data?.[0] || null }))
-          .catch(() => ({ ...c, ins: null }))
-      )
-    );
+    // Format like frontend expects natively
+    const campInsights = (campaignsResponse.data || []).map(c => ({
+      ...c,
+      ins: c.insights?.data?.[0] || null
+    }));
 
-    const adInsights = await Promise.all(
-      (ads.data || []).slice(0, 10).map(a =>
-        gql(`${a.id}/insights?fields=spend,impressions,clicks,ctr,cpc,actions,action_values&${dateParam}`, token)
-          .then(d => ({ ...a, ins: d.data?.[0] || null }))
-          .catch(() => ({ ...a, ins: null }))
-      )
-    );
+    const adInsights = (adsResponse.data || []).map(a => ({
+      ...a,
+      ins: a.insights?.data?.[0] || null
+    }));
 
     return res.json({
       summary: summary.data?.[0] || null,
