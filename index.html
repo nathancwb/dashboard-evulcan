@@ -245,7 +245,7 @@ function toggleCustomPicker(btn) {
     picker.style.display = 'none';
     if (currentPeriod === 'custom') return;
   } else {
-    picker.style.display = 'flex;
+    picker.style.display = 'flex';
     document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     // Set defaults: last 7 days
