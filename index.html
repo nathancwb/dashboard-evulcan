@@ -50,7 +50,7 @@
 
 <!-- HEADER -->
 <header style="background:rgba(8,8,8,0.95);backdrop-filter:blur(12px)" class="sticky top-0 z-40 border-b" style="border-color:rgba(255,255,255,0.06)">
-<div style="border-bottom:1px solid rgba(255,255,255,0.06)" class="px-6 h-14 flex items-center gap-5 max-w-screen-2xl mx-auto">
+<div style="border-bottom:1px solid rgba(255,255,255,0.06)" class="px-4 md:px-6 py-3 md:h-14 flex items-center gap-3 md:gap-5 max-w-screen-2xl mx-auto flex-wrap">
 
   <!-- Logo -->
   <div class="flex items-center gap-2.5 shrink-0">
@@ -63,7 +63,7 @@
   </div>
 
   <!-- Divider -->
-  <div style="width:1px;height:16px;background:rgba(255,255,255,0.08)" class="shrink-0"></div>
+  <div style="width:1px;height:16px;background:rgba(255,255,255,0.08)" class="hidden md:block shrink-0"></div>
 
   <!-- Account selector -->
   <div class="flex items-center gap-3 min-w-0">
@@ -81,7 +81,7 @@
     <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">7d</button>
     <button class="period-btn" onclick="setPeriod('last_30d',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">30d</button>
     <button class="period-btn" onclick="setPeriod('this_month',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Mês</button>
-    <button class="period-btn" onclick="setPeriod('this_year',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ano</button>
+    <button class="period-btn hidden md:inline-block" onclick="setPeriod('this_year',this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Ano</button>
     <button class="period-btn" id="customPeriodBtn" onclick="toggleCustomPicker(this)" style="padding:5px 13px;border-radius:6px;transition:all 0.15s">Custom</button>
   </div>
   <!-- Custom date range picker (hidden by default) -->
@@ -124,10 +124,10 @@
 </div>
 
 <!-- MAIN -->
-<main style="max-width:1400px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px">
+<main class="max-w-[1400px] w-full mx-auto p-4 md:p-6 flex flex-col gap-4 md:gap-6">
 
   <!-- KPI ROW -->
-  <div id="kpiRow" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">
+  <div id="kpiRow" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
@@ -137,10 +137,10 @@
   </div>
 
   <!-- ROW 2: CHART + FUNNEL -->
-  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
 
     <!-- Chart card -->
-    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
+    <div class="lg:col-span-2 rounded-xl border border-white/5 bg-[#0d0d0d] p-5">
       <div style="margin-bottom:20px">
         <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:4px">Investimento por Dia</p>
         <p id="chartPeriodLabel" style="font-size:11px;color:#333"></p>
@@ -151,7 +151,7 @@
     </div>
 
     <!-- Funnel card -->
-    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
+    <div class="rounded-xl border border-white/5 bg-[#0d0d0d] p-5">
       <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:20px">Funil de Tráfego</p>
       <div id="funnelWrap" style="display:flex;flex-direction:column;gap:14px">
         <div><div class="sk" style="height:10px;width:100%;margin-bottom:6px"></div><div class="sk funnel-bar" style="width:100%"></div></div>
@@ -163,10 +163,10 @@
   </div>
 
   <!-- ROW 3: TABLE + DONUT -->
-  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
 
     <!-- Campaigns card -->
-    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;overflow:hidden">
+    <div class="lg:col-span-2 rounded-xl border border-white/5 bg-[#0d0d0d] overflow-hidden">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.05);flex-wrap:wrap;gap:10px">
         <div style="display:flex;align-items:center;gap:14px">
           <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500">Campanhas</p>
@@ -185,14 +185,12 @@
     </div>
 
     <!-- Donut card -->
-    <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:22px">
+    <div class="rounded-xl border border-white/5 bg-[#0d0d0d] p-5">
       <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;margin-bottom:18px">Por Objetivo</p>
       <div style="height:150px;display:flex;align-items:center;justify-content:center">
         <canvas id="donutChart"></canvas>
       </div>
       <div id="donutLegend" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
-    </div>
-  </div>
     </div>
   </div>
 
@@ -697,7 +695,7 @@ function renderAds(adsArr) {
     
     // image skeleton logic
     const imgEl = thumb 
-      ? `<div style="width:100%;height:140px;background:url('${thumb}') center/cover no-repeat;border-bottom:1px solid rgba(255,255,255,0.05)"></div>`
+      ? `<div style="width:100%;height:140px;background:url('${thumb}') center/cover no-repeat;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:transform 0.2s" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" onclick="openLightbox('${thumb}')"></div>`
       : `<div style="width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#0d0d0d;border-bottom:1px solid rgba(255,255,255,0.02)"><span style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:0.05em">Imagem Indisponível</span></div>`;
     
     // metrics block logic
@@ -812,6 +810,19 @@ function showError(msg) {
   await loadAccounts();
   await loadData();
 })();
+
+function openLightbox(url) {
+  if(!url) return;
+  document.getElementById('modalImg').src = url;
+  document.getElementById('imageModal').style.display = 'flex';
+}
 </script>
+
+<!-- LIGHTBOX MODAL -->
+<div id="imageModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px" onclick="this.style.display='none'">
+  <img id="modalImg" src="" style="max-width:100%;max-height:90vh;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,0.5)">
+  <div style="position:absolute;top:20px;right:20px;color:#fff;font-size:42px;cursor:pointer;font-weight:300">&times;</div>
+</div>
+
 </body>
 </html>
