@@ -391,31 +391,37 @@ async function loadData() {
       return bVal - aVal;
     });
 
-    if (data.account_info && typeof data.account_info.balance !== 'undefined') {
+    if (data.account_info) {
       const info = data.account_info;
       const cur = info.currency || 'BRL';
-      const balance = parseFloat(info.balance || 0) / 100;
+      // amount_spent is in cents; balance is "bill due" (cents)
       const amountSpent = parseFloat(info.amount_spent || 0) / 100;
-      // funding_source_details.type: 1=credit card, 2=bank, 3=invoice, 4=prepaid
+      const spendCap    = parseFloat(info.spend_cap   || 0) / 100;
       const fundingType = info.funding_source_details?.type;
       const isCreditCard = fundingType === 1;
 
-      const balRow = document.getElementById('accBalanceRow');
-      const balVal = document.getElementById('accBalanceVal');
+      const balRow   = document.getElementById('accBalanceRow');
+      const balVal   = document.getElementById('accBalanceVal');
       const balLabel = document.getElementById('accBalanceLabel');
       const balBadge = document.getElementById('accBalanceBadge');
 
       if (isCreditCard) {
-        // For credit card: show amount spent this cycle
         balLabel.textContent = 'Gasto no cartão';
-        balVal.textContent = amountSpent.toLocaleString('pt-BR', {style:'currency', currency: cur});
-        balVal.style.color = amountSpent > 0 ? '#f59e0b' : '#a3a3a3';
-        if (balBadge) { balBadge.style.display = 'inline'; balBadge.textContent = 'CARTÃO'; }
+        balVal.textContent   = amountSpent.toLocaleString('pt-BR', {style:'currency', currency: cur});
+        balVal.style.color   = amountSpent > 0 ? '#f59e0b' : '#a3a3a3';
+        if (balBadge) { balBadge.style.display = 'inline'; }
+      } else if (spendCap > 0) {
+        // Prepaid with spend cap: available = cap - spent
+        const available = spendCap - amountSpent;
+        balLabel.textContent = 'Disponível';
+        balVal.textContent   = available.toLocaleString('pt-BR', {style:'currency', currency: cur});
+        balVal.style.color   = available > 0 ? '#22c55e' : '#ef4444';
+        if (balBadge) balBadge.style.display = 'none';
       } else {
-        // Prepaid: positive balance = available
-        balLabel.textContent = 'Saldo disponível';
-        balVal.textContent = balance.toLocaleString('pt-BR', {style:'currency', currency: cur});
-        balVal.style.color = balance > 0 ? '#22c55e' : '#ef4444';
+        // No spend cap: just show total spent
+        balLabel.textContent = 'Investido (total)';
+        balVal.textContent   = amountSpent.toLocaleString('pt-BR', {style:'currency', currency: cur});
+        balVal.style.color   = '#a3a3a3';
         if (balBadge) balBadge.style.display = 'none';
       }
       balRow.style.display = 'flex';
@@ -623,12 +629,12 @@ function renderFunnel(s) {
 
   if (currentModel === 'distribuicao') {
     if(titleEl) titleEl.textContent = 'Funil de Retenção de Vídeo';
-    // Fallback using substring that matches "video_p25_watched_video" securely
-    const vv = getAction(s.video_play_actions, 'video_play') || getAction(s.actions, 'video_view') || getAction(s.actions, 'video_play') || 0;
-    const p25 = getAction(s.video_p25_watched_actions, 'video_p25') || getAction(s.actions, 'video_p25') || 0;
-    const p50 = getAction(s.video_p50_watched_actions, 'video_p50') || getAction(s.actions, 'video_p50') || 0;
-    const p75 = getAction(s.video_p75_watched_actions, 'video_p75') || getAction(s.actions, 'video_p75') || 0;
-    const p95 = getAction(s.video_p95_watched_actions, 'video_p95') || getAction(s.actions, 'video_p95') || getAction(s.actions, 'video_p100') || 0;
+    // action_type da API: "video_p25_watched_actions" (confirmação da documentação Meta)
+    const vv  = getAction(s.video_play_actions,         'video_view')         || getAction(s.actions, 'video_view') || 0;
+    const p25 = getAction(s.video_p25_watched_actions,  'video_p25_watched_actions') || 0;
+    const p50 = getAction(s.video_p50_watched_actions,  'video_p50_watched_actions') || 0;
+    const p75 = getAction(s.video_p75_watched_actions,  'video_p75_watched_actions') || 0;
+    const p95 = getAction(s.video_p95_watched_actions,  'video_p95_watched_actions') || getAction(s.video_p100_watched_actions, 'video_p100_watched_actions') || 0;
     
     steps = [
       { label: 'Video Plays', val: vv, pct: '—' },
@@ -1017,14 +1023,19 @@ function showError(msg) {
 function openLightbox(url) {
   if(!url) return;
   document.getElementById('modalImg').src = url;
+  const link = document.getElementById('modalOpenLink');
+  if (link) link.href = url;
   document.getElementById('imageModal').style.display = 'flex';
 }
 </script>
 
 <!-- LIGHTBOX MODAL -->
-<div id="imageModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px" onclick="this.style.display='none'">
-  <img id="modalImg" src="" style="max-width:100%;max-height:90vh;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,0.5)">
-  <div style="position:absolute;top:20px;right:20px;color:#fff;font-size:42px;cursor:pointer;font-weight:300">&times;</div>
+<div id="imageModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
+  <img id="modalImg" src="" style="max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.7);object-fit:contain">
+  <div style="position:absolute;top:16px;right:20px;display:flex;gap:12px;align-items:center">
+    <a id="modalOpenLink" href="" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);padding:6px 12px;border-radius:6px;text-decoration:none;letter-spacing:0.05em">Abrir original ↗</a>
+    <span onclick="document.getElementById('imageModal').style.display='none'" style="color:#fff;font-size:36px;cursor:pointer;font-weight:200;line-height:1">&times;</span>
+  </div>
 </div>
 
 </body>

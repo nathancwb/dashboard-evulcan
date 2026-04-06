@@ -82,7 +82,7 @@ export default async function handler(req, res) {
       gql(`${account_id}/campaigns?fields=id,name,status,effective_status,objective,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
       gql(`${account_id}/ads?fields=id,name,status,effective_status,campaign_id,adset_id,creative{thumbnail_url,image_url},insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
       gql(`${account_id}/adsets?fields=id,name,status,effective_status,campaign_id,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
-      gql(`${account_id}?fields=balance,currency,amount_spent,funding_source_details`, token).catch(()=>null)
+      gql(`${account_id}?fields=balance,currency,amount_spent,spend_cap,funding_source_details`, token).catch(()=>null)
     ]);
 
     // Format like frontend expects natively
