@@ -133,9 +133,10 @@
     <!-- TACTIC MODELS + BALANCE -->
     <div style="display:flex;align-items:center;gap:12px">
       <div id="accBalanceRow" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:3px 10px;white-space:nowrap">
-        <span style="font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:#404040">Saldo devedor</span>
+        <span id="accBalanceLabel" style="font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:#404040">Saldo disponível</span>
         <span style="font-size:11px;color:#404040">·</span>
-        <span id="accBalanceVal" style="font-size:11px;color:#a3a3a3;font-variant-numeric:tabular-nums">—</span>
+        <span id="accBalanceVal" style="font-size:11px;color:#22c55e;font-variant-numeric:tabular-nums">—</span>
+        <span id="accBalanceBadge" style="display:none;font-size:9px;letter-spacing:0.08em;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:1px 5px;margin-left:2px">CARTÃO</span>
       </div>
       <div id="globalModelTabs" style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:4px;gap:4px">
         <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.3)">Distribuição</button>
@@ -391,9 +392,33 @@ async function loadData() {
     });
 
     if (data.account_info && typeof data.account_info.balance !== 'undefined') {
-      const balStr = (data.account_info.balance / 100).toLocaleString('pt-BR', {style: 'currency', currency: data.account_info.currency || 'BRL'});
-      document.getElementById('accBalanceVal').textContent = balStr;
-      document.getElementById('accBalanceRow').style.display = 'flex';
+      const info = data.account_info;
+      const cur = info.currency || 'BRL';
+      const balance = parseFloat(info.balance || 0) / 100;
+      const amountSpent = parseFloat(info.amount_spent || 0) / 100;
+      // funding_source_details.type: 1=credit card, 2=bank, 3=invoice, 4=prepaid
+      const fundingType = info.funding_source_details?.type;
+      const isCreditCard = fundingType === 1;
+
+      const balRow = document.getElementById('accBalanceRow');
+      const balVal = document.getElementById('accBalanceVal');
+      const balLabel = document.getElementById('accBalanceLabel');
+      const balBadge = document.getElementById('accBalanceBadge');
+
+      if (isCreditCard) {
+        // For credit card: show amount spent this cycle
+        balLabel.textContent = 'Gasto no cartão';
+        balVal.textContent = amountSpent.toLocaleString('pt-BR', {style:'currency', currency: cur});
+        balVal.style.color = amountSpent > 0 ? '#f59e0b' : '#a3a3a3';
+        if (balBadge) { balBadge.style.display = 'inline'; balBadge.textContent = 'CARTÃO'; }
+      } else {
+        // Prepaid: positive balance = available
+        balLabel.textContent = 'Saldo disponível';
+        balVal.textContent = balance.toLocaleString('pt-BR', {style:'currency', currency: cur});
+        balVal.style.color = balance > 0 ? '#22c55e' : '#ef4444';
+        if (balBadge) balBadge.style.display = 'none';
+      }
+      balRow.style.display = 'flex';
     } else {
       document.getElementById('accBalanceRow').style.display = 'none';
     }
