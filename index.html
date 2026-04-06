@@ -445,7 +445,29 @@ async function loadData() {
     renderCampaigns(lastCampaigns);
     renderAds(lastAds);
     renderChart(lastDaily);
-    renderFunnel(data.summary);
+
+    // Aggregate video retention from campaigns (account-level insights don't expose these)
+    const videoSum = { ...data.summary };
+    const videoFields = ['video_play_actions','video_p25_watched_actions','video_p50_watched_actions','video_p75_watched_actions','video_p95_watched_actions','video_p100_watched_actions'];
+    videoFields.forEach(field => {
+      const total = lastCampaigns.reduce((acc, c) => {
+        const arr = c.ins && c.ins[field];
+        return acc + (arr ? getAction(arr, field) : 0);
+      }, 0);
+      if (total > 0) videoSum[field] = [{ action_type: field, value: String(total) }];
+    });
+    // Also aggregate from adsets as fallback
+    if (!videoSum.video_p25_watched_actions || !getAction(videoSum.video_p25_watched_actions, 'video_p25_watched_actions')) {
+      videoFields.forEach(field => {
+        const total = lastAdsets.reduce((acc, a) => {
+          const arr = a.ins && a.ins[field];
+          return acc + (arr ? getAction(arr, field) : 0);
+        }, 0);
+        if (total > 0) videoSum[field] = [{ action_type: field, value: String(total) }];
+      });
+    }
+
+    renderFunnel(videoSum);
     renderDonut(data.campaigns || []);
     document.getElementById('footerTs').textContent = 'Atualizado ' + new Date().toLocaleString('pt-BR');
     const name = document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim() || accountId;
