@@ -55,53 +55,64 @@
 
 <!-- HEADER -->
 <header style="background:rgba(8,8,8,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-0 z-40">
-<div class="px-4 md:px-6 py-2 md:py-0 md:h-14 flex items-center gap-3 md:gap-5 max-w-screen-2xl mx-auto flex-wrap">
 
-  <!-- Logo -->
-  <div class="flex items-center gap-2.5 shrink-0">
-    <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+  <!-- ROW 1: Logo + Account -->
+  <div class="px-4 md:px-6 h-11 md:h-14 flex items-center gap-3 max-w-screen-2xl mx-auto">
+    <div class="flex items-center gap-2 shrink-0">
+      <div class="w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <span style="font-size:13px;font-weight:500;color:#fff">Meta Ads</span>
+      <span style="color:rgba(255,255,255,0.12);font-size:14px;font-weight:300">/</span>
+      <span id="brandName" style="font-size:12px;color:#525252">Evulcan</span>
     </div>
-    <span style="font-size:13px;font-weight:500;color:#fff;letter-spacing:-0.01em">Meta Ads</span>
-    <span style="color:rgba(255,255,255,0.12);font-size:16px;font-weight:300">/</span>
-    <span id="brandName" style="font-size:13px;color:#525252">Evulcan</span>
-  </div>
-
-  <!-- Divider -->
-  <div style="width:1px;height:16px;background:rgba(255,255,255,0.08)" class="hidden md:block shrink-0"></div>
-
-  <!-- Account selector -->
-  <div id="accountSelectorWrap" class="flex items-center gap-2 min-w-0 flex-1">
-    <label class="hidden md:block" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
-    <select id="accountSelect" onchange="loadData()"
-      style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:5px 10px;width:100%;max-width:280px;outline:none;text-overflow:ellipsis">
-      <option value="">Carregando contas...</option>
-    </select>
-  </div>
-
-  <!-- Period pills -->
-  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px;flex-shrink:0">
-    <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Hoje</button>
-    <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ontem</button>
-    <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">7d</button>
-    <button class="period-btn" onclick="setPeriod('last_30d',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">30d</button>
-    <button class="period-btn hidden md:inline-block" onclick="setPeriod('this_month',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Mês</button>
-    <button class="period-btn hidden lg:inline-block" onclick="setPeriod('this_year',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ano</button>
-    <button class="period-btn hidden md:inline-block" id="customPeriodBtn" onclick="toggleCustomPicker(this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Custom</button>
-  </div>
-  <!-- Custom date range picker (hidden by default) -->
-  <div id="customPicker" style="display:none;align-items:center;gap:8px">
-    <input type="date" id="customSince" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
-    <span style="font-size:11px;color:#333">→</span>
-    <input type="date" id="customUntil" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
-    <button onclick="applyCustomPeriod()" style="height:28px;padding:0 10px;border-radius:6px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit">Aplicar</button>
-  </div>
-
-  <!-- Status + Refresh -->
-  <div class="flex items-center gap-3 shrink-0">
-    <div class="hidden md:flex items-center gap-2">
+    <div style="width:1px;height:14px;background:rgba(255,255,255,0.08)" class="hidden md:block"></div>
+    <div id="accountSelectorWrap" class="flex items-center gap-2 min-w-0 flex-1">
+      <label class="hidden md:block" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
+      <select id="accountSelect" onchange="loadData()"
+        style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:4px 8px;width:100%;max-width:320px;outline:none;min-width:0">
+        <option value="">Carregando contas...</option>
+      </select>
+    </div>
+    <!-- Status (desktop only) -->
+    <div class="hidden md:flex items-center gap-2 shrink-0">
       <span id="connDot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
       <span id="connStatus" style="font-size:12px;color:#404040">Conectando...</span>
+    </div>
+  </div>
+
+  <!-- ROW 2: Periods + Refresh (mobile) / merged into row 1 on desktop -->
+  <div class="md:hidden px-4 pb-2 flex items-center gap-2">
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:3px;display:flex;gap:1px;flex:1">
+      <button class="period-btn" onclick="setPeriod('today',this)" style="flex:1;padding:4px 0;border-radius:5px;transition:all 0.15s;font-size:11px">Hoje</button>
+      <button class="period-btn" onclick="setPeriod('yesterday',this)" style="flex:1;padding:4px 0;border-radius:5px;transition:all 0.15s;font-size:11px">Ontem</button>
+      <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="flex:1;padding:4px 0;border-radius:5px;transition:all 0.15s;font-size:11px">7d</button>
+      <button class="period-btn" onclick="setPeriod('last_30d',this)" style="flex:1;padding:4px 0;border-radius:5px;transition:all 0.15s;font-size:11px">30d</button>
+      <button class="period-btn" onclick="setPeriod('this_month',this)" style="flex:1;padding:4px 0;border-radius:5px;transition:all 0.15s;font-size:11px">Mês</button>
+      <button class="period-btn" id="customPeriodBtnMob" onclick="toggleCustomPicker(this)" style="flex:1;padding:4px 0;border-radius:5px;transition:all 0.15s;font-size:11px">+</button>
+    </div>
+    <button onclick="loadData()" style="display:flex;align-items:center;gap:4px;height:30px;padding:0 10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:#525252;font-size:11px;cursor:pointer;font-family:inherit;flex-shrink:0">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <span class="hidden sm:inline">Atualizar</span>
+    </button>
+  </div>
+
+  <!-- ROW desktop: periods inline -->
+  <div class="hidden md:flex items-center gap-2 px-6 pb-0" style="position:absolute;top:0;right:24px;bottom:0;align-items:center">
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px">
+      <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Hoje</button>
+      <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ontem</button>
+      <button class="period-btn active" onclick="setPeriod('last_7d',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">7d</button>
+      <button class="period-btn" onclick="setPeriod('last_30d',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">30d</button>
+      <button class="period-btn" onclick="setPeriod('this_month',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Mês</button>
+      <button class="period-btn" onclick="setPeriod('this_year',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ano</button>
+      <button class="period-btn" id="customPeriodBtn" onclick="toggleCustomPicker(this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Custom</button>
+    </div>
+    <div id="customPicker" style="display:none;align-items:center;gap:8px">
+      <input type="date" id="customSince" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
+      <span style="font-size:11px;color:#333">→</span>
+      <input type="date" id="customUntil" style="font-size:11px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:4px 8px;outline:none;font-family:inherit">
+      <button onclick="applyCustomPeriod()" style="height:28px;padding:0 10px;border-radius:6px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit">Aplicar</button>
     </div>
     <button onclick="loadData()" style="display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:#525252;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit"
       onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.15)'"
@@ -111,44 +122,47 @@
     </button>
   </div>
 
-</div>
 </header>
 
-<!-- SUB-HEADER FOR MODEL & FILTERS -->
-<div style="background:rgba(5,5,5,0.7);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-12 md:top-14 z-30">
-  <div class="px-4 md:px-6 py-2 flex items-center gap-3 max-w-screen-2xl mx-auto overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none">
-    
+<!-- CUSTOM PICKER MOBILE (dropdown below header) -->
+<div id="customPickerMob" style="display:none;background:rgba(10,10,10,0.98);border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 16px" class="md:hidden sticky top-0 z-40">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <input type="date" id="customSinceMob" style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 8px;outline:none;flex:1">
+    <span style="color:#333">→</span>
+    <input type="date" id="customUntilMob" style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 8px;outline:none;flex:1">
+    <button onclick="applyCustomMob()" style="height:32px;padding:0 14px;border-radius:6px;background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;font-size:12px;font-weight:500;cursor:pointer">OK</button>
+  </div>
+</div>
+
+<!-- SUB-HEADER -->
+<div style="background:rgba(5,5,5,0.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-[68px] md:top-14 z-30">
+  <div class="px-3 md:px-6 py-1.5 flex items-center gap-2 max-w-screen-2xl mx-auto overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none">
     <!-- HIERARCHY FILTERS -->
-    <div style="display:flex;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:4px 14px;gap:10px;flex-shrink:0">
-      <input type="text" list="campList" id="campFilter" placeholder="Campanhas" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:90px;text-overflow:ellipsis">
+    <div style="display:flex;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:3px 12px;gap:8px;flex-shrink:0">
+      <input type="text" list="campList" id="campFilter" placeholder="Campanha" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:80px">
       <datalist id="campList"></datalist>
-      <div style="width:1px;height:12px;background:rgba(255,255,255,0.1)"></div>
-      <input type="text" list="adsetList" id="adsetFilter" placeholder="Conjunto" onchange="applyHierarchy()" oninput="if(!this.value){clearFilter('adset')}" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:80px;text-overflow:ellipsis">
+      <div style="width:1px;height:10px;background:rgba(255,255,255,0.1)"></div>
+      <input type="text" list="adsetList" id="adsetFilter" placeholder="Conjunto" onchange="applyHierarchy()" oninput="if(!this.value){clearFilter('adset')}" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:70px">
       <datalist id="adsetList"></datalist>
-      <button onclick="clearAllFilters()" title="Limpar filtros" style="background:none;border:none;cursor:pointer;color:#404040;padding:0;display:flex;align-items:center;flex-shrink:0" onmouseover="this.style.color='#888'" onmouseout="this.style.color='#404040'">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      <button onclick="clearAllFilters()" style="background:none;border:none;cursor:pointer;color:#404040;padding:0;display:flex;align-items:center;flex-shrink:0" onmouseover="this.style.color='#888'" onmouseout="this.style.color='#404040'">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>
-
-    <!-- spacer -->
-    <div style="flex:1;min-width:8px"></div>
-
+    <div style="flex:1"></div>
     <!-- BALANCE -->
-    <div id="accBalanceRow" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:3px 10px;white-space:nowrap;flex-shrink:0">
-      <span id="accBalanceLabel" style="font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:#404040">Saldo</span>
-      <span style="font-size:11px;color:#404040">·</span>
+    <div id="accBalanceRow" style="display:none;align-items:center;gap:4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:2px 8px;white-space:nowrap;flex-shrink:0">
+      <span id="accBalanceLabel" style="font-size:9px;letter-spacing:0.05em;text-transform:uppercase;color:#404040">Disponível</span>
+      <span style="font-size:10px;color:#404040">·</span>
       <span id="accBalanceVal" style="font-size:11px;color:#22c55e;font-variant-numeric:tabular-nums">—</span>
-      <span id="accBalanceBadge" style="display:none;font-size:9px;letter-spacing:0.08em;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:1px 5px;margin-left:2px">CARTÃO</span>
+      <span id="accBalanceBadge" style="display:none;font-size:9px;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:1px 5px">CARTÃO</span>
     </div>
-
     <!-- MODEL TABS -->
-    <div id="globalModelTabs" style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:3px;gap:2px;flex-shrink:0">
-      <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.3);white-space:nowrap">Distribuição</button>
-      <button class="model-btn" onclick="setModel('leads',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Leads</button>
-      <button class="model-btn" onclick="setModel('compras',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Compras</button>
-      <button class="model-btn" onclick="setModel('mensagens',this)" style="padding:5px 10px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Msgs</button>
+    <div id="globalModelTabs" style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:2px;gap:1px;flex-shrink:0">
+      <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:4px 9px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.08);color:#fff;white-space:nowrap">Dist.</button>
+      <button class="model-btn" onclick="setModel('leads',this)" style="padding:4px 9px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Leads</button>
+      <button class="model-btn" onclick="setModel('compras',this)" style="padding:4px 9px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Compras</button>
+      <button class="model-btn" onclick="setModel('mensagens',this)" style="padding:4px 9px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Msgs</button>
     </div>
-    
   </div>
 </div>
 
@@ -281,12 +295,12 @@ Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 const brl = v => 'R$\u00a0' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const num = v => parseFloat(v||0).toLocaleString('pt-BR');
 const card = (label, value, icon, color) => `
-  <div style="background:linear-gradient(145deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);backdrop-filter:blur(10px);border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow: 0 4px 20px rgba(0,0,0,0.25);padding:clamp(14px,1.5vw,22px);display:flex;flex-direction:column;gap:8px;min-width:0;transition:all 0.3s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
-    <div style="display:flex;align-items:center;gap:6px">
-      <span style="color:#666;flex-shrink:0">${icon}</span>
-      <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#888;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</span>
+  <div style="background:linear-gradient(145deg,rgba(20,20,20,0.6) 0%,rgba(10,10,10,0.8) 100%);backdrop-filter:blur(10px);border-radius:14px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 20px rgba(0,0,0,0.25);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:hidden;transition:all 0.3s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+    <div style="display:flex;align-items:center;gap:5px">
+      <span style="color:#555;flex-shrink:0">${icon}</span>
+      <span style="font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#666;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span>
     </div>
-    <p style="font-size:clamp(18px,2.2vw,28px);font-weight:300;letter-spacing:-0.03em;color:${color||'#e5e5e5'};line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${value}</p>
+    <p style="font-size:clamp(16px,3.5vw,26px);font-weight:300;letter-spacing:-0.02em;color:${color||'#e5e5e5'};line-height:1.1;word-break:break-all">${value}</p>
   </div>`;
 
 async function api(params = {}) {
@@ -307,6 +321,21 @@ function setPeriod(p, btn) {
 }
 
 function toggleCustomPicker(btn) {
+  const isMob = window.innerWidth < 768;
+  if (isMob) {
+    const mob = document.getElementById('customPickerMob');
+    const isOpen = mob.style.display !== 'none';
+    mob.style.display = isOpen ? 'none' : 'block';
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    if (!isOpen) {
+      btn.classList.add('active');
+      const today = new Date();
+      const d7 = new Date(today); d7.setDate(today.getDate() - 6);
+      document.getElementById('customUntilMob').value = today.toISOString().split('T')[0];
+      document.getElementById('customSinceMob').value = d7.toISOString().split('T')[0];
+    }
+    return;
+  }
   const picker = document.getElementById('customPicker');
   const isOpen = picker.style.display !== 'none';
   if (isOpen) {
@@ -316,12 +345,21 @@ function toggleCustomPicker(btn) {
     picker.style.display = 'flex';
     document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    // Set defaults: last 7 days
     const today = new Date();
     const d7 = new Date(today); d7.setDate(today.getDate() - 6);
     document.getElementById('customUntil').value = today.toISOString().split('T')[0];
     document.getElementById('customSince').value = d7.toISOString().split('T')[0];
   }
+}
+
+function applyCustomMob() {
+  const since = document.getElementById('customSinceMob').value;
+  const until = document.getElementById('customUntilMob').value;
+  if (!since || !until) return;
+  customSince = since; customUntil = until;
+  currentPeriod = 'custom';
+  document.getElementById('customPickerMob').style.display = 'none';
+  loadData();
 }
 
 function applyCustomPeriod() {
