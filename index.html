@@ -109,6 +109,20 @@
 </div>
 </header>
 
+<!-- SUB-HEADER FOR MODEL -->
+<div style="background:rgba(8,8,8,0.9);border-bottom:1px solid rgba(255,255,255,0.04)" class="sticky top-14 z-30">
+  <div class="px-6 h-12 flex items-center justify-between gap-5 max-w-screen-2xl mx-auto overflow-x-auto">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="globalModelTabs" style="display:flex;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:3px;gap:2px">
+        <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:6px 14px;border-radius:5px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:rgba(59,130,246,0.15);color:#60a5fa">Distribuição</button>
+        <button class="model-btn" onclick="setModel('leads',this)" style="padding:6px 14px;border-radius:5px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:transparent;color:#737373">Leads</button>
+        <button class="model-btn" onclick="setModel('compras',this)" style="padding:6px 14px;border-radius:5px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:transparent;color:#737373">Compras</button>
+        <button class="model-btn" onclick="setModel('mensagens',this)" style="padding:6px 14px;border-radius:5px;font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:transparent;color:#737373">Mensagens</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MAIN -->
 <main style="max-width:1400px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:16px">
 
@@ -158,12 +172,6 @@
           <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500">Campanhas</p>
           <span id="campCount" style="font-size:11px;color:#333"></span>
         </div>
-        <div id="modelTabs" style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:3px;gap:2px">
-          <button class="model-btn active" onclick="setModel('distribuicao',this)" style="padding:4px 12px;border-radius:5px;font-size:10px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:rgba(255,255,255,0.08);color:#fff">Distribuição</button>
-          <button class="model-btn" onclick="setModel('leads',this)" style="padding:4px 12px;border-radius:5px;font-size:10px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:transparent;color:#525252">Leads</button>
-          <button class="model-btn" onclick="setModel('compras',this)" style="padding:4px 12px;border-radius:5px;font-size:10px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:transparent;color:#525252">Compras</button>
-          <button class="model-btn" onclick="setModel('mensagens',this)" style="padding:4px 12px;border-radius:5px;font-size:10px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;background:transparent;color:#525252">Mensagens</button>
-        </div>
       </div>
       <div id="campTable">
         <div style="padding:20px;display:flex;flex-direction:column;gap:10px">
@@ -208,13 +216,19 @@ const IC = {
   empty: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>`,
   alert: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
   chart: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="color:#2a2a2a"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+  reach: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`,
+  users: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  msg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  video: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>`
 };
 
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 let currentPeriod = 'last_7d';
 let customSince = '', customUntil = '';
 let currentModel = 'distribuicao';
+let lastSummary = null;
 let lastCampaigns = [];
+let lastDaily = [];
 let lineChart, donutChart;
 
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
@@ -330,6 +344,8 @@ async function loadData() {
       params.until = customUntil;
     }
     const data = await api(params);
+    lastSummary = data.summary;
+    lastDaily = data.daily || [];
     renderKPIs(data.summary);
     renderCampaigns(data.campaigns || []);
     renderChart(data.daily || []);
@@ -346,40 +362,72 @@ async function loadData() {
   }
 }
 
-// ── RENDER KPIs ────────────────────────────────────────────────────────────
 function renderKPIs(s) {
   const row = document.getElementById('kpiRow');
   if (!s) {
     row.style.gridTemplateColumns = 'repeat(6,1fr)';
-    row.innerHTML = Array(6).fill(`
-      <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px">
-        <div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div>
-        <div class="sk" style="height:28px;width:110px"></div>
-      </div>`).join('');
+    row.innerHTML = Array(6).fill(`<div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>`).join('');
     return;
   }
 
-  const purchaseVal = (s.action_values||[]).find(a => a.action_type === 'purchase');
-  const revenue = purchaseVal ? parseFloat(purchaseVal.value) : 0;
   const spend = parseFloat(s.spend||0);
-  const roas = spend > 0 ? (revenue / spend) : 0;
+  const imp = parseInt(s.impressions||0);
+  const clk = parseInt(s.clicks||0);
 
-  let kpis = [
-    card('Investimento',  brl(s.spend),                                IC.spend,       '#e5e5e5'),
-    card('Impressões',    num(s.impressions),                           IC.impressions, '#e5e5e5'),
-    card('Cliques',       num(s.clicks),                                IC.clicks,      '#e5e5e5'),
-    card('CTR',           parseFloat(s.ctr||0).toFixed(2) + '%',       IC.ctr,         '#e5e5e5'),
-    card('CPC',           brl(s.cpc),                                   IC.cpc,         '#e5e5e5'),
-    card('CPM',           brl(s.cpm),                                   IC.cpm,         '#e5e5e5'),
-  ];
-  if (revenue > 0) {
+  let kpis = [];
+  if (currentModel === 'distribuicao') {
+    const reach = parseInt(s.reach||0);
+    const freq = reach > 0 ? (imp/reach).toFixed(2) : '—';
+    const videoP3s = (s.video_p3s_actions||[]).reduce((sum,a)=>sum+parseInt(a.value),0);
+    const hookRate = imp > 0 && videoP3s > 0 ? (videoP3s/imp*100).toFixed(1)+'%' : '—';
+    
+    kpis = [
+      card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
+      card('Impressões', num(imp), IC.impressions, '#e5e5e5'),
+      card('Alcance', num(reach), IC.reach, '#e5e5e5'),
+      card('Frequência', freq+'\u00d7', IC.users, '#e5e5e5'),
+      card('CPM', brl(s.cpm), IC.cpm, '#e5e5e5'),
+      card('Hook Rate (3s)', hookRate, IC.video, '#f59e0b')
+    ];
+  } else if (currentModel === 'leads') {
+    const leads = getAction(s.actions, 'lead');
+    const cpl = leads > 0 ? brl(spend/leads) : '—';
+    kpis = [
+      card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
+      card('Leads Cap', num(leads), IC.users, '#10b981'),
+      card('Custo p/ Lead', cpl, IC.cpc, '#e5e5e5'),
+      card('Cliques', num(clk), IC.clicks, '#e5e5e5'),
+      card('CTR', parseFloat(s.ctr||0).toFixed(2)+'%', IC.ctr, '#e5e5e5'),
+      card('CPC', brl(s.cpc), IC.cpc, '#e5e5e5')
+    ];
+  } else if (currentModel === 'compras') {
+    const purch = getAction(s.actions, 'purchase');
+    const ptc = getAction(s.actions, 'add_to_cart');
+    const pVal = (s.action_values||[]).find(a=>a.action_type==='purchase');
+    const rev = pVal ? parseFloat(pVal.value) : 0;
+    const roas = spend > 0 ? (rev/spend).toFixed(2)+'\u00d7' : '—';
     const roasColor = roas >= 2 ? '#22c55e' : roas >= 1 ? '#f59e0b' : '#ef4444';
-    kpis.push(card('Receita', brl(revenue), IC.revenue, '#22c55e'));
-    kpis.push(card('ROAS', roas.toFixed(2) + '\u00d7', IC.roas, roasColor));
+    kpis = [
+      card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
+      card('Receita Total', brl(rev), IC.revenue, '#22c55e'),
+      card('ROAS Geral', roas, IC.roas, roasColor),
+      card('Compras', num(purch), IC.users, '#e5e5e5'),
+      card('Custo p/ Compra', purch>0?brl(spend/purch):'—', IC.cpc, '#e5e5e5'),
+      card('Add ao Carrinho', num(ptc), IC.clicks, '#e5e5e5')
+    ];
+  } else if (currentModel === 'mensagens') {
+    const msgs = getAction(s.actions,'messaging_conversation_started') + getAction(s.actions,'onsite_conversion.messaging_conversation_started_7d');
+    kpis = [
+      card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
+      card('Mensagens', num(msgs), IC.msg, '#3b82f6'),
+      card('Custo p/ Msg', msgs>0?brl(spend/msgs):'—', IC.cpc, '#e5e5e5'),
+      card('Cliques Link', num(clk), IC.clicks, '#e5e5e5'),
+      card('CTR Geral', parseFloat(s.ctr||0).toFixed(2)+'%', IC.ctr, '#e5e5e5'),
+      card('CPM', brl(s.cpm), IC.cpm, '#e5e5e5')
+    ];
   }
 
-  const cols = Math.min(kpis.length, 6);
-  row.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  row.style.gridTemplateColumns = `repeat(6,1fr)`;
   row.innerHTML = kpis.join('');
 }
 
@@ -402,36 +450,46 @@ function renderChart(data) {
 
   const labels = data.map(d => { const [,m,day] = d.date_start.split('-'); return day + '/' + m; });
   const spends = data.map(d => parseFloat(d.spend||0));
-  const clicks = data.map(d => parseInt(d.clicks||0));
+
+  let metricLabel = '', metricData = [], metricColor = '';
+  if (currentModel === 'distribuicao') {
+    metricLabel = 'Impressões'; metricData = data.map(d => parseInt(d.impressions||0)); metricColor = '#60a5fa'; // blue
+  } else if (currentModel === 'leads') {
+    metricLabel = 'Leads Diários'; metricData = data.map(d => getAction(d.actions,'lead')); metricColor = '#10b981'; // green
+  } else if (currentModel === 'compras') {
+    metricLabel = 'Compras Realizadas'; metricData = data.map(d => getAction(d.actions,'purchase')); metricColor = '#f59e0b'; // orange
+  } else if (currentModel === 'mensagens') {
+    metricLabel = 'Mensagens (Wpp/Dir)'; metricData = data.map(d => getAction(d.actions,'messaging_conversation_started') + getAction(d.actions,'onsite_conversion.messaging_conversation_started_7d')); metricColor = '#a855f7'; // purple
+  }
 
   lineChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
       datasets: [
-        { label: 'Investimento (R$)', data: spends, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.05)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y' },
-        { label: 'Cliques',           data: clicks, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.04)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y1' }
+        { label: 'Investimento (R$)', data: spends, borderColor: '#525252', backgroundColor: 'rgba(255,255,255,0.02)', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y' },
+        { label: metricLabel, data: metricData, borderColor: metricColor, backgroundColor: metricColor+'1a', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.4, yAxisID: 'y1' }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { labels: { color: '#404040', font: { size: 11, weight: '400' }, boxWidth: 10, padding: 16 } },
+        legend: { labels: { color: '#8a8a8a', font: { size: 11, weight: '400' }, boxWidth: 10, padding: 16 } },
         tooltip: {
           backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1,
           titleColor: '#a3a3a3', bodyColor: '#e5e5e5', padding: 10, titleFont: { size: 11 }, bodyFont: { size: 12 },
           callbacks: {
             label: c => c.datasetIndex === 0
               ? ' R$ ' + c.raw.toLocaleString('pt-BR', {minimumFractionDigits:2})
-              : ' ' + c.raw.toLocaleString('pt-BR') + ' cliques'
+              : ' ' + c.raw.toLocaleString('pt-BR') + ' ' + (currentModel==='compras'? 'vendas' : currentModel)
           }
         }
       },
       scales: {
         x:  { ticks: { color: '#333', font: { size: 10 }, maxTicksLimit: 12 }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' } },
-        y:  { ticks: { color: '#333', font: { size: 10 }, callback: v => 'R$' + (v >= 1000 ? (v/1000).toFixed(1) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' }, position: 'left' },
-        y1: { ticks: { color: '#1f6150', font: { size: 10 } }, grid: { display: false }, border: { color: 'transparent' }, position: 'right' }
+        y:  { ticks: { color: '#525252', font: { size: 10 }, callback: v => 'R$' + (v >= 1000 ? (v/1000).toFixed(1) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' }, position: 'left' },
+        y1: { ticks: { color: metricColor, font: { size: 10 } }, grid: { display: false }, border: { color: 'transparent' }, position: 'right' }
       }
     }
   });
@@ -484,8 +542,17 @@ function renderFunnel(s) {
 // ── MODEL MANAGEMENT ───────────────────────────────────────────────────────
 function setModel(model, btn) {
   currentModel = model;
-  document.querySelectorAll('.model-btn').forEach(b => { b.style.background='transparent'; b.style.color='#525252'; });
-  btn.style.background = 'rgba(255,255,255,0.08)'; btn.style.color = '#fff';
+  document.querySelectorAll('.model-btn').forEach(b => {
+    b.style.background='transparent'; 
+    b.style.color='#737373'; 
+    b.classList.remove('active');
+  });
+  btn.style.background = 'rgba(59,130,246,0.15)'; 
+  btn.style.color = '#60a5fa';
+  btn.classList.add('active');
+  
+  if (lastSummary) renderKPIs(lastSummary);
+  if (lastDaily.length) renderChart(lastDaily);
   if (lastCampaigns.length) renderCampaigns(lastCampaigns);
 }
 
@@ -518,15 +585,17 @@ function renderCampaigns(campaigns) {
 
   // Model-specific columns
   const models = {
-    distribuicao: { headers: ['Impressões','Alcance','CPM','Frequência'], fn: (ins) => {
+    distribuicao: { headers: ['Impressões','Alcance','CPM','Hook Rate','Frequência'], fn: (ins) => {
       const imp=parseInt(ins.impressions||0), reach=parseInt(ins.reach||0);
-      const cpm=parseFloat(ins.cpm||0), freq=reach>0?(imp/reach).toFixed(1):'—';
-      return [`<td style="${tdS};color:#a3a3a3">${num(imp)}</td>`,`<td style="${tdS};color:#525252">${num(reach)}</td>`,`<td style="${tdS};color:#525252">${brl(cpm)}</td>`,`<td style="${tdS};color:#525252">${freq}×</td>`];
+      const cpm=parseFloat(ins.cpm||0), freq=parseFloat(ins.frequency||0).toFixed(2);
+      const videoP3s=(ins.video_p3s_actions||[]).reduce((sum,a)=>sum+parseInt(a.value),0);
+      const hookRate=(imp>0&&videoP3s>0)?(videoP3s/imp*100).toFixed(1)+'%':dash;
+      return [`<td style="${tdS};color:#a3a3a3">${num(imp)}</td>`,`<td style="${tdS};color:#525252">${num(reach)}</td>`,`<td style="${tdS};color:#525252">${brl(cpm)}</td>`,`<td style="${tdS};color:#f59e0b">${hookRate}</td>`,`<td style="${tdS};color:#525252">${freq}×</td>`];
     }},
     leads: { headers: ['Leads','Custo/Lead','Cliques','CTR'], fn: (ins) => {
       const leads=getAction(ins.actions,'lead'), spend=parseFloat(ins.spend||0);
       const cpl=leads>0?brl(spend/leads):dash;
-      return [`<td style="${tdS};color:#a3a3a3;font-weight:500">${leads||dash}</td>`,`<td style="${tdS};color:#525252">${cpl}</td>`,`<td style="${tdS};color:#525252">${num(ins.clicks)}</td>`,`<td style="${tdS};color:#525252">${parseFloat(ins.ctr||0).toFixed(2)}%</td>`];
+      return [`<td style="${tdS};color:#10b981;font-weight:500">${leads||dash}</td>`,`<td style="${tdS};color:#525252">${cpl}</td>`,`<td style="${tdS};color:#525252">${num(ins.clicks)}</td>`,`<td style="${tdS};color:#525252">${parseFloat(ins.ctr||0).toFixed(2)}%</td>`];
     }},
     compras: { headers: ['Compras','Custo/Compra','Receita','ROAS'], fn: (ins) => {
       const purch=getAction(ins.actions,'purchase'), spend=parseFloat(ins.spend||0);
@@ -534,13 +603,13 @@ function renderCampaigns(campaigns) {
       const rev=pVal?parseFloat(pVal.value):0;
       const roas=spend>0?(rev/spend).toFixed(2)+'×':dash;
       const cpp=purch>0?brl(spend/purch):dash;
-      return [`<td style="${tdS};color:#a3a3a3;font-weight:500">${purch||dash}</td>`,`<td style="${tdS};color:#525252">${cpp}</td>`,`<td style="${tdS};color:${rev>0?'#22c55e':'#525252'}">${rev>0?brl(rev):dash}</td>`,`<td style="${tdS};color:#525252">${roas}</td>`];
+      return [`<td style="${tdS};color:#f59e0b;font-weight:500">${purch||dash}</td>`,`<td style="${tdS};color:#525252">${cpp}</td>`,`<td style="${tdS};color:${rev>0?'#22c55e':'#525252'}">${rev>0?brl(rev):dash}</td>`,`<td style="${tdS};color:#525252">${roas}</td>`];
     }},
     mensagens: { headers: ['Mensagens','Custo/Msg','Cliques','CPC'], fn: (ins) => {
       const msgs=getAction(ins.actions,'messaging_conversation_started')+getAction(ins.actions,'onsite_conversion.messaging_conversation_started_7d');
       const spend=parseFloat(ins.spend||0);
       const cpm2=msgs>0?brl(spend/msgs):dash;
-      return [`<td style="${tdS};color:#a3a3a3;font-weight:500">${msgs||dash}</td>`,`<td style="${tdS};color:#525252">${cpm2}</td>`,`<td style="${tdS};color:#525252">${num(ins.clicks)}</td>`,`<td style="${tdS};color:#525252">${brl(ins.cpc)}</td>`];
+      return [`<td style="${tdS};color:#a855f7;font-weight:500">${msgs||dash}</td>`,`<td style="${tdS};color:#525252">${cpm2}</td>`,`<td style="${tdS};color:#525252">${num(ins.clicks)}</td>`,`<td style="${tdS};color:#525252">${brl(ins.cpc)}</td>`];
     }}
   };
   const m = models[currentModel];
