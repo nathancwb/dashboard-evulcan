@@ -734,17 +734,17 @@ function renderAds(adsArr) {
         <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Cliques:</span><span style="color:#a3a3a3">${num(s.clicks)}</span></div>`;
     }
 
-    return \`
+    return `
       <div style="width:230px;min-width:230px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s">
-        \$\{imgEl\}
+        ${imgEl}
         <div style="padding:16px;display:flex;flex-direction:column;gap:14px;flex:1">
-          <span style="font-size:11px;font-weight:600;color:#e5e5e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="\$\{ad.name\}">\$\{ad.name\}</span>
+          <span style="font-size:11px;font-weight:600;color:#e5e5e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${ad.name}">${ad.name}</span>
           <div style="display:flex;flex-direction:column;gap:6px;margin-top:auto">
-            \$\{mHTML\}
+            ${mHTML}
           </div>
         </div>
       </div>
-    \`;
+    `;
   }).join('');
 }
 
