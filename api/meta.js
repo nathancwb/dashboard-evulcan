@@ -72,8 +72,8 @@ export default async function handler(req, res) {
       edgeParams = `.date_preset(${period})`;
     }
 
-    const fields = 'spend,impressions,clicks,reach,frequency,cpc,cpm,ctr,actions,action_values,video_p3s_actions';
-    const edgeInsights = 'spend,impressions,clicks,reach,frequency,ctr,cpc,cpm,actions,action_values,video_p3s_actions';
+    const fields = 'spend,impressions,clicks,reach,frequency,cpc,cpm,ctr,actions,action_values';
+    const edgeInsights = 'spend,impressions,clicks,reach,frequency,ctr,cpc,cpm,actions,action_values';
     
     // N+1 Optimization: Graph API Field Expansion fetching max 50 items inherently without loops
     const [summary, daily, campaignsResponse, adsResponse] = await Promise.all([

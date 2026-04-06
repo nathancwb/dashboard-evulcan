@@ -378,7 +378,7 @@ function renderKPIs(s) {
   if (currentModel === 'distribuicao') {
     const reach = parseInt(s.reach||0);
     const freq = reach > 0 ? (imp/reach).toFixed(2) : '—';
-    const videoP3s = (s.video_p3s_actions||[]).reduce((sum,a)=>sum+parseInt(a.value),0);
+    const videoP3s = getAction(s.actions, 'video_view');
     const hookRate = imp > 0 && videoP3s > 0 ? (videoP3s/imp*100).toFixed(1)+'%' : '—';
     
     kpis = [
@@ -588,7 +588,7 @@ function renderCampaigns(campaigns) {
     distribuicao: { headers: ['Impressões','Alcance','CPM','Hook Rate','Frequência'], fn: (ins) => {
       const imp=parseInt(ins.impressions||0), reach=parseInt(ins.reach||0);
       const cpm=parseFloat(ins.cpm||0), freq=parseFloat(ins.frequency||0).toFixed(2);
-      const videoP3s=(ins.video_p3s_actions||[]).reduce((sum,a)=>sum+parseInt(a.value),0);
+      const videoP3s=getAction(ins.actions, 'video_view');
       const hookRate=(imp>0&&videoP3s>0)?(videoP3s/imp*100).toFixed(1)+'%':dash;
       return [`<td style="${tdS};color:#a3a3a3">${num(imp)}</td>`,`<td style="${tdS};color:#525252">${num(reach)}</td>`,`<td style="${tdS};color:#525252">${brl(cpm)}</td>`,`<td style="${tdS};color:#f59e0b">${hookRate}</td>`,`<td style="${tdS};color:#525252">${freq}×</td>`];
     }},
