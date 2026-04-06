@@ -101,12 +101,20 @@ export default async function handler(req, res) {
       ins: a.insights?.data?.[0] || null
     }));
 
+    // Dedicated video insights call at campaign level (field expansion does NOT expose these)
+    const videoFields = 'video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
+    const videoInsightsResponse = await gql(
+      `${account_id}/insights?fields=${videoFields}&${dateParam}&level=campaign&limit=200`,
+      token
+    ).catch(() => ({ data: [] }));
+
     return res.json({
       summary: summary.data?.[0] || null,
       campaigns: campInsights,
       adsets: adsetInsights,
       ads: adInsights,
       daily: daily.data || [],
+      video_data: videoInsightsResponse.data || [],
       account_info: accInfoResponse || null,
       account_id,
       period,
