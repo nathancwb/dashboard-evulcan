@@ -118,13 +118,16 @@
 <div style="background:rgba(5,5,5,0.7);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-14 z-30">
   <div class="px-6 min-h-[48px] py-2 flex items-center justify-between flex-wrap md:flex-nowrap gap-4 max-w-screen-2xl mx-auto">
     
-    <!-- HIERARCHY FILTERS -->
+    <!-- HIERARCHY FILTERS (Pesquisáveis) -->
     <div style="display:flex;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:4px 16px;gap:12px">
-      <select id="campFilter" class="hf-select w-28 md:w-36" onchange="applyHierarchy()" style="background:transparent;color:#888;font-size:11px;outline:none;cursor:pointer;border:none;appearance:none;text-overflow:ellipsis"><option value="">Todas Campanhas</option></select>
+      <input type="text" list="campList" id="campFilter" class="hf-select w-28 md:w-36" placeholder="Campanhas" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
+      <datalist id="campList"></datalist>
       <div style="width:1px;height:12px;background:rgba(255,255,255,0.1)"></div>
-      <select id="adsetFilter" class="hf-select w-28 md:w-36" onchange="applyHierarchy()" style="background:transparent;color:#888;font-size:11px;outline:none;cursor:pointer;border:none;appearance:none;text-overflow:ellipsis"><option value="">Todos Conjuntos</option></select>
+      <input type="text" list="adsetList" id="adsetFilter" class="hf-select w-28 md:w-36" placeholder="Conjuntos" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
+      <datalist id="adsetList"></datalist>
       <div style="width:1px;height:12px;background:rgba(255,255,255,0.1)"></div>
-      <select id="adFilter" class="hf-select w-28 md:w-36" onchange="applyHierarchy()" style="background:transparent;color:#888;font-size:11px;outline:none;cursor:pointer;border:none;appearance:none;text-overflow:ellipsis"><option value="">Todos Anúncios</option></select>
+      <input type="text" list="adList" id="adFilter" class="hf-select w-28 md:w-36" placeholder="Anúncios" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
+      <datalist id="adList"></datalist>
     </div>
 
     <!-- TACTIC MODELS -->
@@ -376,18 +379,23 @@ async function loadData() {
       params.until = customUntil;
     }
     const data = await api(params);
+    const sortByActivity = arr => arr.sort((a,b) => {
+      const aVal = (a.ins && a.ins.spend) ? parseFloat(a.ins.spend) : 0;
+      const bVal = (b.ins && b.ins.spend) ? parseFloat(b.ins.spend) : 0;
+      return bVal - aVal;
+    });
+
     glbSummary = data.summary;
     lastSummary = data.summary;
     lastDaily = data.daily || [];
-    lastCampaigns = data.campaigns || [];
-    lastAdsets = data.adsets || [];
-    lastAds = data.ads || [];
+    lastCampaigns = sortByActivity(data.campaigns || []);
+    lastAdsets = sortByActivity(data.adsets || []);
+    lastAds = sortByActivity(data.ads || []);
     
-    // Populate Hierarchy Selects
-    const campSel = document.getElementById('campFilter');
-    campSel.innerHTML = '<option value="">Todas Campanhas</option>' + lastCampaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-    document.getElementById('adsetFilter').innerHTML = '<option value="">Todos Conjuntos</option>';
-    document.getElementById('adFilter').innerHTML = '<option value="">Todos Anúncios</option>';
+    // Populate Hierarchy Datalists
+    document.getElementById('campList').innerHTML = lastCampaigns.map(c => `<option value="${c.name}"></option>`).join('');
+    document.getElementById('adsetList').innerHTML = lastAdsets.map(a => `<option value="${a.name}"></option>`).join('');
+    document.getElementById('adList').innerHTML = lastAds.map(a => `<option value="${a.name}"></option>`).join('');
 
     renderKPIs(data.summary);
     renderCampaigns(lastCampaigns);
@@ -670,23 +678,24 @@ function setModel(model, btn) {
 
 // ── HIERARCHY FILTER LOGIC ────────────────────────────────────────────────
 function applyHierarchy() {
-  const cId = document.getElementById('campFilter').value;
-  const asId = document.getElementById('adsetFilter').value;
-  const aId = document.getElementById('adFilter').value;
+  const cName = document.getElementById('campFilter').value;
+  const asName = document.getElementById('adsetFilter').value;
+  const aName = document.getElementById('adFilter').value;
 
-  // 1. Cascade Dropdowns
+  const cNode = lastCampaigns.find(c => c.name === cName);
+  const asNode = lastAdsets.find(a => a.name === asName);
+  const aNode = lastAds.find(a => a.name === aName);
+
+  const cId = cNode ? cNode.id : null;
+  const asId = asNode ? asNode.id : null;
+  const aId = aNode ? aNode.id : null;
+
+  // 1. Cascade Datalists
   const targetAdsets = cId ? lastAdsets.filter(a => a.campaign_id === cId) : lastAdsets;
   const targetAds = asId ? lastAds.filter(a => a.adset_id === asId) : (cId ? lastAds.filter(a => a.campaign_id === cId) : lastAds);
 
-  const asSel = document.getElementById('adsetFilter');
-  const asVal = asSel.value;
-  asSel.innerHTML = '<option value="">Todos Conjuntos</option>' + targetAdsets.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
-  if(targetAdsets.some(a=>a.id===asVal)) asSel.value = asVal;
-
-  const aSel = document.getElementById('adFilter');
-  const aVal = aSel.value;
-  aSel.innerHTML = '<option value="">Todos Anúncios</option>' + targetAds.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
-  if(targetAds.some(a=>a.id===aVal)) aSel.value = aVal;
+  document.getElementById('adsetList').innerHTML = targetAdsets.map(a => `<option value="${a.name}"></option>`).join('');
+  document.getElementById('adList').innerHTML = targetAds.map(a => `<option value="${a.name}"></option>`).join('');
 
   // 2. Cascade Data & Re-render
   let newSum = glbSummary;
@@ -694,14 +703,11 @@ function applyHierarchy() {
   let newAdData = lastAds;
 
   if (aId) {
-    const node = lastAds.find(x => x.id === aId);
-    if(node) { newSum = node.ins; newAdData = [node]; newCampData = []; }
+    if(aNode) { newSum = aNode.ins; newAdData = [aNode]; newCampData = []; }
   } else if (asId) {
-    const node = lastAdsets.find(x => x.id === asId);
-    if(node) { newSum = node.ins; newAdData = lastAds.filter(x => x.adset_id === asId); newCampData = []; }
+    if(asNode) { newSum = asNode.ins; newAdData = lastAds.filter(x => x.adset_id === asId); newCampData = []; }
   } else if (cId) {
-    const node = lastCampaigns.find(x => x.id === cId);
-    if(node) { newSum = node.ins; newAdData = lastAds.filter(x => x.campaign_id === cId); newCampData = [node]; }
+    if(cNode) { newSum = cNode.ins; newAdData = lastAds.filter(x => x.campaign_id === cId); newCampData = [cNode]; }
   }
 
   // Update State 
