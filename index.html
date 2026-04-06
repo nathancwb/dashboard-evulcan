@@ -123,11 +123,11 @@
       <input type="text" list="campList" id="campFilter" class="hf-select w-28 md:w-36" placeholder="Campanhas" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
       <datalist id="campList"></datalist>
       <div style="width:1px;height:12px;background:rgba(255,255,255,0.1)"></div>
-      <input type="text" list="adsetList" id="adsetFilter" class="hf-select w-28 md:w-36" placeholder="Conjuntos" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
+      <input type="text" list="adsetList" id="adsetFilter" class="hf-select w-28 md:w-36" placeholder="Conjunto" onchange="applyHierarchy()" oninput="if(!this.value){clearFilter('adset')}" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
       <datalist id="adsetList"></datalist>
-      <div style="width:1px;height:12px;background:rgba(255,255,255,0.1)"></div>
-      <input type="text" list="adList" id="adFilter" class="hf-select w-28 md:w-36" placeholder="Anúncios" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;text-overflow:ellipsis">
-      <datalist id="adList"></datalist>
+      <button onclick="clearAllFilters()" title="Limpar filtros" style="background:none;border:none;cursor:pointer;color:#404040;padding:0;display:flex;align-items:center" onmouseover="this.style.color='#888'" onmouseout="this.style.color='#404040'">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
 
     <!-- TACTIC MODELS + BALANCE -->
@@ -436,10 +436,12 @@ async function loadData() {
     lastAdsets = sortByActivity(data.adsets || []);
     lastAds = sortByActivity(data.ads || []);
     
-    // Populate Hierarchy Datalists
-    document.getElementById('campList').innerHTML = lastCampaigns.map(c => `<option value="${c.name}"></option>`).join('');
-    document.getElementById('adsetList').innerHTML = lastAdsets.map(a => `<option value="${a.name}"></option>`).join('');
-    document.getElementById('adList').innerHTML = lastAds.map(a => `<option value="${a.name}"></option>`).join('');
+    // Only show campaigns/adsets that had activity in this period
+    const activeCamps  = lastCampaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0);
+    const activeAdsets = lastAdsets.filter(a => a.ins && parseInt(a.ins.impressions||0) > 0);
+
+    document.getElementById('campList').innerHTML  = activeCamps.map(c  => `<option value="${c.name}"></option>`).join('');
+    document.getElementById('adsetList').innerHTML = activeAdsets.map(a => `<option value="${a.name}"></option>`).join('');
 
     renderKPIs(data.summary);
     renderCampaigns(lastCampaigns);
@@ -738,44 +740,54 @@ function setModel(model, btn) {
 
 // ── HIERARCHY FILTER LOGIC ────────────────────────────────────────────────
 function applyHierarchy() {
-  const cName = document.getElementById('campFilter').value;
+  const cName  = document.getElementById('campFilter').value;
   const asName = document.getElementById('adsetFilter').value;
-  const aName = document.getElementById('adFilter').value;
 
-  const cNode = lastCampaigns.find(c => c.name === cName);
+  const cNode  = lastCampaigns.find(c => c.name === cName);
   const asNode = lastAdsets.find(a => a.name === asName);
-  const aNode = lastAds.find(a => a.name === aName);
 
-  const cId = cNode ? cNode.id : null;
+  const cId  = cNode  ? cNode.id  : null;
   const asId = asNode ? asNode.id : null;
-  const aId = aNode ? aNode.id : null;
 
-  // 1. Cascade Datalists
-  const targetAdsets = cId ? lastAdsets.filter(a => a.campaign_id === cId) : lastAdsets;
-  const targetAds = asId ? lastAds.filter(a => a.adset_id === asId) : (cId ? lastAds.filter(a => a.campaign_id === cId) : lastAds);
-
+  // 1. Cascade: filter adsets by selected campaign (only active ones)
+  const targetAdsets = cId
+    ? lastAdsets.filter(a => a.campaign_id === cId && a.ins && parseInt(a.ins.impressions||0) > 0)
+    : lastAdsets.filter(a => a.ins && parseInt(a.ins.impressions||0) > 0);
   document.getElementById('adsetList').innerHTML = targetAdsets.map(a => `<option value="${a.name}"></option>`).join('');
-  document.getElementById('adList').innerHTML = targetAds.map(a => `<option value="${a.name}"></option>`).join('');
 
   // 2. Cascade Data & Re-render
-  let newSum = glbSummary;
+  let newSum      = glbSummary;
   let newCampData = lastCampaigns;
-  let newAdData = lastAds;
+  let newAdData   = lastAds;
 
-  if (aId) {
-    if(aNode) { newSum = aNode.ins; newAdData = [aNode]; newCampData = []; }
-  } else if (asId) {
+  if (asId) {
     if(asNode) { newSum = asNode.ins; newAdData = lastAds.filter(x => x.adset_id === asId); newCampData = []; }
   } else if (cId) {
     if(cNode) { newSum = cNode.ins; newAdData = lastAds.filter(x => x.campaign_id === cId); newCampData = [cNode]; }
   }
 
-  // Update State 
-  lastSummary = newSum; // Apply local isolation! Replaces global temporarily until 'all' is picked again.
+  lastSummary = newSum;
   renderKPIs(lastSummary);
   renderFunnel(lastSummary);
   renderAds(newAdData);
   renderCampaigns(newCampData);
+}
+
+function clearAllFilters() {
+  document.getElementById('campFilter').value  = '';
+  document.getElementById('adsetFilter').value = '';
+  lastSummary = glbSummary;
+  renderKPIs(glbSummary);
+  renderFunnel(glbSummary);
+  renderAds(lastAds);
+  renderCampaigns(lastCampaigns);
+}
+
+function clearFilter(type) {
+  if (type === 'adset') {
+    document.getElementById('adsetFilter').value = '';
+    applyHierarchy();
+  }
 }
 
 function getAction(actions, key) {
