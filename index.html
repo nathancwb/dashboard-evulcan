@@ -278,12 +278,12 @@ Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 const brl = v => 'R$\u00a0' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const num = v => parseFloat(v||0).toLocaleString('pt-BR');
 const card = (label, value, icon, color) => `
-  <div style="background:linear-gradient(145deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);backdrop-filter:blur(10px);border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow: 0 4px 20px rgba(0,0,0,0.25);padding:20px;display:flex;flex-direction:column;gap:12px;transition:all 0.3s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-      <span style="color:#666">${icon}</span>
-      <span style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#888;font-weight:600">${label}</span>
+  <div style="background:linear-gradient(145deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);backdrop-filter:blur(10px);border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow: 0 4px 20px rgba(0,0,0,0.25);padding:clamp(14px,1.5vw,22px);display:flex;flex-direction:column;gap:8px;min-width:0;transition:all 0.3s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="color:#666;flex-shrink:0">${icon}</span>
+      <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#888;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</span>
     </div>
-    <p style="font-size:26px;font-weight:300;letter-spacing:-0.03em;color:${color||'#e5e5e5'};line-height:1">${value}</p>
+    <p style="font-size:clamp(18px,2.2vw,28px);font-weight:300;letter-spacing:-0.03em;color:${color||'#e5e5e5'};line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${value}</p>
   </div>`;
 
 async function api(params = {}) {
@@ -553,8 +553,9 @@ function renderKPIs(s) {
     ];
   }
 
-  // Remove override column to respect tailwind classes
-  row.style.gridTemplateColumns = '';
+  // Set grid columns to match exact KPI count for even sizing
+  const cols = kpis.length;
+  row.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
   row.innerHTML = kpis.join('');
 }
 
