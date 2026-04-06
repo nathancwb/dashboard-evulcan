@@ -394,7 +394,6 @@ async function loadData() {
     if (data.account_info) {
       const info = data.account_info;
       const cur = info.currency || 'BRL';
-      // amount_spent is in cents; balance is "bill due" (cents)
       const amountSpent = parseFloat(info.amount_spent || 0) / 100;
       const spendCap    = parseFloat(info.spend_cap   || 0) / 100;
       const fundingType = info.funding_source_details?.type;
@@ -406,10 +405,10 @@ async function loadData() {
       const balBadge = document.getElementById('accBalanceBadge');
 
       if (isCreditCard) {
-        balLabel.textContent = 'Gasto no cartão';
-        balVal.textContent   = amountSpent.toLocaleString('pt-BR', {style:'currency', currency: cur});
-        balVal.style.color   = amountSpent > 0 ? '#f59e0b' : '#a3a3a3';
-        if (balBadge) { balBadge.style.display = 'inline'; }
+        // Credit card: just show the badge, no amount (we don't have credit limit from API)
+        balLabel.textContent = 'Conta';
+        balVal.textContent   = '';
+        if (balBadge) balBadge.style.display = 'inline';
       } else if (spendCap > 0) {
         // Prepaid with spend cap: available = cap - spent
         const available = spendCap - amountSpent;
@@ -418,11 +417,9 @@ async function loadData() {
         balVal.style.color   = available > 0 ? '#22c55e' : '#ef4444';
         if (balBadge) balBadge.style.display = 'none';
       } else {
-        // No spend cap: just show total spent
-        balLabel.textContent = 'Investido (total)';
-        balVal.textContent   = amountSpent.toLocaleString('pt-BR', {style:'currency', currency: cur});
-        balVal.style.color   = '#a3a3a3';
-        if (balBadge) balBadge.style.display = 'none';
+        // No spend cap info — hide entirely, nothing useful to show
+        balRow.style.display = 'none';
+        return;
       }
       balRow.style.display = 'flex';
     } else {
