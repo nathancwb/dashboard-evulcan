@@ -193,6 +193,20 @@
       <div id="donutLegend" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
     </div>
   </div>
+    </div>
+  </div>
+
+  <!-- AD GALLERY -->
+  <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;margin-top:12px;overflow:hidden">
+    <div style="display:flex;align-items:center;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.05)">
+      <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500">Melhores Anúncios</p>
+    </div>
+    <div style="padding:20px;overflow-x:auto">
+      <div id="adsGallery" style="display:flex;gap:16px;min-width:max-content;padding-bottom:10px">
+        <!-- JS Injects Ads Here -->
+      </div>
+    </div>
+  </div>
 
 </main>
 
@@ -228,6 +242,7 @@ let customSince = '', customUntil = '';
 let currentModel = 'distribuicao';
 let lastSummary = null;
 let lastCampaigns = [];
+let lastAds = [];
 let lastDaily = [];
 let lineChart, donutChart;
 
@@ -346,8 +361,10 @@ async function loadData() {
     const data = await api(params);
     lastSummary = data.summary;
     lastDaily = data.daily || [];
+    lastAds = data.ads || [];
     renderKPIs(data.summary);
     renderCampaigns(data.campaigns || []);
+    renderAds(lastAds);
     renderChart(data.daily || []);
     renderFunnel(data.summary);
     renderDonut(data.campaigns || []);
@@ -554,6 +571,7 @@ function setModel(model, btn) {
   if (lastSummary) renderKPIs(lastSummary);
   if (lastDaily.length) renderChart(lastDaily);
   if (lastCampaigns.length) renderCampaigns(lastCampaigns);
+  if (lastAds.length) renderAds(lastAds);
 }
 
 function getAction(actions, key) {
@@ -642,6 +660,92 @@ function renderCampaigns(campaigns) {
     </thead>
     <tbody>${rows}</tbody>
   </table></div>`;
+}
+
+// ── RENDER ADS GALLERY ───────────────────────────────────────────────────
+function renderAds(adsArr) {
+  const gal = document.getElementById('adsGallery');
+  if (!adsArr.length) {
+    gal.innerHTML = `<span style="color:#525252;font-size:12px">Nenhum anúncio carregado.</span>`;
+    return;
+  }
+
+  // Filter ads that have insights
+  let act = adsArr.filter(a => a.insights?.data?.length > 0);
+
+  // Sort logic based on currentModel
+  act.sort((a, b) => {
+    const sA = a.insights.data[0], sB = b.insights.data[0];
+    if (currentModel === 'leads') return getAction(sB.actions,'lead') - getAction(sA.actions,'lead');
+    if (currentModel === 'compras') return getAction(sB.actions,'purchase') - getAction(sA.actions,'purchase');
+    if (currentModel === 'mensagens') {
+      const mA = getAction(sA.actions,'messaging_conversation_started') + getAction(sA.actions,'onsite_conversion.messaging_conversation_started_7d');
+      const mB = getAction(sB.actions,'messaging_conversation_started') + getAction(sB.actions,'onsite_conversion.messaging_conversation_started_7d');
+      return mB - mA;
+    }
+    // distribuicao default
+    return parseInt(sB.impressions||0) - parseInt(sA.impressions||0);
+  });
+
+  const topAds = act.slice(0, 8); // top 8
+
+  gal.innerHTML = topAds.map(ad => {
+    const s = ad.insights.data[0];
+    const imp = parseInt(s.impressions||0);
+    const spend = parseFloat(s.spend||0);
+    const thumb = ad.creative?.image_url || ad.creative?.thumbnail_url;
+    
+    // image skeleton logic
+    const imgEl = thumb 
+      ? `<div style="width:100%;height:140px;background:url('${thumb}') center/cover no-repeat;border-bottom:1px solid rgba(255,255,255,0.05)"></div>`
+      : `<div style="width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:#0d0d0d;border-bottom:1px solid rgba(255,255,255,0.02)"><span style="font-size:10px;color:#404040;text-transform:uppercase;letter-spacing:0.05em">Imagem Indisponível</span></div>`;
+    
+    // metrics block logic
+    let mHTML = '';
+    if (currentModel === 'distribuicao') {
+      const hookP3s = getAction(s.actions, 'video_view'); // hook rate proxy
+      const hookRate = (imp>0 && hookP3s>0) ? (hookP3s/imp*100).toFixed(1)+'%' : '—';
+      mHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Impressões:</span><span style="color:#a3a3a3">${num(imp)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Cliques:</span><span style="color:#a3a3a3">${num(s.clicks)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Hook Rate:</span><span style="color:#f59e0b">${hookRate}</span></div>`;
+    } else if (currentModel === 'leads') {
+      const leads = getAction(s.actions, 'lead');
+      const cpl = leads > 0 ? brl(spend/leads) : '—';
+      mHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Leads:</span><span style="color:#10b981">${num(leads)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Custo/Lead:</span><span style="color:#e5e5e5">${cpl}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Cliques:</span><span style="color:#a3a3a3">${num(s.clicks)}</span></div>`;
+    } else if (currentModel === 'compras') {
+      const purch = getAction(s.actions, 'purchase');
+      const pVal = (s.action_values||[]).find(a=>a.action_type==='purchase');
+      const rev = pVal ? parseFloat(pVal.value) : 0;
+      const roas = spend > 0 ? (rev/spend).toFixed(2)+'x' : '0.00x';
+      mHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Compras:</span><span style="color:#f59e0b">${num(purch)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">ROAS:</span><span style="color:${rev>0?'#22c55e':'#525252'}">${roas}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Investido:</span><span style="color:#a3a3a3">${brl(spend)}</span></div>`;
+    } else if (currentModel === 'mensagens') {
+      const msgs = getAction(s.actions,'messaging_conversation_started') + getAction(s.actions,'onsite_conversion.messaging_conversation_started_7d');
+      const costpm = msgs > 0 ? brl(spend/msgs) : '—';
+      mHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Mensagens:</span><span style="color:#a855f7">${num(msgs)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Custo/Msg:</span><span style="color:#e5e5e5">${costpm}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#525252">Cliques:</span><span style="color:#a3a3a3">${num(s.clicks)}</span></div>`;
+    }
+
+    return \`
+      <div style="width:230px;min-width:230px;background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s">
+        \$\{imgEl\}
+        <div style="padding:16px;display:flex;flex-direction:column;gap:14px;flex:1">
+          <span style="font-size:11px;font-weight:600;color:#e5e5e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="\$\{ad.name\}">\$\{ad.name\}</span>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:auto">
+            \$\{mHTML\}
+          </div>
+        </div>
+      </div>
+    \`;
+  }).join('');
 }
 
 // ── RENDER DONUT ───────────────────────────────────────────────────────────
