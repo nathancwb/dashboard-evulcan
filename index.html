@@ -596,18 +596,19 @@ function renderFunnel(s) {
 
   if (currentModel === 'distribuicao') {
     if(titleEl) titleEl.textContent = 'Funil de Retenção de Vídeo';
-    const vv = getAction(s.actions, 'video_view');
-    const p25 = getAction(s.actions, 'video_p25_watched_action');
-    const p50 = getAction(s.actions, 'video_p50_watched_action');
-    const p75 = getAction(s.actions, 'video_p75_watched_action');
-    const p95 = getAction(s.actions, 'video_p95_watched_action');
+    // Fallback between dedicated fields and standard actions
+    const vv = getAction(s.video_play_actions, 'video_play_action') || getAction(s.actions, 'video_view') || getAction(s.actions, 'video_play') || 0;
+    const p25 = getAction(s.video_p25_watched_actions, 'video_p25_watched_action') || getAction(s.actions, 'video_p25_watched_action') || 0;
+    const p50 = getAction(s.video_p50_watched_actions, 'video_p50_watched_action') || getAction(s.actions, 'video_p50_watched_action') || 0;
+    const p75 = getAction(s.video_p75_watched_actions, 'video_p75_watched_action') || getAction(s.actions, 'video_p75_watched_action') || 0;
+    const p95 = getAction(s.video_p95_watched_actions, 'video_p95_watched_action') || getAction(s.actions, 'video_p95_watched_action') || 0;
     
     steps = [
-      { label: 'VideoView', val: vv, pct: '—' },
-      { label: 'VV (25%)',  val: p25, pct: ptc(p25, vv) + cpa(p25) },
-      { label: 'VV (50%)',  val: p50, pct: ptc(p50, vv) + cpa(p50) },
-      { label: 'VV (75%)',  val: p75, pct: ptc(p75, vv) + cpa(p75) },
-      { label: 'VV (95%)',  val: p95, pct: ptc(p95, vv) + cpa(p95) }
+      { label: 'Video Plays', val: vv, pct: '—' },
+      { label: 'Retenção (25%)',  val: p25, pct: ptc(p25, vv) + cpa(p25) },
+      { label: 'Retenção (50%)',  val: p50, pct: ptc(p50, vv) + cpa(p50) },
+      { label: 'Retenção (75%)',  val: p75, pct: ptc(p75, vv) + cpa(p75) },
+      { label: 'Retenção (95%)',  val: p95, pct: ptc(p95, vv) + cpa(p95) }
     ];
   } else if (currentModel === 'compras') {
     if(titleEl) titleEl.textContent = 'Funil de E-commerce';
