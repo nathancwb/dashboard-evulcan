@@ -64,14 +64,14 @@
     </div>
     <span style="font-size:13px;font-weight:500;color:#fff;letter-spacing:-0.01em">Meta Ads</span>
     <span style="color:rgba(255,255,255,0.12);font-size:16px;font-weight:300">/</span>
-    <span style="font-size:13px;color:#525252">Evulcan</span>
+    <span id="brandName" style="font-size:13px;color:#525252">Evulcan</span>
   </div>
 
   <!-- Divider -->
   <div style="width:1px;height:16px;background:rgba(255,255,255,0.08)" class="hidden md:block shrink-0"></div>
 
   <!-- Account selector -->
-  <div class="flex items-center gap-3 min-w-0">
+  <div id="accountSelectorWrap" class="flex items-center gap-3 min-w-0">
     <label style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
     <select id="accountSelect" onchange="loadData()"
       style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:5px 28px 5px 10px;min-width:220px;max-width:300px;outline:none">
@@ -947,8 +947,26 @@ function showError(msg) {
 
 // ── INIT ───────────────────────────────────────────────────────────────────
 (async () => {
-  await loadAccounts();
-  await loadData();
+  const urlParams = new URLSearchParams(window.location.search);
+  const clientId = urlParams.get('client_id');
+  const clientName = urlParams.get('name');
+
+  if (clientId) {
+    // SAAS "Magic Link" MODE
+    document.getElementById('accountSelectorWrap').style.display = 'none';
+    if (clientName) {
+      document.getElementById('brandName').textContent = clientName;
+      document.getElementById('brandName').style.color = '#3b82f6';
+      document.getElementById('brandName').style.fontWeight = '500';
+    }
+    // Mock the drop-down and skip loadAccounts
+    document.getElementById('accountSelect').innerHTML = `<option value="${clientId}">${clientName||clientId}</option>`;
+    await loadData();
+  } else {
+    // AGENCY MODE
+    await loadAccounts();
+    await loadData();
+  }
 })();
 
 function openLightbox(url) {
