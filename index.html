@@ -69,16 +69,13 @@
     <div style="width:1px;height:14px;background:rgba(255,255,255,0.08)" class="hidden md:block"></div>
     <div id="accountSelectorWrap" class="flex items-center gap-2 min-w-0 flex-1">
       <label class="hidden md:block" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
-      <select id="accountSelect" onchange="loadData()"
+      <select id="accountSelect" onchange="syncAccountMobile ? syncAccountMobile(this.value) : loadData()"
         style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:4px 8px;width:100%;max-width:320px;outline:none;min-width:0">
         <option value="">Carregando contas...</option>
       </select>
     </div>
-    <!-- Status (desktop only) -->
-    <div class="hidden md:flex items-center gap-2 shrink-0">
-      <span id="connDot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
-      <span id="connStatus" style="font-size:12px;color:#404040">Conectando...</span>
-    </div>
+    <!-- Status dot (desktop only, text on hover) -->
+    <span id="connDot" class="hidden md:inline-block" title="Conectando..." style="width:7px;height:7px;border-radius:50%;background:#f59e0b;cursor:default;flex-shrink:0"></span>
   </div>
 
   <!-- ROW 2: Periods + Refresh (mobile) / merged into row 1 on desktop -->
@@ -97,8 +94,8 @@
     </button>
   </div>
 
-  <!-- ROW desktop: periods inline -->
-  <div class="hidden md:flex items-center gap-2 px-6 pb-0" style="position:absolute;top:0;right:24px;bottom:0;align-items:center">
+  <!-- ROW desktop: periods (part of same header, no absolute) -->
+  <div class="hidden md:flex items-center gap-2 px-4">
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px">
       <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Hoje</button>
       <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ontem</button>
@@ -320,6 +317,15 @@ function setPeriod(p, btn) {
   loadData();
 }
 
+function syncAccountDesktop(val) {
+  document.getElementById('accountSelect').value = val;
+  loadData();
+}
+function syncAccountMobile(val) {
+  const desk = document.getElementById('accountSelectDesktop');
+  if (desk) desk.value = val;
+  loadData();
+}
 function toggleCustomPicker(btn) {
   const isMob = window.innerWidth < 768;
   if (isMob) {
@@ -536,6 +542,10 @@ function renderKPIs(s) {
     const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits_7d') || getAction(s.actions, 'page_engagement') || getAction(s.actions, 'post_engagement');
     
     const follows = getAction(s.actions, 'follow') || 0;
+    // DEBUG: log all action types so we can find the follower action_type
+    if (s.actions && Array.isArray(s.actions)) {
+      console.log('[Evulcan] action_types disponíveis:', s.actions.map(a => a.action_type + ':' + a.value).join(', '));
+    }
     const cff = follows > 0 ? brl(spend / follows) : '—';
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
