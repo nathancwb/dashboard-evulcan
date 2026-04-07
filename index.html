@@ -535,15 +535,17 @@ function renderKPIs(s) {
     // Aggressive profile check:
     const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits_7d') || getAction(s.actions, 'page_engagement') || getAction(s.actions, 'post_engagement');
     
+    const follows = getAction(s.actions, 'follow') || getAction(s.actions, 'onsite_conversion.post_save') || 0;
+    const cff = follows > 0 ? brl(spend / follows) : '—';
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
       card('Impressões', num(imp), IC.impressions, '#e5e5e5'),
       card('Visitas ao Perfil', num(profileVisits), IC.users, '#10b981'),
+      card('Seguidores', follows > 0 ? num(follows) : '—', IC.reach, '#8b5cf6'),
+      card('Custo/Seguidor', cff, IC.cpc, '#8b5cf6'),
       card('Alcance', num(reach), IC.reach, '#e5e5e5'),
-      card('Frequência', freq+'\u00d7', IC.users, '#e5e5e5'),
-      card('CPM', brl(s.cpm), IC.cpm, '#e5e5e5'),
       card('Hook Rate', hookRate, IC.video, '#f59e0b'),
-      card('Cliques', num(clk), IC.clicks, '#e5e5e5')
+      card('CPM', brl(s.cpm), IC.cpm, '#e5e5e5')
     ];
   } else if (currentModel === 'leads') {
     const leads = getAction(s.actions, 'lead');
@@ -663,8 +665,16 @@ function renderChart(data) {
       },
       scales: {
         x:  { ticks: { color: '#333', font: { size: 10 }, maxTicksLimit: 12 }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' } },
-        y:  { ticks: { color: '#525252', font: { size: 10 }, callback: v => 'R$' + (v >= 1000 ? (v/1000).toFixed(1) + 'k' : v) }, grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' }, position: 'left' },
-        y1: { ticks: { color: metricColor, font: { size: 10 } }, grid: { display: false }, border: { color: 'transparent' }, position: 'right' }
+        y:  {
+          ticks: { color: '#525252', font: { size: 10 }, callback: v => { const r = Math.round(v * 100) / 100; return 'R$' + (r >= 1000 ? (r/1000).toFixed(1)+'k' : r.toFixed(2).replace('.',',')); }, maxTicksLimit: 6 },
+          grid: { color: 'rgba(255,255,255,0.03)' }, border: { color: 'transparent' }, position: 'left',
+          ...(spends.length === 1 ? { min: Math.max(0, spends[0] * 0.8), max: spends[0] * 1.2 + 0.01 } : {})
+        },
+        y1: {
+          ticks: { color: metricColor, font: { size: 10 }, maxTicksLimit: 5, callback: v => Number.isInteger(v) ? v : '' },
+          grid: { display: false }, border: { color: 'transparent' }, position: 'right',
+          ...(metricData.length === 1 ? { min: Math.max(0, metricData[0] * 0.8), max: metricData[0] * 1.2 + 1 } : {})
+        }
       }
     }
   });
