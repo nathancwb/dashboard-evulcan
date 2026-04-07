@@ -54,7 +54,7 @@
 <div id="loadingBar" class="active"></div>
 
 <!-- HEADER -->
-<header style="background:rgba(8,8,8,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-0 z-40">
+<header style="background:rgba(8,8,8,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);position:relative" class="sticky top-0 z-40">
 
   <!-- ROW 1: Logo + Account -->
   <div class="px-4 md:px-6 h-11 md:h-14 flex items-center gap-3 max-w-screen-2xl mx-auto">
@@ -69,13 +69,14 @@
     <div style="width:1px;height:14px;background:rgba(255,255,255,0.08)" class="hidden md:block"></div>
     <div id="accountSelectorWrap" class="flex items-center gap-2 min-w-0 flex-1">
       <label class="hidden md:block" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#404040;font-weight:500;white-space:nowrap">Conta</label>
-      <select id="accountSelect" onchange="syncAccountMobile ? syncAccountMobile(this.value) : loadData()"
+      <select id="accountSelect" onchange="syncBothSelectValues(this.value);loadData()"
         style="font-size:12px;color:#a3a3a3;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:4px 8px;width:100%;max-width:320px;outline:none;min-width:0">
         <option value="">Carregando contas...</option>
       </select>
     </div>
-    <!-- Status dot (desktop only, text on hover) -->
-    <span id="connDot" class="hidden md:inline-block" title="Conectando..." style="width:7px;height:7px;border-radius:50%;background:#f59e0b;cursor:default;flex-shrink:0"></span>
+    <!-- Status: dot only on desktop to avoid overlap with period pills -->
+    <span id="connDot" class="hidden md:block" style="width:7px;height:7px;border-radius:50%;background:#f59e0b;flex-shrink:0;cursor:default" title="Conectando..."></span>
+    <span id="connStatus" class="hidden" style="font-size:11px;color:#404040">Conectando...</span>
   </div>
 
   <!-- ROW 2: Periods + Refresh (mobile) / merged into row 1 on desktop -->
@@ -94,8 +95,8 @@
     </button>
   </div>
 
-  <!-- ROW desktop: periods (part of same header, no absolute) -->
-  <div class="hidden md:flex items-center gap-2 px-4">
+  <!-- ROW desktop: periods (absolute positioned within header) -->
+  <div class="hidden md:flex items-center gap-2" style="position:absolute;top:0;right:16px;bottom:0;align-items:center">
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:4px;display:flex;gap:2px">
       <button class="period-btn" onclick="setPeriod('today',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Hoje</button>
       <button class="period-btn" onclick="setPeriod('yesterday',this)" style="padding:5px 10px;border-radius:6px;transition:all 0.15s">Ontem</button>
@@ -321,6 +322,22 @@ function syncAccountDesktop(val) {
   document.getElementById('accountSelect').value = val;
   loadData();
 }
+function populateBothSelects(options) {
+  const mob = document.getElementById('accountSelect');
+  const desk = document.getElementById('accountSelectDesktop');
+  if (mob) mob.innerHTML = options;
+  if (desk) desk.innerHTML = options;
+}
+function syncBothSelectValues(val) {
+  const mob = document.getElementById('accountSelect');
+  const desk = document.getElementById('accountSelectDesktop');
+  if (mob && mob.value !== val) mob.value = val;
+  if (desk && desk.value !== val) desk.value = val;
+}
+function _syncAccountDesktop_UNUSED(val) {
+  document.getElementById('accountSelect').value = val;
+  loadData();
+}
 function syncAccountMobile(val) {
   const desk = document.getElementById('accountSelectDesktop');
   if (desk) desk.value = val;
@@ -382,9 +399,10 @@ function setLoading(on) {
 }
 
 function setConn(ok, msg) {
-  document.getElementById('connDot').style.background = ok ? '#22c55e' : '#ef4444';
-  document.getElementById('connStatus').textContent = msg;
-  document.getElementById('connStatus').style.color = ok ? '#404040' : '#ef4444';
+  const dot = document.getElementById('connDot');
+  const status = document.getElementById('connStatus');
+  if (dot) { dot.style.background = ok ? '#22c55e' : '#ef4444'; dot.title = msg; }
+  if (status) { status.textContent = msg; status.style.color = ok ? '#404040' : '#ef4444'; }
 }
 
 // ── LOAD ACCOUNTS ──────────────────────────────────────────────────────────
@@ -413,7 +431,10 @@ async function loadAccounts() {
       });
       if (multiGroup) sel.appendChild(container);
     }
-    setConn(true, 'Conectado \u00b7 ' + accounts.length + ' conta(s)');
+    // Sync desktop select
+    const deskSel = document.getElementById('accountSelectDesktop');
+    if (deskSel) deskSel.innerHTML = document.getElementById('accountSelect').innerHTML;
+    setConn(true, 'Conectado · ' + accounts.length + ' conta(s)');
   } catch(e) {
     setConn(false, e.message);
     document.getElementById('accountSelect').innerHTML = '<option value="">Erro ao carregar contas</option>';
