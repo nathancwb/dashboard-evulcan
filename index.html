@@ -135,11 +135,11 @@
 </div>
 
 <!-- SUB-HEADER -->
-<div style="background:rgba(5,5,5,0.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-[68px] md:top-14 z-30">
+<div style="background:rgba(5,5,5,0.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06)" class="sticky top-[82px] md:top-14 z-30">
   <div class="px-3 md:px-6 py-1.5 flex items-center gap-2 max-w-screen-2xl mx-auto overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none">
     <!-- HIERARCHY FILTERS -->
     <div style="display:flex;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:99px;padding:3px 12px;gap:8px;flex-shrink:0">
-      <input type="text" list="campList" id="campFilter" placeholder="Campanha" onchange="applyHierarchy()" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:80px">
+      <input type="text" list="campList" id="campFilter" placeholder="Campanha" onchange="applyHierarchy()" oninput="if(!this.value)clearFilter('camp')" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:80px">
       <datalist id="campList"></datalist>
       <div style="width:1px;height:10px;background:rgba(255,255,255,0.1)"></div>
       <input type="text" list="adsetList" id="adsetFilter" placeholder="Conjunto" onchange="applyHierarchy()" oninput="if(!this.value){clearFilter('adset')}" autocomplete="off" style="background:transparent;color:#888;font-size:11px;outline:none;border:none;width:70px">
@@ -169,8 +169,8 @@
 <!-- MAIN -->
 <main class="max-w-[1400px] w-full mx-auto p-4 md:p-6 flex flex-col gap-4 md:gap-6">
 
-  <!-- KPI ROW -->
-  <div id="kpiRow" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+  <!-- KPI ROW: auto-fill so cards always fit -->
+  <div id="kpiRow" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(148px,100%),1fr));gap:12px">
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
@@ -295,12 +295,12 @@ Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 const brl = v => 'R$\u00a0' + parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const num = v => parseFloat(v||0).toLocaleString('pt-BR');
 const card = (label, value, icon, color) => `
-  <div style="background:linear-gradient(145deg,rgba(20,20,20,0.6) 0%,rgba(10,10,10,0.8) 100%);backdrop-filter:blur(10px);border-radius:14px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 20px rgba(0,0,0,0.25);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:hidden;transition:all 0.3s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+  <div style="background:linear-gradient(145deg,rgba(20,20,20,0.6),rgba(10,10,10,0.8));backdrop-filter:blur(10px);border-radius:14px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 20px rgba(0,0,0,0.25);padding:14px 12px;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:hidden;transition:all 0.3s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
     <div style="display:flex;align-items:center;gap:5px">
       <span style="color:#555;flex-shrink:0">${icon}</span>
-      <span style="font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#666;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span>
+      <span style="font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#555;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span>
     </div>
-    <p style="font-size:clamp(16px,3.5vw,26px);font-weight:300;letter-spacing:-0.02em;color:${color||'#e5e5e5'};line-height:1.1;word-break:break-all">${value}</p>
+    <p style="font-size:clamp(15px,1.8vw,24px);font-weight:300;letter-spacing:-0.02em;color:${color||'#e5e5e5'};line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${value}</p>
   </div>`;
 
 async function api(params = {}) {
@@ -535,7 +535,7 @@ function renderKPIs(s) {
     // Aggressive profile check:
     const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits_7d') || getAction(s.actions, 'page_engagement') || getAction(s.actions, 'post_engagement');
     
-    const follows = getAction(s.actions, 'follow') || getAction(s.actions, 'onsite_conversion.post_save') || 0;
+    const follows = getAction(s.actions, 'follow') || 0;
     const cff = follows > 0 ? brl(spend / follows) : '—';
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
@@ -596,15 +596,7 @@ function renderKPIs(s) {
     ];
   }
 
-  // On mobile: 2 cols. On tablet: 4 cols. On desktop: match KPI count
-  const cols = kpis.length;
-  if (window.innerWidth >= 1024) {
-    row.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-  } else if (window.innerWidth >= 640) {
-    row.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))';
-  } else {
-    row.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
-  }
+  // CSS auto-fill grid handles responsive columns
   row.innerHTML = kpis.join('');
 }
 
