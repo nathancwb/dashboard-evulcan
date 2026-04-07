@@ -72,8 +72,8 @@ export default async function handler(req, res) {
       edgeParams = `.date_preset(${period})`;
     }
 
-    const fields = 'spend,impressions,clicks,reach,frequency,cpc,cpm,ctr,actions,action_values,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
-    const edgeInsights = 'spend,impressions,clicks,reach,frequency,ctr,cpc,cpm,actions,action_values,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
+    const fields = 'spend,impressions,clicks,reach,frequency,cpc,cpm,ctr,actions,action_values,instagram_follow,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
+    const edgeInsights = 'spend,impressions,clicks,reach,frequency,ctr,cpc,cpm,actions,action_values,instagram_follow,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
     // Use 7d_click,1d_view attribution (same as Ads Manager default) to ensure instagram_follow is included
     const attrWindow = 'action_attribution_windows=[%227d_click%22,%221d_view%22]';
 
