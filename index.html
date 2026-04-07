@@ -508,7 +508,13 @@ async function loadData() {
     document.getElementById('campList').innerHTML  = activeCamps.map(c  => `<option value="${c.name}"></option>`).join('');
     document.getElementById('adsetList').innerHTML = activeAdsets.map(a => `<option value="${a.name}"></option>`).join('');
 
-    renderKPIs(data.summary);
+    // Inject IG follower data into summary for renderKPIs access
+    const summaryWithIg = {
+      ...(data.summary || {}),
+      ig_follower_growth: data.ig_follower_growth,   // net growth in period (null if no permission)
+      ig_followers_total: data.ig_followers_total || 0 // current total
+    };
+    renderKPIs(summaryWithIg);
     renderCampaigns(lastCampaigns);
     renderAds(lastAds);
     renderChart(lastDaily);
@@ -562,7 +568,10 @@ function renderKPIs(s) {
     // Aggressive profile check:
     const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits_7d') || getAction(s.actions, 'page_engagement') || getAction(s.actions, 'post_engagement');
     
-    // Meta Ads: Instagram followers — try ALL known action_type variants
+    // Followers: priority order:
+    // 1. IG Insights - net follower growth during the period (most accurate)
+    // 2. Ads-attributed follows via action_type (rarely returned by Meta API)
+    // 3. Campaigns sum of attributed follows
     function getFollowCount(actions) {
       return getAction(actions, 'instagram_profile_follow')
         || getAction(actions, 'instagram_follow')
@@ -570,19 +579,23 @@ function renderKPIs(s) {
         || getAction(actions, 'follow')
         || 0;
     }
-    const followsSummary = getFollowCount(s.actions);
+    const followsAdAttr = getFollowCount(s.actions);
     const followsCampaigns = (lastCampaigns || []).reduce((acc, c) => {
       const ins = (c.ins && c.ins.actions) ? c.ins : {};
       return acc + getFollowCount(ins.actions);
     }, 0);
-    // igFollowerCount = total from Instagram Graph API (injected by backend)
-    const igTotal = s.igFollowerCount || 0;
-    const follows = followsSummary || followsCampaigns || igTotal;
+    // ig_follower_growth: net new followers in the period from Instagram Insights API
+    // null = no permission to read; 0 = genuinely 0 growth
+    const igGrowth = s.ig_follower_growth; // can be null, 0, or positive number
+    const follows = igGrowth !== null && igGrowth !== undefined
+      ? igGrowth
+      : (followsAdAttr || followsCampaigns || 0);
+    const followsSource = igGrowth !== null && igGrowth !== undefined ? 'ig' : 'ads';
     // DEBUG: log all action types from summary + campaign-level follows
     if (s.actions && Array.isArray(s.actions)) {
       console.log('[Evulcan] action_types disponíveis:', s.actions.map(a => a.action_type + ':' + a.value).join(', '));
     }
-    console.log('[Evulcan] follows summary:', followsSummary, '| follows por campanha:', followsCampaigns, '| IG total:', igTotal);
+    console.log('[Evulcan] follows:', follows, '| source:', followsSource, '| ig_growth:', igGrowth, '| ads_attr:', followsAdAttr);
     const cff = follows > 0 ? brl(spend / follows) : '—';
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),

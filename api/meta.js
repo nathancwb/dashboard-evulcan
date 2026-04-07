@@ -17,6 +17,68 @@ async function gql(path, token) {
   return d;
 }
 
+// ── Find Instagram Business Account linked to this ad account ────────────
+async function findIgAccount(account_id, token) {
+  // Method 1: Direct on ad account
+  try {
+    const r = await gql(`${account_id}?fields=instagram_accounts{id,username,followers_count,name}`, token);
+    const list = r?.instagram_accounts?.data || [];
+    if (list.length > 0 && list[0].id) return list[0];
+  } catch(e) {}
+
+  // Method 2: Via user's managed pages → connected IG business account
+  try {
+    const pages = await gql('me/accounts?fields=id,name,instagram_business_account{id,username,followers_count}&limit=50', token);
+    for (const page of (pages?.data || [])) {
+      const iga = page.instagram_business_account;
+      if (iga?.id) return iga;
+    }
+  } catch(e) {}
+
+  return null;
+}
+
+// ── Get follower growth for a period from IG Insights ───────────────────
+async function getIgFollowerGrowth(igId, sinceDate, untilDate, token) {
+  try {
+    // Convert YYYY-MM-DD to Unix timestamps
+    const since = Math.floor(new Date(sinceDate + 'T00:00:00').getTime() / 1000);
+    const until = Math.floor(new Date(untilDate + 'T23:59:59').getTime() / 1000);
+    const r = await gql(
+      `${igId}/insights?metric=follower_count&period=day&since=${since}&until=${until}`,
+      token
+    );
+    const values = r?.data?.[0]?.values || [];
+    // Sum net follower changes (positive = gained, negative = lost)
+    const netGrowth = values.reduce((acc, v) => acc + (parseInt(v.value) || 0), 0);
+    return { growth: netGrowth, total: null };
+  } catch(e) {
+    return null;
+  }
+}
+
+// ── Resolve date range for a period preset ───────────────────────────────
+function resolveDateRange(period, since, until) {
+  const pad = n => String(n).padStart(2, '0');
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+
+  if (period === 'custom' && since && until) return { since, until };
+  if (period === 'this_year') return { since: `${now.getFullYear()}-01-01`, until: todayStr };
+  if (period === 'this_month') {
+    return { since: `${now.getFullYear()}-${pad(now.getMonth()+1)}-01`, until: todayStr };
+  }
+  // Map presets to days back
+  const presetDays = { today: 0, yesterday: 1, last_7d: 7, last_30d: 30 };
+  if (period in presetDays) {
+    const days = presetDays[period];
+    const from = new Date(now);
+    from.setDate(from.getDate() - (days || 1));
+    return { since: from.toISOString().split('T')[0], until: todayStr };
+  }
+  return null; // for presets like last_7d handled by date_preset param
+}
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -74,22 +136,36 @@ export default async function handler(req, res) {
 
     const fields = 'spend,impressions,clicks,reach,frequency,cpc,cpm,ctr,actions,action_values,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
     const edgeInsights = 'spend,impressions,clicks,reach,frequency,ctr,cpc,cpm,actions,action_values,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
-    // action_breakdowns=action_type is REQUIRED to get granular action types like instagram followers
+    // action_breakdowns=action_type required for granular action types
     const attrWindow = 'action_attribution_windows=[%227d_click%22,%221d_view%22]&action_breakdowns=action_type';
 
-    // N+1 Optimization: Graph API Field Expansion fetching max 50 items inherently without loops
-    const [summary, daily, campaignsResponse, adsResponse, adsetsResponse, accInfoResponse, igAccountResponse] = await Promise.all([
+    // Parallel fetch: ads data + account info + Instagram account
+    const [summary, daily, campaignsResponse, adsResponse, adsetsResponse, accInfoResponse] = await Promise.all([
       gql(`${account_id}/insights?fields=${fields}&${dateParam}&${attrWindow}`, token),
       gql(`${account_id}/insights?fields=spend,impressions,clicks,actions&${dateParam}&time_increment=1&limit=366&${attrWindow}`, token),
       gql(`${account_id}/campaigns?fields=id,name,status,effective_status,objective,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
       gql(`${account_id}/ads?fields=id,name,status,effective_status,campaign_id,adset_id,creative{thumbnail_url,image_url},insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
       gql(`${account_id}/adsets?fields=id,name,status,effective_status,campaign_id,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
       gql(`${account_id}?fields=balance,currency,amount_spent,spend_cap,funding_source_details`, token).catch(()=>null),
-      // Get connected Instagram account follower count (via ad account's connected pages)
-      gql(`${account_id}?fields=instagram_accounts{id,username,follow_count,followers_count,name}`, token).catch(()=>null)
     ]);
 
-    // Format like frontend expects natively
+    // ── Instagram follower growth ────────────────────────────────────────
+    let igFollowerGrowth = null;
+    let igFollowersTotal = 0;
+    try {
+      const igAccount = await findIgAccount(account_id, token);
+      if (igAccount) {
+        igFollowersTotal = igAccount.followers_count || 0;
+        // Get date range for the insights call
+        const range = resolveDateRange(period, since, until);
+        if (range) {
+          const growth = await getIgFollowerGrowth(igAccount.id, range.since, range.until, token);
+          igFollowerGrowth = growth; // { growth: N } or null if no permission
+        }
+      }
+    } catch(e) { /* non-fatal */ }
+
+    // Format campaign/ad/adset data
     const campInsights = (campaignsResponse.data || []).map(c => ({
       ...c,
       ins: c.insights?.data?.[0] || null
@@ -105,7 +181,7 @@ export default async function handler(req, res) {
       ins: a.insights?.data?.[0] || null
     }));
 
-    // Dedicated video insights call at campaign level – campaign_id is required with level=campaign
+    // Dedicated video insights at campaign level
     const videoFields = 'campaign_id,video_p25_watched_actions,video_p50_watched_actions,video_p75_watched_actions,video_p95_watched_actions,video_p100_watched_actions,video_play_actions';
     let videoData = [];
     let videoError = null;
@@ -130,6 +206,9 @@ export default async function handler(req, res) {
       account_info: accInfoResponse || null,
       account_id,
       period,
+      // Instagram follower data
+      ig_follower_growth: igFollowerGrowth?.growth ?? null, // net growth in period (null = no permission)
+      ig_followers_total: igFollowersTotal,                  // current total (for reference)
     });
 
   } catch (err) {
