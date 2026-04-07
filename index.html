@@ -562,7 +562,10 @@ function renderKPIs(s) {
     // Aggressive profile check:
     const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits_7d') || getAction(s.actions, 'page_engagement') || getAction(s.actions, 'post_engagement');
     
-    const follows = getAction(s.actions, 'follow') || 0;
+    // Meta returns 'follow' only when > 0; if absent, truly 0 followers attributed to this ad
+    const follows = getAction(s.actions, 'follow') 
+      || getAction(s.actions, 'instagram_profile_follow') 
+      || 0;
     // DEBUG: log all action types so we can find the follower action_type
     if (s.actions && Array.isArray(s.actions)) {
       console.log('[Evulcan] action_types disponíveis:', s.actions.map(a => a.action_type + ':' + a.value).join(', '));
@@ -572,8 +575,8 @@ function renderKPIs(s) {
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
       card('Impressões', num(imp), IC.impressions, '#e5e5e5'),
       card('Visitas ao Perfil', num(profileVisits), IC.users, '#10b981'),
-      card('Seguidores', follows > 0 ? num(follows) : '—', IC.reach, '#8b5cf6'),
-      card('Custo/Seguidor', cff, IC.cpc, '#8b5cf6'),
+      card('Seguidores', num(follows), IC.reach, follows > 0 ? '#8b5cf6' : '#525252'),
+      card('Custo/Seguidor', follows > 0 ? cff : '—', IC.cpc, follows > 0 ? '#8b5cf6' : '#525252'),
       card('Alcance', num(reach), IC.reach, '#e5e5e5'),
       card('Hook Rate', hookRate, IC.video, '#f59e0b'),
       card('CPM', brl(s.cpm), IC.cpm, '#e5e5e5')
