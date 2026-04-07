@@ -562,14 +562,18 @@ function renderKPIs(s) {
     // Aggressive profile check:
     const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits_7d') || getAction(s.actions, 'page_engagement') || getAction(s.actions, 'post_engagement');
     
-    // Meta Ads: Instagram followers attributed to ads = action_type 'instagram_follow'
-    // Priority: summary action > sum across all campaigns (in case summary misses it)
-    const followsSummary = getAction(s.actions, 'instagram_follow')
-      || getAction(s.actions, 'follow')
-      || 0;
+    // Meta Ads: Instagram followers — try ALL known action_type variants
+    function getFollowCount(actions) {
+      return getAction(actions, 'instagram_profile_follow')
+        || getAction(actions, 'instagram_follow')
+        || getAction(actions, 'page_follow')
+        || getAction(actions, 'follow')
+        || 0;
+    }
+    const followsSummary = getFollowCount(s.actions);
     const followsCampaigns = (lastCampaigns || []).reduce((acc, c) => {
       const ins = (c.ins && c.ins.actions) ? c.ins : {};
-      return acc + (getAction(ins.actions, 'instagram_follow') || getAction(ins.actions, 'follow') || 0);
+      return acc + getFollowCount(ins.actions);
     }, 0);
     const follows = followsSummary || followsCampaigns;
     // DEBUG: log all action types from summary + campaign-level follows
