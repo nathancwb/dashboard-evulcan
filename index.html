@@ -168,7 +168,7 @@
 <main class="max-w-[1400px] w-full mx-auto p-4 md:p-6 flex flex-col gap-4 md:gap-6">
 
   <!-- KPI ROW: auto-fill so cards always fit -->
-  <div id="kpiRow" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(148px,100%),1fr));gap:12px">
+  <div id="kpiRow" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(140px, 22vw, 220px),1fr));gap:12px">
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
     <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:#0d0d0d;padding:20px"><div class="sk" style="height:10px;width:80px;margin-bottom:14px"></div><div class="sk" style="height:28px;width:110px"></div></div>
@@ -567,8 +567,8 @@ function renderKPIs(s) {
     const followsSummary = getAction(s.actions, 'instagram_follow')
       || getAction(s.actions, 'follow')
       || 0;
-    const followsCampaigns = (filteredData || []).reduce((acc, c) => {
-      const ins = c.ins || {};
+    const followsCampaigns = (lastCampaigns || []).reduce((acc, c) => {
+      const ins = (c.ins && c.ins.actions) ? c.ins : {};
       return acc + (getAction(ins.actions, 'instagram_follow') || getAction(ins.actions, 'follow') || 0);
     }, 0);
     const follows = followsSummary || followsCampaigns;
