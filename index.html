@@ -562,18 +562,21 @@ function renderKPIs(s) {
     // Aggressive profile check:
     const profileVisits = getAction(s.actions, 'instagram_profile_views') || getAction(s.actions, 'profile_visit') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits') || getAction(s.actions, 'onsite_conversion.messaging_profile_visits_7d') || getAction(s.actions, 'page_engagement') || getAction(s.actions, 'post_engagement');
     
-    // Meta Ads: Instagram followers from ads
-    // 1. Check top-level field 'instagram_follow' (new Meta API field)
-    // 2. Fallback to action_type in actions array
-    const followsDirect = s.instagram_follow !== undefined ? parseFloat(s.instagram_follow || 0) : 0;
-    const follows = followsDirect
-      || getAction(s.actions, 'instagram_follow')
+    // Meta Ads: Instagram followers attributed to ads = action_type 'instagram_follow'
+    // Priority: summary action > sum across all campaigns (in case summary misses it)
+    const followsSummary = getAction(s.actions, 'instagram_follow')
       || getAction(s.actions, 'follow')
       || 0;
-    // DEBUG: log all action types - looking for 'instagram_follow' specifically
+    const followsCampaigns = (filteredData || []).reduce((acc, c) => {
+      const ins = c.ins || {};
+      return acc + (getAction(ins.actions, 'instagram_follow') || getAction(ins.actions, 'follow') || 0);
+    }, 0);
+    const follows = followsSummary || followsCampaigns;
+    // DEBUG: log all action types from summary + campaign-level follows
     if (s.actions && Array.isArray(s.actions)) {
       console.log('[Evulcan] action_types disponíveis:', s.actions.map(a => a.action_type + ':' + a.value).join(', '));
     }
+    console.log('[Evulcan] follows summary:', followsSummary, '| follows por campanha:', followsCampaigns);
     const cff = follows > 0 ? brl(spend / follows) : '—';
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
