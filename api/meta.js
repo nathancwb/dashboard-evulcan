@@ -7,7 +7,7 @@ const {
   META_ACCESS_TOKEN,
 } = process.env;
 
-const API = 'https://graph.facebook.com/v22.0';
+const API = 'https://graph.facebook.com/v25.0';
 
 async function gql(path, token) {
   const sep = path.includes('?') ? '&' : '?';
@@ -78,13 +78,15 @@ export default async function handler(req, res) {
     const attrWindow = 'action_attribution_windows=[%227d_click%22,%221d_view%22]&action_breakdowns=action_type';
 
     // N+1 Optimization: Graph API Field Expansion fetching max 50 items inherently without loops
-    const [summary, daily, campaignsResponse, adsResponse, adsetsResponse, accInfoResponse] = await Promise.all([
+    const [summary, daily, campaignsResponse, adsResponse, adsetsResponse, accInfoResponse, igAccountResponse] = await Promise.all([
       gql(`${account_id}/insights?fields=${fields}&${dateParam}&${attrWindow}`, token),
       gql(`${account_id}/insights?fields=spend,impressions,clicks,actions&${dateParam}&time_increment=1&limit=366&${attrWindow}`, token),
       gql(`${account_id}/campaigns?fields=id,name,status,effective_status,objective,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
       gql(`${account_id}/ads?fields=id,name,status,effective_status,campaign_id,adset_id,creative{thumbnail_url,image_url},insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
       gql(`${account_id}/adsets?fields=id,name,status,effective_status,campaign_id,insights${edgeParams}{${edgeInsights}}&limit=50`, token).catch(()=>({data:[]})),
-      gql(`${account_id}?fields=balance,currency,amount_spent,spend_cap,funding_source_details`, token).catch(()=>null)
+      gql(`${account_id}?fields=balance,currency,amount_spent,spend_cap,funding_source_details`, token).catch(()=>null),
+      // Get connected Instagram account follower count (via ad account's connected pages)
+      gql(`${account_id}?fields=instagram_accounts{id,username,follow_count,followers_count,name}`, token).catch(()=>null)
     ]);
 
     // Format like frontend expects natively

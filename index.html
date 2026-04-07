@@ -575,12 +575,14 @@ function renderKPIs(s) {
       const ins = (c.ins && c.ins.actions) ? c.ins : {};
       return acc + getFollowCount(ins.actions);
     }, 0);
-    const follows = followsSummary || followsCampaigns;
+    // igFollowerCount = total from Instagram Graph API (injected by backend)
+    const igTotal = s.igFollowerCount || 0;
+    const follows = followsSummary || followsCampaigns || igTotal;
     // DEBUG: log all action types from summary + campaign-level follows
     if (s.actions && Array.isArray(s.actions)) {
       console.log('[Evulcan] action_types disponíveis:', s.actions.map(a => a.action_type + ':' + a.value).join(', '));
     }
-    console.log('[Evulcan] follows summary:', followsSummary, '| follows por campanha:', followsCampaigns);
+    console.log('[Evulcan] follows summary:', followsSummary, '| follows por campanha:', followsCampaigns, '| IG total:', igTotal);
     const cff = follows > 0 ? brl(spend / follows) : '—';
     kpis = [
       card('Investimento', brl(spend), IC.spend, '#e5e5e5'),
