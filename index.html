@@ -663,8 +663,6 @@ async function loadData() {
       document.getElementById('accBalanceRow').style.display = 'none';
     }
 
-    glbSummary = data.summary;
-    lastSummary = data.summary;
     lastDaily = data.daily || [];
     lastCampaigns = sortByActivity(data.campaigns || []);
     lastAdsets = sortByActivity(data.adsets || []);
@@ -677,20 +675,8 @@ async function loadData() {
     document.getElementById('campList').innerHTML  = activeCamps.map(c  => `<option value="${c.name}"></option>`).join('');
     document.getElementById('adsetList').innerHTML = activeAdsets.map(a => `<option value="${a.name}"></option>`).join('');
 
-    // Inject IG follower data into summary for renderKPIs access
-    const summaryWithIg = {
-      ...(data.summary || {}),
-      ig_follower_growth: data.ig_follower_growth,   // net growth in period (null if no permission)
-      ig_followers_total: data.ig_followers_total || 0 // current total
-    };
-    renderKPIs(summaryWithIg);
-    renderCampaigns(lastCampaigns);
-    renderAds(lastAds);
-    renderChart(lastDaily);
-
     // Aggregate video metrics from dedicated backend video_data (level=campaign query)
-    // NOTE: Meta API returns action_type="video_view" inside ALL pXX fields — must read arr[0].value directly
-    const videoSum = { ...data.summary };
+    if (!data.summary) data.summary = {};
     const videoFieldNames = ['video_play_actions','video_p25_watched_actions','video_p50_watched_actions','video_p75_watched_actions','video_p95_watched_actions','video_p100_watched_actions'];
     const videoRows = data.video_data || [];
     if (videoRows.length > 0) {
@@ -700,11 +686,22 @@ async function loadData() {
           // action_type is always "video_view" inside these arrays — read value directly
           return acc + (arr && arr[0] ? parseInt(arr[0].value || 0) : 0);
         }, 0);
-        if (total > 0) videoSum[field] = [{ action_type: field, value: String(total) }];
+        if (total > 0) data.summary[field] = [{ action_type: field, value: String(total) }];
       });
     }
 
-    renderFunnel(videoSum);
+    // Inject IG follower data into summary for renderKPIs access
+    data.summary.ig_follower_growth = data.ig_follower_growth;   // net growth in period (null if no permission)
+    data.summary.ig_followers_total = data.ig_followers_total || 0; // current total
+
+    glbSummary = data.summary;
+    lastSummary = data.summary;
+
+    renderKPIs(lastSummary);
+    renderCampaigns(lastCampaigns);
+    renderAds(lastAds);
+    renderChart(lastDaily);
+    renderFunnel(lastSummary);
     renderDonut(data.campaigns || []);
     document.getElementById('footerTs').textContent = 'Atualizado ' + new Date().toLocaleString('pt-BR');
     const name = document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim() || accountId;
