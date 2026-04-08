@@ -161,6 +161,175 @@
       <button class="model-btn" onclick="setModel('compras',this)" style="padding:4px 9px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Compras</button>
       <button class="model-btn" onclick="setModel('mensagens',this)" style="padding:4px 9px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.3s;background:transparent;color:#737373;white-space:nowrap">Msgs</button>
     </div>
+    <!-- CREATE CAMPAIGN BUTTON -->
+    <button id="createCampBtn" onclick="openCreateModal()" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:99px;font-size:10px;font-weight:600;text-transform:uppercase;border:1px solid rgba(99,102,241,0.4);cursor:pointer;transition:all 0.3s;background:rgba(99,102,241,0.12);color:#818cf8;white-space:nowrap;flex-shrink:0">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Criar
+    </button>
+  </div>
+</div>
+
+<!-- ═══ MODAL: CRIAR CAMPANHA ═══════════════════════════════════════════ -->
+<div id="createModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 0 60px rgba(99,102,241,0.15)">
+    
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff">✦ Criar Campanha com IA</div>
+        <div style="font-size:12px;color:#525252;margin-top:2px">Descreva o que você quer e a IA monta tudo</div>
+      </div>
+      <button onclick="closeCreateModal()" style="background:none;border:none;color:#525252;cursor:pointer;font-size:20px;padding:4px">✕</button>
+    </div>
+
+    <!-- STEP 1: Input -->
+    <div id="createStep1" style="padding:24px">
+      <label style="font-size:12px;font-weight:500;color:#737373;text-transform:uppercase;letter-spacing:0.05em">Descreva sua campanha</label>
+      <textarea id="aiPromptInput" placeholder="Ex: campanha de mensagens para público feminino 25-45 anos em São Paulo, produto geladeira Brastemp, orçamento R$100/dia" 
+        style="width:100%;box-sizing:border-box;margin-top:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;font-size:13px;color:#e5e5e5;resize:vertical;min-height:100px;font-family:inherit;line-height:1.6;outline:none"
+        onkeydown="if(event.key==='Enter'&&(event.metaKey||event.ctrlKey))generateWithAI()"></textarea>
+      <div style="font-size:11px;color:#525252;margin-top:6px">⌘Enter ou Ctrl+Enter para gerar</div>
+      
+      <!-- Quick prompts -->
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px">
+        <span style="font-size:11px;color:#525252">Atalhos:</span>
+        <button onclick="setPrompt('campanha de mensagens via WhatsApp para público amplo no Brasil, orçamento R$50/dia, produto/serviço local')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#737373;cursor:pointer">💬 WhatsApp</button>
+        <button onclick="setPrompt('campanha de tráfego para gerar leads de qualidade, público 25-55 anos, orçamento R$80/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#737373;cursor:pointer">🎯 Leads</button>
+        <button onclick="setPrompt('campanha de vendas para e-commerce com remarketing, público quente, orçamento R$150/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#737373;cursor:pointer">🛒 Vendas</button>
+        <button onclick="setPrompt('campanha de awareness para aumentar alcance e reconhecimento de marca, orçamento R$60/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:#737373;cursor:pointer">📣 Alcance</button>
+      </div>
+
+      <button id="generateBtn" onclick="generateWithAI()" style="width:100%;margin-top:16px;padding:13px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span id="generateBtnText">✦ Gerar com IA</span>
+      </button>
+    </div>
+
+    <!-- STEP 2: Preview -->
+    <div id="createStep2" style="display:none;padding:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:600;color:#fff">Campanha gerada — revise antes de publicar</div>
+        <button onclick="goBackToStep1()" style="font-size:11px;color:#6366f1;background:none;border:none;cursor:pointer">← Editar prompt</button>
+      </div>
+      
+      <!-- AI explanation -->
+      <div id="aiExplanation" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:12px;font-size:12px;color:#a5b4fc;margin-bottom:16px;line-height:1.6"></div>
+
+      <!-- Campaign section -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <!-- Campaign -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:600;color:#6366f1;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">📋 Campanha</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <label style="font-size:10px;color:#525252">Nome</label>
+              <input id="prev_camp_name" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit">
+            </div>
+            <div>
+              <label style="font-size:10px;color:#525252">Orçamento diário</label>
+              <div style="display:flex;align-items:center;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px">
+                <span style="font-size:12px;color:#737373;margin-right:4px">R$</span>
+                <input id="prev_camp_budget" type="number" min="1" style="flex:1;background:none;border:none;color:#e5e5e5;font-size:12px;outline:none;font-family:inherit">
+              </div>
+            </div>
+            <div style="grid-column:1/-1">
+              <label style="font-size:10px;color:#525252">Objetivo</label>
+              <select id="prev_camp_objective" style="width:100%;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit">
+                <option value="OUTCOME_TRAFFIC">Tráfego</option>
+                <option value="OUTCOME_LEADS">Captação de Leads</option>
+                <option value="OUTCOME_ENGAGEMENT">Engajamento / Mensagens</option>
+                <option value="OUTCOME_SALES">Vendas</option>
+                <option value="OUTCOME_AWARENESS">Reconhecimento de Marca</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Set -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:600;color:#8b5cf6;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">👥 Conjunto de Anúncios</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="grid-column:1/-1">
+              <label style="font-size:10px;color:#525252">Nome</label>
+              <input id="prev_adset_name" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit">
+            </div>
+            <div>
+              <label style="font-size:10px;color:#525252">Idade mín.</label>
+              <input id="prev_adset_age_min" type="number" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit">
+            </div>
+            <div>
+              <label style="font-size:10px;color:#525252">Idade máx.</label>
+              <input id="prev_adset_age_max" type="number" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit">
+            </div>
+            <div style="grid-column:1/-1">
+              <label style="font-size:10px;color:#525252">Cidades</label>
+              <input id="prev_adset_cities" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit" placeholder="Ex: São Paulo, Rio de Janeiro">
+            </div>
+            <div style="grid-column:1/-1">
+              <label style="font-size:10px;color:#525252">Interesses</label>
+              <input id="prev_adset_interests" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit" placeholder="Gerados pela IA">
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Creative -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:600;color:#10b981;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">📝 Anúncio</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div>
+              <label style="font-size:10px;color:#525252">Headline (máx 40 chars)</label>
+              <input id="prev_headline" maxlength="40" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit">
+            </div>
+            <div>
+              <label style="font-size:10px;color:#525252">Texto principal (máx 125 chars)</label>
+              <textarea id="prev_primary_text" maxlength="125" rows="3" style="width:100%;box-sizing:border-box;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit;resize:none"></textarea>
+            </div>
+            <div>
+              <label style="font-size:10px;color:#525252">CTA</label>
+              <select id="prev_cta" style="width:100%;margin-top:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px 10px;font-size:12px;color:#e5e5e5;outline:none;font-family:inherit">
+                <option value="SEND_MESSAGE">Enviar Mensagem</option>
+                <option value="LEARN_MORE">Saiba Mais</option>
+                <option value="SHOP_NOW">Comprar Agora</option>
+                <option value="GET_QUOTE">Solicitar Orçamento</option>
+                <option value="SIGN_UP">Inscrever-se</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:10px;color:#525252">Imagem sugerida pela IA</label>
+              <div id="prev_image_prompt" style="margin-top:3px;background:rgba(99,102,241,0.05);border:1px solid rgba(99,102,241,0.15);border-radius:8px;padding:8px 10px;font-size:12px;color:#a5b4fc;font-style:italic;line-height:1.5"></div>
+            </div>
+            <div>
+              <label style="font-size:10px;color:#525252">Upload da imagem</label>
+              <div style="margin-top:3px;border:2px dashed rgba(255,255,255,0.1);border-radius:8px;padding:16px;text-align:center;cursor:pointer" onclick="document.getElementById('imageFileInput').click()">
+                <div id="imagePreviewContainer">
+                  <div style="font-size:20px">🖼️</div>
+                  <div style="font-size:11px;color:#525252;margin-top:4px">Clique para selecionar imagem</div>
+                  <div style="font-size:10px;color:#737373">JPG, PNG (recomendado: 1080x1080)</div>
+                </div>
+                <img id="imagePreview" style="display:none;max-width:100%;border-radius:6px;max-height:160px;object-fit:cover">
+              </div>
+              <input type="file" id="imageFileInput" accept="image/*" style="display:none" onchange="previewImage(this)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Publish button -->
+      <button id="publishBtn" onclick="publishCampaign()" style="width:100%;margin-top:16px;padding:14px;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span id="publishBtnText">🚀 Criar Campanha (Pausada)</span>
+      </button>
+      <div style="text-align:center;font-size:10px;color:#525252;margin-top:8px">A campanha é criada pausada — você ativa quando quiser no Meta</div>
+    </div>
+
+    <!-- STEP 3: Success -->
+    <div id="createStep3" style="display:none;padding:40px 24px;text-align:center">
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:8px">Campanha criada com sucesso!</div>
+      <div style="font-size:13px;color:#737373;margin-bottom:24px">Ela está pausada no Meta Ads. Ative quando estiver pronta.</div>
+      <div id="createdIds" style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px;font-size:11px;color:#6ee7b7;text-align:left;margin-bottom:20px"></div>
+      <button onclick="closeCreateModal()" style="padding:12px 32px;border-radius:12px;background:#6366f1;border:none;color:#fff;font-weight:600;font-size:13px;cursor:pointer">Fechar</button>
+    </div>
+
   </div>
 </div>
 
@@ -1172,5 +1341,234 @@ function openLightbox(url) {
   </div>
 </div>
 
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CREATE CAMPAIGN WITH AI
+// ═══════════════════════════════════════════════════════════════
+
+let generatedStructure = null; // stores AI response
+let cachedPages = [];          // stores FB pages for creative
+
+function openCreateModal() {
+  document.getElementById('createModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('createStep1').style.display = 'block';
+  document.getElementById('createStep2').style.display = 'none';
+  document.getElementById('createStep3').style.display = 'none';
+}
+
+function closeCreateModal() {
+  document.getElementById('createModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function goBackToStep1() {
+  document.getElementById('createStep1').style.display = 'block';
+  document.getElementById('createStep2').style.display = 'none';
+}
+
+function setPrompt(text) {
+  document.getElementById('aiPromptInput').value = text;
+  document.getElementById('aiPromptInput').focus();
+}
+
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('imagePreviewContainer').style.display = 'none';
+      const img = document.getElementById('imagePreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+async function generateWithAI() {
+  const prompt = document.getElementById('aiPromptInput').value.trim();
+  if (!prompt || prompt.length < 10) {
+    alert('Por favor, descreva melhor o que você quer criar.');
+    return;
+  }
+
+  const btn = document.getElementById('generateBtn');
+  const btnText = document.getElementById('generateBtnText');
+  btn.disabled = true;
+  btnText.innerHTML = '⏳ Processando com IA...';
+
+  try {
+    const resp = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || data.error) {
+      if (data.error && data.error.includes('GEMINI_API_KEY')) {
+        alert('⚠️ Chave da API Gemini não configurada.\nAdicione GEMINI_API_KEY nas variáveis de ambiente da Vercel.');
+      } else {
+        alert('Erro: ' + (data.error || 'Erro desconhecido'));
+      }
+      return;
+    }
+
+    generatedStructure = data.campaign_structure;
+    populatePreview(generatedStructure);
+
+    document.getElementById('createStep1').style.display = 'none';
+    document.getElementById('createStep2').style.display = 'block';
+
+  } catch(e) {
+    alert('Erro de conexão: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btnText.innerHTML = '✦ Gerar com IA';
+  }
+}
+
+function populatePreview(s) {
+  // Campaign fields
+  document.getElementById('prev_camp_name').value = s.campaign.name || '';
+  document.getElementById('prev_camp_budget').value = s.campaign.daily_budget_brl || 50;
+  document.getElementById('prev_camp_objective').value = s.campaign.objective || 'OUTCOME_TRAFFIC';
+
+  // Adset fields
+  document.getElementById('prev_adset_name').value = s.adset.name || '';
+  document.getElementById('prev_adset_age_min').value = s.adset.age_min || 18;
+  document.getElementById('prev_adset_age_max').value = s.adset.age_max || 65;
+  document.getElementById('prev_adset_cities').value = (s.adset.cities || []).join(', ');
+  document.getElementById('prev_adset_interests').value = (s.adset.interests_keywords || []).join(', ');
+
+  // Creative fields
+  document.getElementById('prev_headline').value = s.creative.headline || '';
+  document.getElementById('prev_primary_text').value = s.creative.primary_text || '';
+  document.getElementById('prev_cta').value = s.creative.cta || 'LEARN_MORE';
+  document.getElementById('prev_image_prompt').textContent = s.creative.image_prompt || '';
+
+  // Explanation
+  document.getElementById('aiExplanation').textContent = '💡 ' + (s.explanation || '');
+}
+
+async function publishCampaign() {
+  const accountId = document.getElementById('accountSelect')?.value;
+  if (!accountId) { alert('Selecione uma conta de anúncios primeiro'); return; }
+
+  const btn = document.getElementById('publishBtn');
+  const btnText = document.getElementById('publishBtnText');
+  btn.disabled = true;
+
+  const post = async (action, payload) => {
+    const r = await fetch('/api/meta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, account_id: accountId.replace('act_',''), payload })
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) throw new Error(d.error || 'API error');
+    return d;
+  };
+
+  try {
+    // Step 1: Create Campaign
+    btnText.innerHTML = '📋 Criando campanha...';
+    const campResult = await post('create_campaign', {
+      name: document.getElementById('prev_camp_name').value,
+      objective: document.getElementById('prev_camp_objective').value,
+      daily_budget_brl: parseFloat(document.getElementById('prev_camp_budget').value) || 50,
+    });
+    const campaignId = campResult.campaign_id;
+
+    // Step 2: Create Ad Set
+    btnText.innerHTML = '👥 Criando conjunto...';
+    const adsetResult = await post('create_adset', {
+      name: document.getElementById('prev_adset_name').value,
+      campaign_id: campaignId,
+      daily_budget_brl: parseFloat(document.getElementById('prev_camp_budget').value) || 50,
+      age_min: parseInt(document.getElementById('prev_adset_age_min').value) || 18,
+      age_max: parseInt(document.getElementById('prev_adset_age_max').value) || 65,
+      optimization_goal: generatedStructure?.adset?.optimization_goal || 'LINK_CLICKS',
+    });
+    const adsetId = adsetResult.adset_id;
+
+    let imageHash = null;
+
+    // Step 3: Upload image (if selected)
+    const imgFile = document.getElementById('imageFileInput').files[0];
+    if (imgFile) {
+      btnText.innerHTML = '🖼️ Enviando imagem...';
+      const base64 = await fileToBase64(imgFile);
+      const imgResult = await post('upload_image', { bytes: base64 });
+      imageHash = imgResult.image_hash;
+    }
+
+    // Step 4: Create Creative (only if we have an image and a page)
+    let creativeId = null;
+    if (imageHash) {
+      btnText.innerHTML = '🎨 Criando criativo...';
+      // Get page ID
+      const pagesData = cachedPages.length ? { pages: cachedPages } : await post('get_pages', {});
+      cachedPages = pagesData.pages || [];
+      const pageId = cachedPages[0]?.id;
+      
+      if (pageId) {
+        const creativeResult = await post('create_creative', {
+          page_id: pageId,
+          image_hash: imageHash,
+          headline: document.getElementById('prev_headline').value,
+          primary_text: document.getElementById('prev_primary_text').value,
+          cta: document.getElementById('prev_cta').value,
+          name: document.getElementById('prev_camp_name').value,
+        });
+        creativeId = creativeResult.creative_id;
+      }
+    }
+
+    // Step 5: Create Ad (only if we have creative)
+    let adId = null;
+    if (creativeId) {
+      btnText.innerHTML = '📢 Criando anúncio...';
+      const adResult = await post('create_ad', {
+        name: document.getElementById('prev_headline').value || 'Anúncio',
+        adset_id: adsetId,
+        creative_id: creativeId,
+      });
+      adId = adResult.ad_id;
+    }
+
+    // Show success
+    document.getElementById('createStep2').style.display = 'none';
+    document.getElementById('createStep3').style.display = 'block';
+    document.getElementById('createdIds').innerHTML =
+      `Campaign ID: <b>${campaignId}</b><br>` +
+      `AdSet ID: <b>${adsetId}</b>` +
+      (adId ? `<br>Ad ID: <b>${adId}</b>` : '<br><span style="color:#f59e0b">⚠️ Criativo não criado — faça upload de uma imagem</span>');
+
+  } catch(e) {
+    alert('Erro ao criar campanha: ' + e.message);
+    btn.disabled = false;
+    btnText.innerHTML = '🚀 Criar Campanha (Pausada)';
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      // Remove data URL prefix, keep only base64
+      const base64 = e.target.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Close modal on backdrop click
+document.getElementById('createModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCreateModal();
+});
+</script>
 </body>
 </html>
