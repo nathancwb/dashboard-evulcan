@@ -98,9 +98,6 @@
   <!-- ROW 1: Logo + Account -->
   <div class="px-4 md:px-6 h-12 md:h-16 flex items-center gap-3 max-w-screen-2xl mx-auto relative">
     <div class="flex items-center gap-3 shrink-0 hover:scale-105 transition-transform cursor-pointer">
-      <div class="w-7 h-7 md:w-8 md:h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/30">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      </div>
       <span class="font-display font-medium text-[14px] md:text-[16px] text-white tracking-wide">Meta Ads</span>
       <span class="text-white/10 text-sm font-light">/</span>
       <span id="brandName" class="font-display text-[13px] md:text-[14px] text-slate-400 font-medium">Evulcan</span>
@@ -112,13 +109,13 @@
         class="text-xs md:text-sm text-slate-300 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 md:py-2 w-full max-w-[320px] outline-none min-w-0 focus:border-indigo-500/50 focus:bg-white/10 transition-colors shadow-inner shadow-black/20 appearance-none bg-no-repeat bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[position:right_10px_center] pr-8 cursor-pointer">
         <option value="" class="bg-slate-900">Carregando contas...</option>
       </select>
+      <!-- Status: dot with pulsing animation immediately after account selector -->
+      <div class="hidden md:flex items-center justify-center relative w-3 h-3 ml-1 group">
+        <span class="absolute inline-flex h-full w-full rounded-full bg-amber-500/40 opacity-75 animate-ping" id="connPing"></span>
+        <span id="connDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" title="Conectando..."></span>
+      </div>
+      <span id="connStatus" class="hidden text-xs text-slate-500 font-medium">Conectando...</span>
     </div>
-    <!-- Status: dot with pulsing animation -->
-    <div class="hidden md:flex items-center justify-center relative w-3 h-3 ml-2 group">
-      <span class="absolute inline-flex h-full w-full rounded-full bg-amber-500/40 opacity-75 animate-ping" id="connPing"></span>
-      <span id="connDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" title="Conectando..."></span>
-    </div>
-    <span id="connStatus" class="hidden text-xs text-slate-500 font-medium">Conectando...</span>
   </div>
 
   <!-- ROW 2: Periods + Refresh (mobile) / merged into row 1 on desktop -->
@@ -746,7 +743,7 @@ async function loadData() {
     lastSummary = data.summary;
 
     renderKPIs(lastSummary);
-    renderCampaigns(lastCampaigns);
+    renderTableData(lastCampaigns);
     renderAds(lastAds);
     renderChart(lastDaily);
     renderFunnel(lastSummary);
@@ -1055,11 +1052,16 @@ function setModel(model, btn) {
     renderFunnel(lastSummary);
   }
   if (lastDaily.length) renderChart(lastDaily);
-  if (lastCampaigns.length) renderCampaigns(lastCampaigns);
+  if (lastCampaigns.length) renderTableData(lastCampaigns);
   if (lastAds.length) renderAds(lastAds);
 }
 
 // ── HIERARCHY FILTER LOGIC ────────────────────────────────────────────────
+// Drill-down State
+let tableLevel = 'campaign'; // 'campaign' | 'adset' | 'ad'
+let currentCampId = null;
+let currentAdsetId = null;
+
 function applyHierarchy() {
   const cName  = document.getElementById('campFilter').value;
   const asName = document.getElementById('adsetFilter').value;
@@ -1082,30 +1084,53 @@ function applyHierarchy() {
   let newAdData   = lastAds;
 
   if (asId) {
-    if(asNode) { newSum = asNode.ins; newAdData = lastAds.filter(x => x.adset_id === asId); newCampData = []; }
+    if(asNode) { 
+      newSum = asNode.ins; 
+      newAdData = lastAds.filter(x => x.adset_id === asId); 
+      newCampData = [asNode]; 
+      tableLevel = 'adset';
+      currentAdsetId = asId;
+    }
   } else if (cId) {
-    if(cNode) { newSum = cNode.ins; newAdData = lastAds.filter(x => x.campaign_id === cId); newCampData = [cNode]; }
+    if(cNode) { 
+      newSum = cNode.ins; 
+      newAdData = lastAds.filter(x => x.campaign_id === cId); 
+      newCampData = [cNode]; 
+      tableLevel = 'campaign';
+      currentCampId = cId;
+    }
+  } else {
+    tableLevel = 'campaign';
+    currentCampId = null;
+    currentAdsetId = null;
   }
 
   lastSummary = newSum;
   renderKPIs(lastSummary);
   renderFunnel(lastSummary);
   renderAds(newAdData);
-  renderCampaigns(newCampData);
+  renderTableData(newCampData);
 }
 
 function clearAllFilters() {
   document.getElementById('campFilter').value  = '';
   document.getElementById('adsetFilter').value = '';
   lastSummary = glbSummary;
+  tableLevel = 'campaign';
+  currentCampId = null;
+  currentAdsetId = null;
   renderKPIs(glbSummary);
   renderFunnel(glbSummary);
   renderAds(lastAds);
-  renderCampaigns(lastCampaigns);
+  renderTableData(lastCampaigns);
 }
 
 function clearFilter(type) {
-  if (type === 'adset') {
+  if (type === 'camp') {
+    document.getElementById('campFilter').value = '';
+    document.getElementById('adsetFilter').value = '';
+    applyHierarchy();
+  } else if (type === 'adset') {
     document.getElementById('adsetFilter').value = '';
     applyHierarchy();
   }
@@ -1117,24 +1142,53 @@ function getAction(actions, key) {
   return 0;
 }
 
-// ── RENDER CAMPAIGNS (model-aware) ─────────────────────────────────────────
-function renderCampaigns(campaigns) {
-  lastCampaigns = campaigns;
+// ── DRILL-DOWN TABLE ────────────────────────────────────────────────────────
+function navDrillDown(level, id) {
+  // Chamada ao clicar na tabela
+  if (level === 'adset') {
+    tableLevel = 'adset';
+    currentCampId = id;
+    renderTableData(lastAdsets.filter(a => a.campaign_id === id));
+  } else if (level === 'ad') {
+    tableLevel = 'ad';
+    currentAdsetId = id;
+    renderTableData(lastAds.filter(a => a.adset_id === id));
+  } else if (level === 'campaign') {
+    tableLevel = 'campaign';
+    currentCampId = null;
+    currentAdsetId = null;
+    renderTableData(lastCampaigns);
+  } else if (level === 'back_to_adset' && currentCampId) { // volta de anúncios pro conjunto atual da campanha
+    tableLevel = 'adset';
+    currentAdsetId = null;
+    renderTableData(lastAdsets.filter(a => a.campaign_id === currentCampId));
+  }
+}
+
+function renderTableData(dataArr) {
   const el = document.getElementById('campTable');
-  const active = campaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0);
-  document.getElementById('campCount').textContent = active.length + ' de ' + campaigns.length;
+  const active = dataArr.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0);
+  
+  let labelTitle = 'Campanhas';
+  if (tableLevel === 'adset') labelTitle = 'Conjuntos de Anúncios';
+  if (tableLevel === 'ad') labelTitle = 'Anúncios da Tabela';
+
+  const countEl = document.getElementById('campCount');
+  if (countEl) countEl.textContent = active.length + ' de ' + dataArr.length;
+  // Muda o header title acima da tabela
+  const headerP = document.querySelector('#campCount').previousElementSibling;
+  if(headerP) headerP.textContent = labelTitle;
 
   if (!active.length) {
     el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:48px 20px">
       ${IC.empty}
-      <p style="font-size:13px;color:#333">Sem campanhas ativas no período</p>
-      <p style="font-size:11px;color:#2a2a2a">Tente um período mais longo</p>
+      <p style="font-size:13px;color:#333">Nenhum item ativo neste nível</p>
+      ${tableLevel !== 'campaign' ? `<button onclick="navDrillDown('campaign')" style="margin-top:10px;font-size:11px;color:#818cf8;background:transparent;border:none;cursor:pointer;text-decoration:underline">← Voltar Inicio</button>` : ''}
     </div>`;
     return;
   }
 
-  const objLabel = o => ({ OUTCOME_TRAFFIC:'Tráfego', OUTCOME_AWARENESS:'Alcance', OUTCOME_SALES:'Vendas', OUTCOME_LEADS:'Leads', OUTCOME_ENGAGEMENT:'Engajamento', OUTCOME_APP_PROMOTION:'App' }[o] || o || '—');
-  const thS = 'padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500';
+  const thS = 'padding:10px 16px;text-align:right;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#525252;font-weight:700';
   const tdS = 'padding:12px 16px;font-size:12px;text-align:right;font-variant-numeric:tabular-nums';
   const dash = '<span style="color:#2a2a2a">—</span>';
 
@@ -1169,28 +1223,48 @@ function renderCampaigns(campaigns) {
   };
   const m = models[currentModel];
 
+  // Identifica a ação de clique dacordo com o level atual
   const rows = active.map(c => {
     const ins = c.ins, st = c.effective_status;
     const badgeBg    = st==='ACTIVE'?'rgba(34,197,94,0.08)':st==='PAUSED'?'rgba(245,158,11,0.08)':'rgba(82,82,82,0.1)';
     const badgeColor = st==='ACTIVE'?'#22c55e':st==='PAUSED'?'#f59e0b':'#525252';
     const badgeBorder= st==='ACTIVE'?'rgba(34,197,94,0.2)':st==='PAUSED'?'rgba(245,158,11,0.2)':'rgba(82,82,82,0.2)';
     const stLabel    = st==='ACTIVE'?'Ativo':st==='PAUSED'?'Pausado':st||'—';
-    const name = c.name.length > 42 ? c.name.substring(0,42)+'\u2026' : c.name;
+    const name = c.name.length > 50 ? c.name.substring(0,50)+'\u2026' : c.name;
     const cols = m.fn(ins);
-    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)" onmouseover="this.style.background='rgba(255,255,255,0.015)'" onmouseout="this.style.background='transparent'">
-      <td style="padding:12px 22px;font-size:12px;color:#a3a3a3;max-width:220px" title="${c.name}">${name}</td>
+    
+    let onClickLogic = '';
+    let linkStyle = 'color:#a3a3a3';
+    if (tableLevel === 'campaign') {
+      onClickLogic = `onclick="navDrillDown('adset','${c.id}')"`;
+      linkStyle = 'color:#e2e8f0;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.1)';
+    } else if (tableLevel === 'adset') {
+      onClickLogic = `onclick="navDrillDown('ad','${c.id}')"`;
+      linkStyle = 'color:#e2e8f0;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.1)';
+    }
+
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04); transition: background 0.2s" class="hover:bg-white/[0.015]">
+      <td style="padding:12px 22px;font-size:12px;max-width:240px;${linkStyle}" title="${c.name}" ${onClickLogic}>${name}</td>
       <td style="padding:12px 10px"><span style="display:inline-flex;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder}">${stLabel}</span></td>
-      <td style="padding:12px 16px;font-size:12px;color:#e5e5e5;text-align:right;font-variant-numeric:tabular-nums">${brl(ins.spend)}</td>
+      <td style="padding:12px 16px;font-size:12px;color:#e5e5e5;text-align:right;font-variant-numeric:tabular-nums;font-weight:600">${brl(ins.spend)}</td>
       ${cols.join('')}
     </tr>`;
   }).join('');
 
-  el.innerHTML = `<div style="overflow-x:auto">
+  // Botão de navegação reversa (voltar)
+  let backRow = '';
+  if (tableLevel === 'adset') {
+    backRow = `<div class="bg-indigo-500/10 border-b border-indigo-500/20 px-6 py-2 text-xs text-indigo-300 font-medium flex items-center cursor-pointer hover:bg-indigo-500/20 transition-colors" onclick="navDrillDown('campaign')">← Voltar para Campanhas</div>`;
+  } else if (tableLevel === 'ad') {
+    backRow = `<div class="bg-indigo-500/10 border-b border-indigo-500/20 px-6 py-2 text-xs text-indigo-300 font-medium flex items-center cursor-pointer hover:bg-indigo-500/20 transition-colors" onclick="navDrillDown('back_to_adset')">← Voltar para Conjuntos (Campanha)</div>`;
+  }
+
+  el.innerHTML = `${backRow}<div style="overflow-x:auto">
   <table style="width:100%;border-collapse:collapse">
     <thead>
-      <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
-        <th style="padding:10px 22px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Campanha</th>
-        <th style="padding:10px 10px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#333;font-weight:500">Status</th>
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.1)">
+        <th style="padding:10px 22px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#525252;font-weight:700">Nome</th>
+        <th style="padding:10px 10px;text-align:left;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#525252;font-weight:700">Status</th>
         <th style="${thS}">Investido</th>
         ${m.headers.map(h=>`<th style="${thS}">${h}</th>`).join('')}
       </tr>
