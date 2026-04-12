@@ -547,6 +547,7 @@ function syncBothSelectValues(val) {
   const desk = document.getElementById('accountSelectDesktop');
   if (mob && mob.value !== val) mob.value = val;
   if (desk && desk.value !== val) desk.value = val;
+  localStorage.setItem('evulcan_last_account', val);
 }
 function _syncAccountDesktop_UNUSED(val) {
   document.getElementById('accountSelect').value = val;
@@ -648,6 +649,14 @@ async function loadAccounts() {
     // Sync desktop select
     const deskSel = document.getElementById('accountSelectDesktop');
     if (deskSel) deskSel.innerHTML = document.getElementById('accountSelect').innerHTML;
+    
+    // Check localStorage
+    const savedAcc = localStorage.getItem('evulcan_last_account');
+    if (savedAcc && sel.querySelector(`option[value="${savedAcc}"]`)) {
+      sel.value = savedAcc;
+      if (deskSel) deskSel.value = savedAcc;
+    }
+
     setConn(true, 'Conectado · ' + accounts.length + ' conta(s)');
   } catch(e) {
     setConn(false, e.message);
