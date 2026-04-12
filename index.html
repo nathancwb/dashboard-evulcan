@@ -339,14 +339,16 @@
               <div id="prev_image_prompt" style="margin-top:3px;background:rgba(99,102,241,0.05);border:1px solid rgba(99,102,241,0.15);border-radius:8px;padding:8px 10px;font-size:12px;color:#a5b4fc;font-style:italic;line-height:1.5"></div>
             </div>
             <div>
-              <label style="font-size:10px;color:#a3a3a3">Upload da imagem</label>
-              <div style="margin-top:3px;border:2px dashed rgba(255,255,255,0.1);border-radius:8px;padding:16px;text-align:center;cursor:pointer" onclick="document.getElementById('imageFileInput').click()">
+              <label style="font-size:10px;color:#60a5fa;font-weight:600;letter-spacing:0.05em;text-transform:uppercase">Integração com Servidor do Meta Ads (Obrigatório para o Anúncio)</label>
+              <div style="margin-top:4px;background:rgba(59,130,246,0.05);border:2px dashed rgba(59,130,246,0.3);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(59,130,246,0.1)'" onmouseout="this.style.background='rgba(59,130,246,0.05)'" onclick="document.getElementById('imageFileInput').click()">
                 <div id="imagePreviewContainer">
-                  <div style="font-size:20px">🖼️</div>
-                  <div style="font-size:11px;color:#a3a3a3;margin-top:4px">Clique para selecionar imagem</div>
-                  <div style="font-size:10px;color:#d4d4d4">JPG, PNG (recomendado: 1080x1080)</div>
+                  <div style="font-size:24px;color:#3b82f6;margin-bottom:8px">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  </div>
+                  <div style="font-size:12px;color:#93c5fd;font-weight:600">Upload de Arquivo Original</div>
+                  <div style="font-size:10px;color:#64748b;margin-top:2px">A imagem selecionada será enviada para o Meta Ads Builder e vinculada a esta campanha pronta para rodar.</div>
                 </div>
-                <img id="imagePreview" style="display:none;max-width:100%;border-radius:6px;max-height:160px;object-fit:cover">
+                <img id="imagePreview" style="display:none;max-width:100%;border-radius:8px;max-height:180px;object-fit:cover;margin:0 auto">
               </div>
               <input type="file" id="imageFileInput" accept="image/*" style="display:none" onchange="previewImage(this)">
             </div>
@@ -1526,10 +1528,14 @@ async function generateWithAI() {
   btnText.innerHTML = '⏳ Processando com IA...';
 
   try {
+    const accSelect = document.getElementById('accountSelect');
+    const accName = accSelect.options[accSelect.selectedIndex]?.text || '';
+    const enrichedPrompt = `[Contexto Oculto] O nome/ramo da conta atual no Meta Ads é: "${accName}". Analise as necessidades dessa marca. [Pedido do Usuário]: ${prompt}`;
+
     const resp = await fetch('/api/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt: enrichedPrompt })
     });
     const data = await resp.json();
 
