@@ -233,14 +233,14 @@
       <!-- Quick prompts -->
       <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px">
         <span style="font-size:11px;color:#a3a3a3">Atalhos:</span>
-        <button onclick="setPrompt('campanha de mensagens via WhatsApp para público amplo no Brasil, orçamento R$50/dia, produto/serviço local')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">💬 WhatsApp</button>
-        <button onclick="setPrompt('campanha de tráfego para gerar leads de qualidade, público 25-55 anos, orçamento R$80/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">🎯 Leads</button>
-        <button onclick="setPrompt('campanha de vendas para e-commerce com remarketing, público quente, orçamento R$150/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">🛒 Vendas</button>
-        <button onclick="setPrompt('campanha de awareness para aumentar alcance e reconhecimento de marca, orçamento R$60/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">📣 Alcance</button>
+        <button onclick="setPrompt('campanha de mensagens via WhatsApp para público amplo no Brasil, orçamento R$50/dia, produto/serviço local')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">WhatsApp</button>
+        <button onclick="setPrompt('campanha de tráfego para gerar leads de qualidade, público 25-55 anos, orçamento R$80/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">Leads</button>
+        <button onclick="setPrompt('campanha de vendas para e-commerce com remarketing, público quente, orçamento R$150/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">Vendas</button>
+        <button onclick="setPrompt('campanha de awareness para aumentar alcance e reconhecimento de marca, orçamento R$60/dia')" style="font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#d4d4d4;cursor:pointer">Alcance</button>
       </div>
 
       <button id="generateBtn" onclick="generateWithAI()" style="width:100%;margin-top:16px;padding:13px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
-        <span id="generateBtnText">✦ Gerar com IA</span>
+        <span id="generateBtnText">Gerar com IA</span>
       </button>
     </div>
 
@@ -358,14 +358,16 @@
 
       <!-- Publish button -->
       <button id="publishBtn" onclick="publishCampaign()" style="width:100%;margin-top:16px;padding:14px;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
-        <span id="publishBtnText">🚀 Criar Campanha (Pausada)</span>
+        <span id="publishBtnText">Criar Campanha (Pausada)</span>
       </button>
       <div style="text-align:center;font-size:10px;color:#a3a3a3;margin-top:8px">A campanha é criada pausada — você ativa quando quiser no Meta</div>
     </div>
 
     <!-- STEP 3: Success -->
     <div id="createStep3" style="display:none;padding:40px 24px;text-align:center">
-      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <div style="font-size:48px;margin-bottom:16px;color:#10b981">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
       <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:8px">Campanha criada com sucesso!</div>
       <div style="font-size:13px;color:#d4d4d4;margin-bottom:24px">Ela está pausada no Meta Ads. Ative quando estiver pronta.</div>
       <div id="createdIds" style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px;font-size:11px;color:#6ee7b7;text-align:left;margin-bottom:20px"></div>
@@ -1525,7 +1527,7 @@ async function generateWithAI() {
   const btn = document.getElementById('generateBtn');
   const btnText = document.getElementById('generateBtnText');
   btn.disabled = true;
-  btnText.innerHTML = '⏳ Processando com IA...';
+  btnText.innerHTML = 'Processando (IA)...';
 
   try {
     const accSelect = document.getElementById('accountSelect');
@@ -1558,7 +1560,7 @@ async function generateWithAI() {
     alert('Erro de conexão: ' + e.message);
   } finally {
     btn.disabled = false;
-    btnText.innerHTML = '✦ Gerar com IA';
+    btnText.innerHTML = 'Gerar com IA';
   }
 }
 
@@ -1582,7 +1584,7 @@ function populatePreview(s) {
   document.getElementById('prev_image_prompt').textContent = s.creative.image_prompt || '';
 
   // Explanation
-  document.getElementById('aiExplanation').textContent = '💡 ' + (s.explanation || '');
+  document.getElementById('aiExplanation').textContent = s.explanation || '';
 }
 
 async function publishCampaign() {
@@ -1606,7 +1608,7 @@ async function publishCampaign() {
 
   try {
     // Step 1: Create Campaign
-    btnText.innerHTML = '📋 Criando campanha...';
+    btnText.innerHTML = 'Criando campanha...';
     const campResult = await post('create_campaign', {
       name: document.getElementById('prev_camp_name').value,
       objective: document.getElementById('prev_camp_objective').value,
@@ -1615,7 +1617,7 @@ async function publishCampaign() {
     const campaignId = campResult.campaign_id;
 
     // Step 2: Create Ad Set
-    btnText.innerHTML = '👥 Criando conjunto...';
+    btnText.innerHTML = 'Criando conjunto...';
     const adsetResult = await post('create_adset', {
       name: document.getElementById('prev_adset_name').value,
       campaign_id: campaignId,
@@ -1631,7 +1633,7 @@ async function publishCampaign() {
     // Step 3: Upload image (if selected)
     const imgFile = document.getElementById('imageFileInput').files[0];
     if (imgFile) {
-      btnText.innerHTML = '🖼️ Enviando imagem...';
+      btnText.innerHTML = 'Enviando imagem...';
       const base64 = await fileToBase64(imgFile);
       const imgResult = await post('upload_image', { bytes: base64 });
       imageHash = imgResult.image_hash;
@@ -1640,7 +1642,7 @@ async function publishCampaign() {
     // Step 4: Create Creative (only if we have an image and a page)
     let creativeId = null;
     if (imageHash) {
-      btnText.innerHTML = '🎨 Criando criativo...';
+      btnText.innerHTML = 'Criando criativo...';
       // Get page ID
       const pagesData = cachedPages.length ? { pages: cachedPages } : await post('get_pages', {});
       cachedPages = pagesData.pages || [];
@@ -1662,7 +1664,7 @@ async function publishCampaign() {
     // Step 5: Create Ad (only if we have creative)
     let adId = null;
     if (creativeId) {
-      btnText.innerHTML = '📢 Criando anúncio...';
+      btnText.innerHTML = 'Criando anúncio...';
       const adResult = await post('create_ad', {
         name: document.getElementById('prev_headline').value || 'Anúncio',
         adset_id: adsetId,
@@ -1677,12 +1679,12 @@ async function publishCampaign() {
     document.getElementById('createdIds').innerHTML =
       `Campaign ID: <b>${campaignId}</b><br>` +
       `AdSet ID: <b>${adsetId}</b>` +
-      (adId ? `<br>Ad ID: <b>${adId}</b>` : '<br><span style="color:#f59e0b">⚠️ Criativo não criado — faça upload de uma imagem</span>');
+      (adId ? `<br>Ad ID: <b>${adId}</b>` : '<br><span style="color:#f59e0b">Atenção: Criativo não montado — faça o upload de uma imagem</span>');
 
   } catch(e) {
     alert('Erro ao criar campanha: ' + e.message);
     btn.disabled = false;
-    btnText.innerHTML = '🚀 Criar Campanha (Pausada)';
+    btnText.innerHTML = 'Criar Campanha (Pausada)';
   }
 }
 
