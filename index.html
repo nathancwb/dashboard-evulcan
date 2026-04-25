@@ -104,11 +104,21 @@
     </div>
     <div class="hidden md:block w-[1px] h-4 bg-white/10 mx-2"></div>
     <div id="accountSelectorWrap" class="flex items-center gap-3 min-w-0 flex-1">
-      <label class="hidden md:block text-[10px] tracking-widest uppercase text-slate-500 font-semibold whitespace-nowrap">Conta</label>
-      <select id="accountSelect" onchange="syncBothSelectValues(this.value);loadData()"
-        class="text-xs md:text-sm text-slate-300 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 md:py-2 w-full max-w-[320px] outline-none min-w-0 focus:border-indigo-500/50 focus:bg-white/10 transition-colors shadow-inner shadow-black/20 appearance-none bg-no-repeat bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpolyline points=%226 9 12 15 18 9%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[position:right_10px_center] pr-8 cursor-pointer">
-        <option value="" class="bg-slate-900">Carregando contas...</option>
-      </select>
+      <label class="hidden md:block text-[10px] tracking-widest uppercase text-slate-500 font-semibold whitespace-nowrap">Contas</label>
+      <div id="accountMultiSelect" class="relative min-w-0 flex-1 max-w-[320px]">
+        <button id="accountDropdownBtn" onclick="toggleAccountDropdown()" type="button"
+          class="text-xs md:text-sm text-slate-300 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 md:py-2 w-full outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-colors shadow-inner shadow-black/20 cursor-pointer flex items-center justify-between gap-2">
+          <span id="accountDropdownLabel" class="truncate text-left min-w-0">Carregando contas...</span>
+          <svg id="accountDropdownArrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="flex-shrink:0;transition:transform 0.2s"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="accountDropdownPanel" style="display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:100%;width:max-content;max-width:340px;background:#0d1526;border:1px solid rgba(255,255,255,0.1);border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,0.6);z-index:500;overflow:hidden">
+          <label id="checkAllLabel" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;color:#94a3b8;font-weight:600;user-select:none">
+            <input type="checkbox" id="checkAllAccounts" onchange="toggleAllAccounts(this.checked)" style="accent-color:#6366f1;width:14px;height:14px;cursor:pointer;flex-shrink:0">
+            Todas as contas
+          </label>
+          <div id="accountCheckboxList" style="max-height:220px;overflow-y:auto"></div>
+        </div>
+      </div>
       <!-- Status: dot with pulsing animation immediately after account selector -->
       <div class="hidden md:flex items-center justify-center relative w-3 h-3 ml-1 group">
         <span class="absolute inline-flex h-full w-full rounded-full bg-amber-500/40 opacity-75 animate-ping" id="connPing"></span>
@@ -495,13 +505,15 @@ const IC = {
 let currentPeriod = 'last_7d';
 let customSince = '', customUntil = '';
 let currentModel = 'distribuicao';
-let glbSummary = null; // Original unfiltered summary
-let lastSummary = null; // Filtered summary
+let glbSummary = null;
+let lastSummary = null;
 let lastCampaigns = [];
 let lastAdsets = [];
 let lastAds = [];
 let lastDaily = [];
 let lineChart, donutChart;
+let selectedAccountIds = [];
+let allAccountsData = [];
 
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 
@@ -536,31 +548,71 @@ function setPeriod(p, btn) {
   loadData();
 }
 
-function syncAccountDesktop(val) {
-  document.getElementById('accountSelect').value = val;
+// ── ACCOUNT MULTI-SELECT ──────────────────────────────────────────────────
+function toggleAccountDropdown() {
+  const panel = document.getElementById('accountDropdownPanel');
+  const arrow = document.getElementById('accountDropdownArrow');
+  const isOpen = panel.style.display !== 'none';
+  if (isOpen) {
+    panel.style.display = 'none';
+    if (arrow) arrow.style.transform = '';
+  } else {
+    panel.style.display = 'block';
+    if (arrow) arrow.style.transform = 'rotate(180deg)';
+  }
+}
+
+function closeAccountDropdown() {
+  const panel = document.getElementById('accountDropdownPanel');
+  const arrow = document.getElementById('accountDropdownArrow');
+  if (panel) panel.style.display = 'none';
+  if (arrow) arrow.style.transform = '';
+}
+
+function toggleAllAccounts(checked) {
+  selectedAccountIds = checked ? allAccountsData.map(a => a.id) : [];
+  document.querySelectorAll('.acc-checkbox').forEach(cb => cb.checked = checked);
+  updateDropdownLabel();
+  saveSelectedAccounts();
   loadData();
 }
-function populateBothSelects(options) {
-  const mob = document.getElementById('accountSelect');
-  const desk = document.getElementById('accountSelectDesktop');
-  if (mob) mob.innerHTML = options;
-  if (desk) desk.innerHTML = options;
+
+function toggleAccountCheckbox(id, checked) {
+  if (checked) {
+    if (!selectedAccountIds.includes(id)) selectedAccountIds.push(id);
+  } else {
+    selectedAccountIds = selectedAccountIds.filter(x => x !== id);
+  }
+  const allCheck = document.getElementById('checkAllAccounts');
+  if (allCheck) allCheck.checked = allAccountsData.length > 0 && selectedAccountIds.length === allAccountsData.length;
+  updateDropdownLabel();
+  saveSelectedAccounts();
+  loadData();
 }
+
+function updateDropdownLabel() {
+  const label = document.getElementById('accountDropdownLabel');
+  if (!label) return;
+  const n = selectedAccountIds.length;
+  const total = allAccountsData.length;
+  if (n === 0) {
+    label.textContent = 'Nenhuma conta';
+  } else if (n === total && total > 1) {
+    label.textContent = `Todas (${total})`;
+  } else if (n === 1) {
+    const acc = allAccountsData.find(a => a.id === selectedAccountIds[0]);
+    label.textContent = acc ? acc.name : selectedAccountIds[0];
+  } else {
+    label.textContent = `${n} contas`;
+  }
+}
+
+function saveSelectedAccounts() {
+  localStorage.setItem('evulcan_selected_accounts', JSON.stringify(selectedAccountIds));
+}
+
 function syncBothSelectValues(val) {
-  const mob = document.getElementById('accountSelect');
-  const desk = document.getElementById('accountSelectDesktop');
-  if (mob && mob.value !== val) mob.value = val;
-  if (desk && desk.value !== val) desk.value = val;
   localStorage.setItem('evulcan_last_account', val);
-}
-function _syncAccountDesktop_UNUSED(val) {
-  document.getElementById('accountSelect').value = val;
-  loadData();
-}
-function syncAccountMobile(val) {
-  const desk = document.getElementById('accountSelectDesktop');
-  if (desk) desk.value = val;
-  loadData();
 }
 function toggleCustomPicker(btn) {
   const isMob = window.innerWidth < 768;
@@ -628,112 +680,192 @@ function setConn(ok, msg) {
 async function loadAccounts() {
   try {
     const d = await api({ action: 'accounts' });
-    const sel = document.getElementById('accountSelect');
-    sel.innerHTML = '';
     const accounts = d.data || [];
-    if (!accounts.length) { sel.innerHTML = '<option value="">Nenhuma conta encontrada</option>'; return; }
+    allAccountsData = accounts.map(acc => ({ id: acc.id, name: acc.name }));
+
+    const list = document.getElementById('accountCheckboxList');
+    if (!list) return;
+
+    if (!accounts.length) {
+      list.innerHTML = '<div style="padding:10px 14px;font-size:12px;color:#525252">Nenhuma conta encontrada</div>';
+      return;
+    }
+
     const groups = {};
     for (const acc of accounts) {
       const g = acc.group || 'Pessoal';
       if (!groups[g]) groups[g] = [];
       groups[g].push(acc);
     }
+
     const multiGroup = Object.keys(groups).length > 1;
+    let html = '';
     for (const [grpName, accs] of Object.entries(groups)) {
-      const container = multiGroup ? document.createElement('optgroup') : sel;
-      if (multiGroup) container.label = grpName;
-      accs.forEach(acc => {
-        const opt = document.createElement('option');
-        opt.value = acc.id;
-        opt.textContent = acc.name + ' (' + acc.id + ')';
-        container.appendChild(opt);
-      });
-      if (multiGroup) sel.appendChild(container);
+      if (multiGroup) {
+        html += `<div style="padding:6px 14px 2px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#475569;font-weight:600">${grpName}</div>`;
+      }
+      for (const acc of accs) {
+        html += `<label style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;font-size:12px;color:#cbd5e1;user-select:none"
+          onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''">
+          <input type="checkbox" class="acc-checkbox" value="${acc.id}"
+            onchange="toggleAccountCheckbox('${acc.id}', this.checked)"
+            style="accent-color:#6366f1;width:14px;height:14px;cursor:pointer;flex-shrink:0">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${acc.name}</span>
+        </label>`;
+      }
     }
-    // Sync desktop select
-    const deskSel = document.getElementById('accountSelectDesktop');
-    if (deskSel) deskSel.innerHTML = document.getElementById('accountSelect').innerHTML;
-    
-    // Check localStorage
-    const savedAcc = localStorage.getItem('evulcan_last_account');
-    if (savedAcc && sel.querySelector(`option[value="${savedAcc}"]`)) {
-      sel.value = savedAcc;
-      if (deskSel) deskSel.value = savedAcc;
+    list.innerHTML = html;
+
+    // Restore from localStorage
+    const saved = localStorage.getItem('evulcan_selected_accounts');
+    if (saved) {
+      try {
+        const savedIds = JSON.parse(saved);
+        selectedAccountIds = savedIds.filter(id => allAccountsData.some(a => a.id === id));
+      } catch(e) {}
     }
+    // Fallback: legacy single account key
+    if (selectedAccountIds.length === 0) {
+      const legacyId = localStorage.getItem('evulcan_last_account');
+      if (legacyId && allAccountsData.some(a => a.id === legacyId)) selectedAccountIds = [legacyId];
+    }
+    // Default: select all
+    if (selectedAccountIds.length === 0 && allAccountsData.length > 0) {
+      selectedAccountIds = allAccountsData.map(a => a.id);
+    }
+
+    document.querySelectorAll('.acc-checkbox').forEach(cb => { cb.checked = selectedAccountIds.includes(cb.value); });
+    const allCheck = document.getElementById('checkAllAccounts');
+    if (allCheck) allCheck.checked = selectedAccountIds.length === allAccountsData.length;
+    updateDropdownLabel();
 
     setConn(true, 'Conectado · ' + accounts.length + ' conta(s)');
   } catch(e) {
     setConn(false, e.message);
-    document.getElementById('accountSelect').innerHTML = '<option value="">Erro ao carregar contas</option>';
+    const label = document.getElementById('accountDropdownLabel');
+    if (label) label.textContent = 'Erro ao carregar contas';
   }
+}
+
+// ── AGGREGATE (multi-account) ──────────────────────────────────────────────
+function aggregateResults(results) {
+  if (results.length === 1) return results[0];
+  const merged = {
+    summary: {}, daily: [], campaigns: [], adsets: [], ads: [], video_data: [],
+    account_info: null, ig_follower_growth: 0, ig_followers_total: 0
+  };
+  let totalSpend = 0, totalImp = 0, totalClicks = 0, totalReach = 0;
+  const actionsMap = {};
+  const dailyMap = {};
+  let firstSummary = true;
+
+  for (const data of results) {
+    const s = data.summary || {};
+    totalSpend  += parseFloat(s.spend       || 0);
+    totalImp    += parseInt (s.impressions  || 0);
+    totalClicks += parseInt (s.clicks       || 0);
+    totalReach  += parseInt (s.reach        || 0);
+
+    for (const a of (s.actions || [])) {
+      actionsMap[a.action_type] = (actionsMap[a.action_type] || 0) + parseInt(a.value || 0);
+    }
+    if (firstSummary) { Object.assign(merged.summary, s); firstSummary = false; }
+
+    for (const day of (data.daily || [])) {
+      const key = day.date_start || day.date || '';
+      if (!dailyMap[key]) {
+        dailyMap[key] = { ...day };
+      } else {
+        const e = dailyMap[key];
+        e.spend       = (parseFloat(e.spend       || 0) + parseFloat(day.spend       || 0)).toFixed(2);
+        e.impressions = String(parseInt(e.impressions || 0) + parseInt(day.impressions || 0));
+        e.clicks      = String(parseInt(e.clicks      || 0) + parseInt(day.clicks      || 0));
+        e.reach       = String(parseInt(e.reach       || 0) + parseInt(day.reach       || 0));
+      }
+    }
+
+    merged.campaigns .push(...(data.campaigns  || []));
+    merged.adsets    .push(...(data.adsets     || []));
+    merged.ads       .push(...(data.ads        || []));
+    merged.video_data.push(...(data.video_data || []));
+    if (data.ig_follower_growth != null) merged.ig_follower_growth += (data.ig_follower_growth || 0);
+    merged.ig_followers_total += (data.ig_followers_total || 0);
+  }
+
+  merged.summary.spend       = totalSpend.toFixed(2);
+  merged.summary.impressions = String(totalImp);
+  merged.summary.clicks      = String(totalClicks);
+  merged.summary.reach       = String(totalReach);
+  merged.summary.cpm         = totalImp    > 0 ? ((totalSpend / totalImp)   * 1000).toFixed(2) : '0';
+  merged.summary.ctr         = totalImp    > 0 ? ((totalClicks / totalImp)  * 100) .toFixed(2) : '0';
+  merged.summary.cpc         = totalClicks > 0 ? ( totalSpend / totalClicks)       .toFixed(2) : '0';
+  merged.summary.actions     = Object.entries(actionsMap).map(([action_type, value]) => ({ action_type, value: String(value) }));
+  merged.daily = Object.values(dailyMap).sort((a, b) => (a.date_start || a.date || '').localeCompare(b.date_start || b.date || ''));
+
+  return merged;
 }
 
 // ── LOAD DATA ──────────────────────────────────────────────────────────────
 async function loadData() {
-  const accountId = document.getElementById('accountSelect').value;
-  if (!accountId) return;
+  if (!selectedAccountIds.length) return;
   setLoading(true);
+  const isMulti = selectedAccountIds.length > 1;
   try {
-    const params = { account_id: accountId, period: currentPeriod };
-    if (currentPeriod === 'custom' && customSince && customUntil) {
-      params.since = customSince;
-      params.until = customUntil;
+    let data;
+    if (!isMulti) {
+      const params = { account_id: selectedAccountIds[0], period: currentPeriod };
+      if (currentPeriod === 'custom' && customSince && customUntil) { params.since = customSince; params.until = customUntil; }
+      data = await api(params);
+    } else {
+      const results = await Promise.all(selectedAccountIds.map(accountId => {
+        const params = { account_id: accountId, period: currentPeriod };
+        if (currentPeriod === 'custom' && customSince && customUntil) { params.since = customSince; params.until = customUntil; }
+        return api(params).catch(() => null);
+      }));
+      data = aggregateResults(results.filter(Boolean));
     }
-    const data = await api(params);
-    const sortByActivity = arr => arr.sort((a,b) => {
-      const aVal = (a.ins && a.ins.spend) ? parseFloat(a.ins.spend) : 0;
-      const bVal = (b.ins && b.ins.spend) ? parseFloat(b.ins.spend) : 0;
-      return bVal - aVal;
-    });
 
-    if (data.account_info) {
+    const sortByActivity = arr => arr.sort((a, b) => parseFloat((b.ins||{}).spend||0) - parseFloat((a.ins||{}).spend||0));
+
+    // Balance — only for single account
+    const balRow = document.getElementById('accBalanceRow');
+    if (!isMulti && data.account_info) {
       const info = data.account_info;
       const cur = info.currency || 'BRL';
       const amountSpent = parseFloat(info.amount_spent || 0) / 100;
-      const spendCap    = parseFloat(info.spend_cap   || 0) / 100;
-      const fundingType = info.funding_source_details?.type;
-      const isCreditCard = fundingType === 1;
-
-      const balRow   = document.getElementById('accBalanceRow');
+      const spendCap    = parseFloat(info.spend_cap    || 0) / 100;
+      const isCreditCard = info.funding_source_details?.type === 1;
       const balVal   = document.getElementById('accBalanceVal');
       const balLabel = document.getElementById('accBalanceLabel');
       const balBadge = document.getElementById('accBalanceBadge');
-
       if (isCreditCard) {
-        // Credit card: just show the badge, no amount (we don't have credit limit from API)
-        balLabel.textContent = 'Conta';
-        balVal.textContent   = '';
+        balLabel.textContent = 'Conta'; balVal.textContent = '';
         if (balBadge) balBadge.style.display = 'inline';
+        balRow.style.display = 'flex';
       } else if (spendCap > 0) {
-        // Prepaid with spend cap: available = cap - spent
         const available = spendCap - amountSpent;
         balLabel.textContent = 'Disponível';
-        balVal.textContent   = available.toLocaleString('pt-BR', {style:'currency', currency: cur});
+        balVal.textContent   = available.toLocaleString('pt-BR', { style: 'currency', currency: cur });
         balVal.style.color   = available > 0 ? '#22c55e' : '#ef4444';
         if (balBadge) balBadge.style.display = 'none';
+        balRow.style.display = 'flex';
       } else {
-        // No spend cap info — hide entirely, nothing useful to show
         balRow.style.display = 'none';
-        return;
       }
-      balRow.style.display = 'flex';
     } else {
-      document.getElementById('accBalanceRow').style.display = 'none';
+      balRow.style.display = 'none';
     }
 
-    lastDaily = data.daily || [];
+    lastDaily     = data.daily     || [];
     lastCampaigns = sortByActivity(data.campaigns || []);
-    lastAdsets = sortByActivity(data.adsets || []);
-    lastAds = sortByActivity(data.ads || []);
-    
-    // Only show campaigns/adsets that had activity in this period
+    lastAdsets    = sortByActivity(data.adsets    || []);
+    lastAds       = sortByActivity(data.ads       || []);
+
     const activeCamps  = lastCampaigns.filter(c => c.ins && parseInt(c.ins.impressions||0) > 0);
     const activeAdsets = lastAdsets.filter(a => a.ins && parseInt(a.ins.impressions||0) > 0);
-
-    document.getElementById('campList').innerHTML  = activeCamps.map(c  => `<option value="${c.name}"></option>`).join('');
+    document.getElementById('campList') .innerHTML = activeCamps .map(c => `<option value="${c.name}"></option>`).join('');
     document.getElementById('adsetList').innerHTML = activeAdsets.map(a => `<option value="${a.name}"></option>`).join('');
 
-    // Aggregate video metrics from dedicated backend video_data (level=campaign query)
     if (!data.summary) data.summary = {};
     const videoFieldNames = ['video_play_actions','video_p25_watched_actions','video_p50_watched_actions','video_p75_watched_actions','video_p95_watched_actions','video_p100_watched_actions'];
     const videoRows = data.video_data || [];
@@ -741,18 +873,16 @@ async function loadData() {
       videoFieldNames.forEach(field => {
         const total = videoRows.reduce((acc, row) => {
           const arr = row[field];
-          // action_type is always "video_view" inside these arrays — read value directly
           return acc + (arr && arr[0] ? parseInt(arr[0].value || 0) : 0);
         }, 0);
         if (total > 0) data.summary[field] = [{ action_type: field, value: String(total) }];
       });
     }
 
-    // Inject IG follower data into summary for renderKPIs access
-    data.summary.ig_follower_growth = data.ig_follower_growth;   // net growth in period (null if no permission)
-    data.summary.ig_followers_total = data.ig_followers_total || 0; // current total
+    data.summary.ig_follower_growth = data.ig_follower_growth;
+    data.summary.ig_followers_total = data.ig_followers_total || 0;
 
-    glbSummary = data.summary;
+    glbSummary  = data.summary;
     lastSummary = data.summary;
 
     renderKPIs(lastSummary);
@@ -762,8 +892,13 @@ async function loadData() {
     renderFunnel(lastSummary);
     renderDonut(data.campaigns || []);
     document.getElementById('footerTs').textContent = 'Atualizado ' + new Date().toLocaleString('pt-BR');
-    const name = document.getElementById('accountSelect').selectedOptions[0]?.text?.split('(')[0]?.trim() || accountId;
-    setConn(true, name);
+
+    if (!isMulti) {
+      const accName = allAccountsData.find(a => a.id === selectedAccountIds[0])?.name || selectedAccountIds[0];
+      setConn(true, accName);
+    } else {
+      setConn(true, `${selectedAccountIds.length} contas`);
+    }
   } catch(e) {
     setConn(false, e.message);
     showError(e.message);
@@ -1445,8 +1580,10 @@ function showError(msg) {
       document.getElementById('brandName').style.color = '#3b82f6';
       document.getElementById('brandName').style.fontWeight = '500';
     }
-    // Mock the drop-down and skip loadAccounts
-    document.getElementById('accountSelect').innerHTML = `<option value="${clientId}">${clientName||clientId}</option>`;
+    // Set single account directly, skip loadAccounts
+    allAccountsData = [{ id: clientId, name: clientName || clientId }];
+    selectedAccountIds = [clientId];
+    updateDropdownLabel();
     await loadData();
   } else {
     // AGENCY MODE
@@ -1482,6 +1619,14 @@ let generatedStructure = null; // stores AI response
 let cachedPages = [];          // stores FB pages for creative
 
 function openCreateModal() {
+  if (selectedAccountIds.length === 0) {
+    alert('Selecione uma conta antes de criar uma campanha.');
+    return;
+  }
+  if (selectedAccountIds.length > 1) {
+    alert('Para criar uma campanha, selecione apenas uma conta no seletor de contas.');
+    return;
+  }
   document.getElementById('createModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
   document.getElementById('createStep1').style.display = 'block';
@@ -1530,8 +1675,7 @@ async function generateWithAI() {
   btnText.innerHTML = 'Processando (IA)...';
 
   try {
-    const accSelect = document.getElementById('accountSelect');
-    const accName = accSelect.options[accSelect.selectedIndex]?.text || '';
+    const accName = allAccountsData.find(a => a.id === selectedAccountIds[0])?.name || '';
     const enrichedPrompt = `[Contexto Oculto] O nome/ramo da conta atual no Meta Ads é: "${accName}". Analise as necessidades dessa marca. [Pedido do Usuário]: ${prompt}`;
 
     const resp = await fetch('/api/ai', {
@@ -1588,7 +1732,7 @@ function populatePreview(s) {
 }
 
 async function publishCampaign() {
-  const accountId = document.getElementById('accountSelect')?.value;
+  const accountId = selectedAccountIds[0];
   if (!accountId) { alert('Selecione uma conta de anúncios primeiro'); return; }
 
   const btn = document.getElementById('publishBtn');
@@ -1704,6 +1848,12 @@ function fileToBase64(file) {
 // Close modal on backdrop click
 document.getElementById('createModal').addEventListener('click', function(e) {
   if (e.target === this) closeCreateModal();
+});
+
+// Close account dropdown when clicking outside
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('accountMultiSelect');
+  if (wrap && !wrap.contains(e.target)) closeAccountDropdown();
 });
 </script>
 </body>
