@@ -196,19 +196,6 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>
-    <!-- OBJECTIVE FILTER -->
-    <div class="relative shrink-0">
-      <select id="objectiveFilter" onchange="setObjectiveFilter(this.value)"
-        style="appearance:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:99px;padding:4px 28px 4px 12px;font-size:11px;color:#94a3b8;outline:none;cursor:pointer;font-family:inherit;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 8px center">
-        <option value="">Objetivo</option>
-        <option value="OUTCOME_TRAFFIC">Tráfego</option>
-        <option value="OUTCOME_LEADS">Leads</option>
-        <option value="OUTCOME_ENGAGEMENT">Engajamento</option>
-        <option value="OUTCOME_SALES">Vendas</option>
-        <option value="OUTCOME_AWARENESS">Alcance</option>
-        <option value="OUTCOME_APP_PROMOTION">App</option>
-      </select>
-    </div>
     <div class="flex-1"></div>
     <!-- BALANCE -->
     <div id="accBalanceRow" class="hidden items-center gap-1.5 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1 whitespace-nowrap shrink-0">
@@ -451,6 +438,16 @@
           <p class="text-[10px] tracking-widest uppercase text-slate-500 font-semibold">Campanhas</p>
           <span id="campCount" class="text-xs text-slate-400 font-mono"></span>
         </div>
+        <select id="objectiveFilter" onchange="setObjectiveFilter(this.value)"
+          style="appearance:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px 28px 4px 10px;font-size:11px;color:#64748b;outline:none;cursor:pointer;font-family:inherit;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2364748b%22 stroke-width=%222%22%3E%3Cpolyline points=%226 9 12 15 18 9%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center">
+          <option value="">Todos os objetivos</option>
+          <option value="OUTCOME_TRAFFIC">Tráfego</option>
+          <option value="OUTCOME_LEADS">Leads</option>
+          <option value="OUTCOME_ENGAGEMENT">Engajamento</option>
+          <option value="OUTCOME_SALES">Vendas</option>
+          <option value="OUTCOME_AWARENESS">Alcance</option>
+          <option value="OUTCOME_APP_PROMOTION">App</option>
+        </select>
       </div>
       <div id="campTable">
         <div class="p-5 flex flex-col gap-3">
@@ -549,6 +546,30 @@ const OBJ_MAP = {
 function setObjectiveFilter(val) {
   currentObjectiveFilter = val;
   applyHierarchy();
+}
+
+function buildSummaryFromCampaigns(camps) {
+  let spend = 0, imp = 0, clk = 0, reach = 0;
+  const actionsMap = {}, actionValuesMap = {};
+  for (const c of camps) {
+    const ins = c.ins || {};
+    spend += parseFloat(ins.spend       || 0);
+    imp   += parseInt (ins.impressions  || 0);
+    clk   += parseInt (ins.clicks       || 0);
+    reach += parseInt (ins.reach        || 0);
+    for (const a of (ins.actions       || [])) actionsMap      [a.action_type] = (actionsMap      [a.action_type] || 0) + parseInt (a.value || 0);
+    for (const a of (ins.action_values || [])) actionValuesMap [a.action_type] = (actionValuesMap [a.action_type] || 0) + parseFloat(a.value || 0);
+  }
+  return {
+    spend: spend.toFixed(2), impressions: String(imp), clicks: String(clk), reach: String(reach),
+    cpm:       imp > 0 ? ((spend / imp)  * 1000).toFixed(2) : '0',
+    ctr:       imp > 0 ? ((clk   / imp)  * 100) .toFixed(2) : '0',
+    cpc:       clk > 0 ? ( spend / clk)         .toFixed(2) : '0',
+    frequency: reach > 0 ? (imp   / reach)       .toFixed(2) : '0',
+    actions:      Object.entries(actionsMap)      .map(([at, v]) => ({ action_type: at, value: String(v) })),
+    action_values:Object.entries(actionValuesMap) .map(([at, v]) => ({ action_type: at, value: String(v) })),
+    ig_follower_growth: null, ig_followers_total: 0,
+  };
 }
 
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
@@ -1294,9 +1315,10 @@ function applyHierarchy() {
     currentAdsetId = null;
   }
 
-  // Apply objective filter at campaign level
+  // Apply objective filter at campaign level — also rebuilds KPIs from filtered campaigns
   if (currentObjectiveFilter && tableLevel === 'campaign') {
     newCampData = newCampData.filter(c => c.objective === currentObjectiveFilter);
+    newSum = buildSummaryFromCampaigns(newCampData);
   }
 
   lastSummary = newSum;
