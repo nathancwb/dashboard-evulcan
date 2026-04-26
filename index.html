@@ -1297,19 +1297,23 @@ function navDrillDown(level, id) {
     tableLevel = 'adset';
     currentCampId = id;
     renderTableData(lastAdsets.filter(a => a.campaign_id === id));
+    renderAds(lastAds.filter(a => a.campaign_id === id));
   } else if (level === 'ad') {
     tableLevel = 'ad';
     currentAdsetId = id;
     renderTableData(lastAds.filter(a => a.adset_id === id));
+    renderAds(lastAds.filter(a => a.adset_id === id));
   } else if (level === 'campaign') {
     tableLevel = 'campaign';
     currentCampId = null;
     currentAdsetId = null;
     renderTableData(lastCampaigns);
-  } else if (level === 'back_to_adset' && currentCampId) { // volta de anúncios pro conjunto atual da campanha
+    renderAds(lastAds);
+  } else if (level === 'back_to_adset' && currentCampId) {
     tableLevel = 'adset';
     currentAdsetId = null;
     renderTableData(lastAdsets.filter(a => a.campaign_id === currentCampId));
+    renderAds(lastAds.filter(a => a.campaign_id === currentCampId));
   }
 }
 
