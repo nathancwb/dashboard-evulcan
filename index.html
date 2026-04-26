@@ -903,9 +903,10 @@ async function loadData() {
     const balRow = document.getElementById('accBalanceRow');
     if (!isMulti && data.account_info) {
       const info = data.account_info;
-      const cur = info.currency || 'BRL';
+      const cur         = info.currency || 'BRL';
       const amountSpent = parseFloat(info.amount_spent || 0) / 100;
       const spendCap    = parseFloat(info.spend_cap    || 0) / 100;
+      const balance     = parseFloat(info.balance      || 0) / 100;
       const isCreditCard = info.funding_source_details?.type === 1;
       const balVal   = document.getElementById('accBalanceVal');
       const balLabel = document.getElementById('accBalanceLabel');
@@ -915,10 +916,18 @@ async function loadData() {
         if (balBadge) balBadge.style.display = 'inline';
         balRow.style.display = 'flex';
       } else if (spendCap > 0) {
+        // Conta com teto de gasto: disponível = teto - gasto
         const available = spendCap - amountSpent;
         balLabel.textContent = 'Disponível';
         balVal.textContent   = available.toLocaleString('pt-BR', { style: 'currency', currency: cur });
         balVal.style.color   = available > 0 ? '#22c55e' : '#ef4444';
+        if (balBadge) balBadge.style.display = 'none';
+        balRow.style.display = 'flex';
+      } else if (balance > 0) {
+        // Conta pré-paga sem teto: usa o campo balance diretamente
+        balLabel.textContent = 'Disponível';
+        balVal.textContent   = balance.toLocaleString('pt-BR', { style: 'currency', currency: cur });
+        balVal.style.color   = '#22c55e';
         if (balBadge) balBadge.style.display = 'none';
         balRow.style.display = 'flex';
       } else {
@@ -1056,7 +1065,7 @@ function renderKPIs(s) {
     ];
   } else if (currentModel === 'compras') {
     const purch = getAction(s.actions, 'purchase');
-    const ptc = getAction(s.actions, 'add_to_cart');
+    const ptc = getCartAction(s.actions);
     const pVal = (s.action_values||[]).find(a=>a.action_type==='purchase');
     const rev = pVal ? parseFloat(pVal.value) : 0;
     const roas = spend > 0 ? (rev/spend).toFixed(2)+'\u00d7' : '—';
@@ -1202,7 +1211,7 @@ function renderFunnel(s) {
     if(titleEl) titleEl.textContent = 'Funil de E-commerce';
     const imp = parseInt(s.impressions||0);
     const clk = parseInt(s.clicks||0);
-    const cart = getAction(s.actions, 'add_to_cart');
+    const cart = getCartAction(s.actions);
     const ic = getAction(s.actions, 'initiate_checkout');
     const pur = getAction(s.actions, 'purchase');
     
@@ -1368,6 +1377,17 @@ function getAction(actions, key) {
   if (!actions) return 0;
   for (const a of actions) { if (a.action_type && a.action_type.includes(key)) return parseInt(a.value||0); }
   return 0;
+}
+
+function getCartAction(actions) {
+  if (!actions) return 0;
+  // omni_add_to_cart = total cross-channel (web + app + offline); prefer over web-only add_to_cart
+  const omni = actions.find(a => a.action_type === 'omni_add_to_cart');
+  if (omni) return parseInt(omni.value || 0);
+  const web  = actions.find(a => a.action_type === 'add_to_cart');
+  if (web)  return parseInt(web.value  || 0);
+  // fallback: any variant containing add_to_cart
+  return getAction(actions, 'add_to_cart');
 }
 
 // ── DRILL-DOWN TABLE ────────────────────────────────────────────────────────
