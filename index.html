@@ -1383,13 +1383,27 @@ function getAction(actions, key) {
 
 function getCartAction(actions) {
   if (!actions) return 0;
-  // omni_add_to_cart = total cross-channel (web + app + offline); prefer over web-only add_to_cart
-  const omni = actions.find(a => a.action_type === 'omni_add_to_cart');
-  if (omni) return parseInt(omni.value || 0);
-  const web  = actions.find(a => a.action_type === 'add_to_cart');
-  if (web)  return parseInt(web.value  || 0);
-  // fallback: any variant containing add_to_cart
-  return getAction(actions, 'add_to_cart');
+  // All known Meta API action_type variants for "Add to Cart"
+  const cartTypes = [
+    'omni_add_to_cart',                           // cross-channel total (preferred)
+    'add_to_cart',                                // web pixel
+    'offsite_conversion.fb_pixel_add_to_cart',    // legacy pixel format
+    'app_custom_event.fb_mobile_add_to_cart',     // mobile app
+    'onsite_conversion.add_to_cart',              // in-app / shops
+  ];
+  for (const t of cartTypes) {
+    const found = actions.find(a => a.action_type === t);
+    if (found) {
+      const v = parseInt(found.value || 0);
+      if (v > 0) return v;
+    }
+  }
+  // Generic fallback: any action_type containing "add_to_cart"
+  const generic = actions.find(a => a.action_type && a.action_type.includes('add_to_cart') && parseInt(a.value) > 0);
+  if (generic) return parseInt(generic.value || 0);
+  // Debug: log all available action types so the issue can be diagnosed in console
+  console.log('[Evulcan] cart não encontrado. Actions disponíveis:', actions.map(a => a.action_type + ':' + a.value).join(' | '));
+  return 0;
 }
 
 // ── DRILL-DOWN TABLE ────────────────────────────────────────────────────────
