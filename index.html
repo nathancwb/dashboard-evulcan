@@ -1078,7 +1078,7 @@ function renderKPIs(s) {
       card('ROAS Geral', roas, IC.roas, roasColor),
       card('Compras', num(purch), IC.users, '#e5e5e5'),
       card('Custo p/ Compra', purch>0?brl(spend/purch):'—', IC.cpc, '#e5e5e5'),
-      card('Add ao Carrinho', num(ptc), IC.clicks, '#e5e5e5')
+      ...(ptc > 0 ? [card('Add ao Carrinho', num(ptc), IC.clicks, '#e5e5e5')] : [])
     ];
   } else if (currentModel === 'mensagens') {
     const msgs = getAction(s.actions,'messaging_conversation_started') + getAction(s.actions,'onsite_conversion.messaging_conversation_started_7d');
@@ -1217,11 +1217,13 @@ function renderFunnel(s) {
     const ic = getAction(s.actions, 'initiate_checkout');
     const pur = getAction(s.actions, 'purchase');
     
+    // Se cart=0 mas checkout>0, o pixel não rastreia add_to_cart — omitir o passo
+    const cartTracked = cart > 0 || ic === 0;
     steps = [
       { label: 'Cliques',   val: clk, pct: ptc(clk, imp) },
-      { label: 'Cart',      val: cart, pct: ptc(cart, clk) + cpa(cart) },
-      { label: 'Checkout',  val: ic, pct: ptc(ic, cart) + cpa(ic) },
-      { label: 'Compras',   val: pur, pct: ptc(pur, ic) + cpa(pur) }
+      ...(cartTracked ? [{ label: 'Cart', val: cart, pct: ptc(cart, clk) + cpa(cart) }] : []),
+      { label: 'Checkout',  val: ic,   pct: ptc(ic, cartTracked ? cart : clk) + cpa(ic) },
+      { label: 'Compras',   val: pur,  pct: ptc(pur, ic) + cpa(pur) }
     ];
   } else if (currentModel === 'leads') {
     if(titleEl) titleEl.textContent = 'Funil de Captação';
